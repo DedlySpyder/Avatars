@@ -1,0 +1,6 @@
+--require("")
+require("gui")
+require("prototypes.entities")
+require("prototypes.items")
+require("prototypes.recipes")
+require("styles.styles")
