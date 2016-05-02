@@ -14,42 +14,54 @@ data:extend(
   },
   {
     type = "font",
-    name = "font-label-center",
+    name = "font-table",
     from = "default",
     align = "center",
 	size = 16
   }
 })
 
-data.raw["gui-style"].default["avatar_table"] =
-{
-    type = "table_style",
-	font = "font-label-center",
-    minimal_height = 100,
-    cell_padding = 2,
-    horizontal_spacing=4,
-    vertical_spacing=0,
-	align = "center",
-	text_align = "center",
-    column_graphical_set =
-    {
-        type = "composition",
-        filename = "__core__/graphics/gui.png",
-        priority = "extra-high-no-scale",
-        corner_size = {3, 3},
-        position = {8, 0}
-    }
-}
-
-data.raw["gui-style"].default["avatar_label_center"] =
+--General style for the table's labels
+data.raw["gui-style"].default["avatar_table_general"] =
 {
 	type = "label_style",
-	font = "font-label-center",
+	font = "font-table",
 	align = "center",
 	text_align = "center"
 }
 
-data.raw["gui-style"].default["avatar_button_rename"] =
+--Header for the Avatar Name column **This may throw off localized versions**
+data.raw["gui-style"].default["avatar_table_header_avatar_name"] =
+{
+	type = "label_style",
+	font = "font-table",
+	align = "center",
+	text_align = "center",
+	left_padding = table_avatar_name_header_left_padding
+}
+
+--Label for the individual names
+--This stops the label from pushing the rename button under the other columns
+--Name Length is approximately 30 before it runs under other elements
+data.raw["gui-style"].default["avatar_table_label_avatar_name"] =
+{
+	type = "label_style",
+	font = "font-table",
+	width = table_avatar_name_labels_width
+}
+
+--Configures the entire Avatar Name column 
+data.raw["gui-style"].default["avatar_table_avatar_name_frame"] =
+{
+    type = "frame_style",
+    parent = "frame_style",
+	font = "font-table",
+    width = table_avatar_name_column_width,
+	align = "center"
+}
+
+--Rename button
+data.raw["gui-style"].default["avatar_table_button_rename"] =
 {
     type = "button_style",
     parent = "button_style",
@@ -62,7 +74,7 @@ data.raw["gui-style"].default["avatar_button_rename"] =
 	default_graphical_set = {
       type = "monolith",
       monolith_image = {
-         filename = "__Avatars__/graphics/gui-rename.png",
+         filename = "__Avatars__/graphics/gui/gui-rename.png",
          width = 22,
          height = 22
       }
@@ -70,7 +82,7 @@ data.raw["gui-style"].default["avatar_button_rename"] =
    hovered_graphical_set = {
       type = "monolith",
       monolith_image = {
-         filename = "__Avatars__/graphics/gui-rename-hover.png",
+         filename = "__Avatars__/graphics/gui/gui-rename-hover.png",
          width = 22,
          height = 22
       }
@@ -78,27 +90,29 @@ data.raw["gui-style"].default["avatar_button_rename"] =
    clicked_graphical_set = {
       type = "monolith",
       monolith_image = {
-         filename = "__Avatars__/graphics/gui-rename-clicked.png",
+         filename = "__Avatars__/graphics/gui/gui-rename-clicked.png",
          width = 22,
          height = 22
       }
    }
 }
 
-data.raw["gui-style"].default["avatar_button_control"] =
+--Control button
+data.raw["gui-style"].default["avatar_table_button_control"] =
 {
     type = "button_style",
     parent = "button_style",
 	font = "font-button-control",
     width = 100,
-    height = 24,
+    height = 25,
     top_padding = 0,
     right_padding = 0,
     bottom_padding = 0,
     left_padding = 0
 }
 
-data.raw["gui-style"].default["avatar_button_change_page"] =
+--Change page button
+data.raw["gui-style"].default["avatar_table_button_change_page"] =
 {
     type = "button_style",
     parent = "button_style",
@@ -109,4 +123,12 @@ data.raw["gui-style"].default["avatar_button_change_page"] =
     right_padding = 0,
     bottom_padding = 0,
     left_padding = 0
+}
+
+--Total avatars footer
+data.raw["gui-style"].default["avatar_table_total_avatars"] =
+{
+	type = "label_style",
+	font = "font-table",
+	left_padding = 5
 }
