@@ -22,4 +22,4 @@ default_avatar_name = "Avatar #"
 avatarTint = {r = 188, g = 198, b = 204, a = 1.0}
 
 --DEBUG MODE
-debug_mode = true
+debug_mode = false
