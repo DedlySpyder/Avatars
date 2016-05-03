@@ -4,8 +4,9 @@ require "config"
 
 --Dev notes
 --GUI interfaces
---drawSelectionGUI(player, pageNumber), updateSelectionGUI(player), destroySelectionGUI(player)
---drawRenameGUI(player, name), updateRenameGUI(player, name), destroyRenameGUI(player)
+--drawSelectionGUI(player, pageNumber), updateSelectionGUI(player, allPlayersBool) this bool is a flag for who to update, destroySelectionGUI(player)
+--drawRenameGUI(player, name), updateRenameGUI(player, oldName, newName), destroyRenameGUI(player)
+--drawRenameGUI(player, name), updateRenameGUI(player, oldName, newName), destroyRenameGUI(player)
 --drawDisconnectGUI(player), destroyDisconnectGUI(player)
 --destroyAllGUI(player)
 
@@ -18,7 +19,7 @@ function driving(event)
 		drawSelectionGUI(player, 1)
 		debugLog("Getting in")
 	else 
-		destroySelectionGUI(player)
+		destroyAllGUI(player)
 		debugLog("Getting out")
 	end
 end
@@ -38,7 +39,7 @@ function checkGUI(event)
 		if (avatarCount(player) > page*table_avatars_per_page) then
 			drawSelectionGUI(player, page+1)
 			if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
-				updateRenameGUI(player, nil)
+				destroyRenameGUI(player)
 			end
 		end
 		return
@@ -50,7 +51,7 @@ function checkGUI(event)
 		if (page > 1) then
 			drawSelectionGUI(player, page-1)
 			if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
-				updateRenameGUI(player, nil)
+				destroyRenameGUI(player, nil)
 			end
 		end
 		return
@@ -143,18 +144,17 @@ function changeAvatarNameSubmit(player)
 			--Final check and set
 			if flag then
 				renamedAvatar.name = newName
-				destroyRenameGUI(player)
-				updateSelectionGUI(player)
+				updateRenameGUI(player, oldName, newName)
 			else
 				--Name in use
 				player.print{"Avatars-error-name-in-use"}
-				updateRenameGUI(player, oldName)
+				updateRenameGUI(player, oldName, nil)
 				player.gui.center.changeNameFrame.newNameField.text = newName
 			end
 		else
 			--Blank text field
-			game.player.print{"Avatars-error-blank-name"}
-			updateRenameGUI(player, oldName)
+			player.print{"Avatars-error-blank-name"}
+			updateRenameGUI(player, oldName, nil)
 		end
 	end
 end
@@ -164,7 +164,7 @@ function gainAvatarControl(event, name)
 	debugLog("Gaining control of "..name)
 	
 	local player = game.get_player(event.player_index)
-	local playerData = getPlayerData(player) --{player=nil, realBody=nil, currentAvatar=nil, lastBodySwap=nil}
+	local playerData = getPlayerData(player) --{player=nil, realBody=nil, currentAvatar=nil, currentAvatarName=nil, lastBodySwap=nil}
 		
     -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
     if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > event.tick) then return end
@@ -184,16 +184,22 @@ function gainAvatarControl(event, name)
 		if (avatar.name == name) then
 			debugLog(avatar.name.." found")
 			
+			local owner = nil
 			--Make sure no one else is controlling it
-			for _, player in ipairs(global.avatarPlayerData) do
-				if (player.currentAvatar == avatar.avatarEntity) then
-					player.print{"Avatars-error-already-controlled"}
-					return
+			for _, players in ipairs(global.avatarPlayerData) do
+				if (players.currentAvatar == avatar.avatarEntity) then
+					owner = players.player.name
+					break
 				end
 			end
 			
+			if (owner ~= nil) then
+				player.print{"Avatars-error-already-controlled", owner}
+				return
+			end
 			--Give it to the player
 			playerData.currentAvatar = avatar.avatarEntity
+			playerData.currentAvatarName = avatar.name
 			break
 		end
 	end
@@ -220,12 +226,21 @@ function loseAvatarControl(event, player)
     if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > event.tick) then return end
     playerData.lastBodySwap = event.tick
 	
+	--Check for the avatarEntity to exist or not
+	--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
+	for _, avatar in ipairs(global.avatars) do
+		if (avatar.name == playerData.currentAvatarName) then
+			avatar.avatarEntity = player.character
+		end
+	end
+	
 	--Give back the player's body
 	player.character = playerData.realBody
 	
 	--Clear the table
 	playerData.realBody = nil
 	playerData.currentAvatar = nil
+	playerData.currentAvatarName = nil
 	
 	--GUI clean up
 	destroyDisconnectGUI(player)
@@ -247,7 +262,7 @@ function getPlayerData(player)
 	
 	--Add to the table when necessary
 	debugLog(player.name.." was added to the table")
-	local playerData = {player=player, realBody=nil, currentAvatar=nil, lastBodySwap=nil}
+	local playerData = {player=player, realBody=nil, currentAvatar=nil, currentAvatarName=nil, lastBodySwap=nil}
 	
 	table.insert(global.avatarPlayerData, playerData)
 	debugLog("Players is PlayerData:"..#global.avatarPlayerData)
@@ -280,6 +295,7 @@ function entityBuilt(event)
 			local name = avatar.name
 			local namePrefix = string.sub(name, 1, defaultStringLength)
 			if (namePrefix == default_avatar_name) then lastNameInTable = name end --If a sort function is added, this will need to sort first
+			debugLog(lastNameInTable)
 		end
 
 		--Find out if it is higher than the total number of avatars
@@ -287,16 +303,15 @@ function entityBuilt(event)
 		local currentIncrement = #global.avatars
 		if (lastNameInTable ~= nil) then
 			local lastIncrement = tonumber(string.sub(lastNameInTable, defaultStringLength+1, #lastNameInTable))
-			
+			debugLog(lastIncrement)
 			--Determine the increment to use
-			if (lastIncrement > currentIncrement) then currentIncrement = lastIncrement + 1 end
+			if (lastIncrement >= currentIncrement) then currentIncrement = lastIncrement + 1 end
 		end
 		
 		--Inser the new avatar to the table
 		table.insert(global.avatars, {avatarEntity=entity, name=default_avatar_name..currentIncrement})
 		debugLog("new avatar: " .. #global.avatars .. ", " .. global.avatars[#global.avatars].name)
 	end
-	
 end
 
 script.on_event(defines.events.on_robot_built_entity, entityBuilt)
@@ -338,7 +353,7 @@ function entityDestroyed(event)
 		if (playerDataTable ~= nil) then
 			for _, playerData in ipairs(playerDataTable) do
 				if (playerData.currentAvatar == entity) then
-					--Stop a game over screen
+					--Stop a game over screen --Will need added functionality for 0.13 to support MP properly
 					game.set_game_state{game_finished=false}
 					player = playerData.player
 					
@@ -408,7 +423,34 @@ end
 
 
 --Remote Calls
-
+--Sometimes remote calls don't want to work, not sure the issue
+-- /c remote.call("Ava", "manualSwapBack") --This currently doesn't work :S
+remote.add_interface("Ava", {
+	manualSwapBack = function()
+		player = game.player
+		local positionX = player.character.position.x
+		local positionY = player.character.position.y
+		
+		local playerData = getPlayerData(player)
+		--Check for the avatarEntity to exist or not
+		--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
+		for _, avatar in ipairs(global.avatars) do
+			if (avatar.name == playerData.currentAvatarName) then
+				avatar.avatarEntity = player.character
+			end
+		end
+		--Give back the player's body
+		player.character = playerData.realBody
+		
+		--Clear the table
+		playerData.realBody = nil
+		playerData.currentAvatar = nil
+		playerData.currentAvatarName = nil
+		
+		--GUI clean up
+		destroyAllGUI(player)
+	end
+})
 
 --LAST DITCH EFFORT
 --Only use this is your body was destroyed somehow and you can't reload a save (this will create a new body)

@@ -16,7 +16,7 @@ function drawSelectionGUI(player, pageNumber)
 	--Columns in the table
 	numberFrame = avatarTable.add{type="frame", name="numberFrame", direction="vertical"}
 	nameFrame = avatarTable.add{type="frame", name="nameFrame", direction="vertical", style="avatar_table_avatar_name_frame"}
-	locationFrame = avatarTable.add{type="frame", name="locationFrame", direction="vertical"}
+	locationFrame = avatarTable.add{type="frame", name="locationFrame", direction="vertical", style="avatar_table_avatar_location_frame"}
 	controlFrame = avatarTable.add{type="frame", name="controlFrame", direction="vertical"}
 	
 	--Column headers
@@ -24,8 +24,8 @@ function drawSelectionGUI(player, pageNumber)
 	numberFrame.add{type="label", caption="-", style="avatar_table_general"}
 	nameFrame.add{type="label", caption={"Avatars-table-avatar-name-header"}, style="avatar_table_header_avatar_name"}
 	nameFrame.add{type="label", caption="-------------------------------------", style="avatar_table_general"}
-	locationFrame.add{type="label", caption={"Avatars-table-avatar-location-header"}, style="avatar_table_general"}
-	locationFrame.add{type="label", caption="---------------", style="avatar_table_general"}
+	locationFrame.add{type="label", caption={"Avatars-table-avatar-location-header"}, style="avatar_table_label_avatar_location"}
+	locationFrame.add{type="label", caption="-----------------", style="avatar_table_label_avatar_location"}
 	controlFrame.add{type="label", caption={"Avatars-table-control-header"}, style="avatar_table_general"}
 	controlFrame.add{type="label", caption="--------------", style="avatar_table_general"}
 	
@@ -46,30 +46,39 @@ function drawSelectionGUI(player, pageNumber)
 		for _, avatar in ipairs(global.avatars) do
 			if (avatar == nil) then break end
 			--Make sure the avatar is in the same force
-			if (avatar.avatarEntity.force.name == player.force.name) then
-				--Add it to the count
-				totalAvatars = totalAvatars + 1
-				--Make sure the avatar should be on this page, and that the page isn't full
-				if (row >= firstItem) and (row <= lastItem) and (itemsDisplayed <= table_avatars_per_page) then
-					numberFrame.add{type="label", caption=row, style="avatar_table_general"}
-					nameRow = nameFrame.add{type="flow", direction="horizontal"}
-					nameRow.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
-					nameRow.add{type="button", name="avatar_rnam_"..avatar.name, style="avatar_table_button_rename"} --button name "rnam_"
-					locationFrame.add{type="label", caption=printPosition(avatar.avatarEntity), style="avatar_table_general"}
-					controlFrame.add{type="button", name="avatar_ctrl_"..avatar.name, caption={"Avatars-table-control-button"}, style="avatar_table_button_control"} -- button name "ctrl_"
-					
-					itemsDisplayed = itemsDisplayed + 1
+			local avatarEntity = avatar.avatarEntity
+			if (avatarEntity ~= nil and avatarEntity.valid) then
+				if (avatarEntity.force.name == player.force.name) then
+					--Add it to the count
+					totalAvatars = totalAvatars + 1
+					--Make sure the avatar should be on this page, and that the page isn't full
+					if (row >= firstItem) and (row <= lastItem) and (itemsDisplayed <= table_avatars_per_page) then
+						numberFrame.add{type="label", caption=row, style="avatar_table_general"}
+						nameRow = nameFrame.add{type="flow", direction="horizontal"}
+						nameRow.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
+						nameRow.add{type="button", name="avatar_rnam_"..avatar.name, style="avatar_table_button_rename"} --button name "rnam_"
+						locationFrame.add{type="label", caption=printPosition(avatarEntity), style="avatar_table_label_avatar_location"}
+						controlFrame.add{type="button", name="avatar_ctrl_"..avatar.name, caption={"Avatars-table-control-button"}, style="avatar_table_button_control"} -- button name "ctrl_"
+						
+						itemsDisplayed = itemsDisplayed + 1
+					end
 				end
+				row = row + 1
 			end
-			row = row + 1
 		end
 		
 		--Footer
-		if (totalAvatars > table_avatars_per_page)then
+		local footFlag = (totalAvatars > table_avatars_per_page)
+		if footFlag then
 			selectionFrame.add{type="button", name="pageBack", caption="<", style="avatar_table_button_change_page"}
-			selectionFrame.add{type="label", name="pageNumber", caption=pageNumber, style="avatar_table_general"}
+		end
+		
+		selectionFrame.add{type="label", name="pageNumber", caption=pageNumber, style="avatar_table_general"}
+		
+		if footFlag then
 			selectionFrame.add{type="button", name="pageForward", caption=">", style="avatar_table_button_change_page"}
 		end
+		
 		selectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
 	end
 end
@@ -81,17 +90,33 @@ function printPosition(entity)
 end
 
 --Update Selection GUI
-function updateSelectionGUI(player)
-	local selectionFrame = player.gui.center.selectionFrame
+function updateSelectionGUI(player, allPlayersBool)
+	
 	local pageNumber
 	
 	--pageNumber only exists if there are multiple pages
+	local selectionFrame = player.gui.center.selectionFrame
 	if (selectionFrame.pageNumber ~= nil and selectionFrame.pageNumber.valid) then
 		pageNumber = tonumber(selectionFrame.pageNumber.caption)
 	else
 		pageNumber = 1
 	end
-	drawSelectionGUI(player, pageNumber)
+	
+	--Update all players, if needed
+	if allPlayersBool then
+		for _, players in ipairs(game.players) do
+		players.print("Foreach")
+			local playersSelectionFrame = players.gui.center.selectionFrame
+			if (playersSelectionFrame ~= nil and playersSelectionFrame.valid) then
+				currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption)
+				if (pageNumber == currentPageNumber) then
+					drawSelectionGUI(players, pageNumber)
+				end
+			end
+		end
+	else
+		drawSelectionGUI(player, pageNumber)
+	end
 end
 
 --Destroy Selection GUI
@@ -122,24 +147,33 @@ function drawRenameGUI(player, name)
 end
 
 --Update Rename GUI
-function updateRenameGUI(player, name)
-	updateSelectionGUI(player)
-	--Check if a name was given
-	if (name ~= nil) then
-		drawRenameGUI(player, name)
-	else
-		--If not, find the old name
-		local currentName = player.gui.center.changeNameFrame.currentNameFlow.currentName
-		if (currentName ~= nil and currentName.valid) then
-			local oldName = currentName.caption
-			drawRenameGUI(player, oldName)
+function updateRenameGUI(player, oldName, newName)
+	--Check if a name change occured
+	if (newName ~= nil) then
+		updateSelectionGUI(player, true)
+		for _, players in ipairs(game.players) do
+			local changeNameFrame = players.gui.center.changeNameFrame
+			if (changeNameFrame ~= nil and changeNameFrame.valid) then
+				local currentTextField = changeNameFrame.newNameField.text
+				if (changeNameFrame.currentNameFlow.currentName.caption == oldName) then
+					drawRenameGUI(players, newName)
+				else
+					local currentName = changeNameFrame.currentNameFlow.currentName.caption
+					drawRenameGUI(players, currentName)
+				end
+				players.gui.center.changeNameFrame.newNameField.text = currentTextField
+			end
 		end
+	else
+		--If not, update with the old name
+		updateSelectionGUI(player, false)
+		drawRenameGUI(player, oldName)
 	end
 end
 
 --Destroy Rename GUI
 function destroyRenameGUI(player)
-	if (player.gui.center.changeNameFrame ~= nil and player.gui.center.selectionFrame.valid) then
+	if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
 		player.gui.center.changeNameFrame.destroy()
 	end 
 end
@@ -162,4 +196,5 @@ end
 function destroyAllGUI(player)
 	destroySelectionGUI(player)
 	destroyRenameGUI(player)
+	destroyDisconnectGUI(player)
 end

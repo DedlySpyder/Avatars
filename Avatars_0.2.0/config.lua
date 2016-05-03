@@ -7,6 +7,10 @@ table_avatar_name_column_width = 300
 --This needs to be 50 less than the total column width
 table_avatar_name_labels_width = 250
 
+--Width of the Avatar Location column and labels
+table_avatar_location_column_width = 150
+table_avatar_location_labels_width = 140
+
 --This is how many avatars are shown per page
 table_avatars_per_page = 10
 

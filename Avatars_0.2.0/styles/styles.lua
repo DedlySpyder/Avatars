@@ -60,6 +60,24 @@ data.raw["gui-style"].default["avatar_table_avatar_name_frame"] =
 	align = "center"
 }
 
+--Label for the locations
+data.raw["gui-style"].default["avatar_table_label_avatar_location"] =
+{
+	type = "label_style",
+	font = "font-table",
+	width = table_avatar_location_labels_width
+}
+
+--Configures the entire Avatar Location column 
+data.raw["gui-style"].default["avatar_table_avatar_location_frame"] =
+{
+    type = "frame_style",
+    parent = "frame_style",
+	font = "font-table",
+    width = table_avatar_location_column_width,
+	align = "center"
+}
+
 --Rename button
 data.raw["gui-style"].default["avatar_table_button_rename"] =
 {

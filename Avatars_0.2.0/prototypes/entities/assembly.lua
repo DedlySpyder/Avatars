@@ -56,7 +56,7 @@ data:extend({
     },
     collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
-    --fast_replaceable_group = "assembling-machine",
+    fast_replaceable_group = "assembling-machine",
     animation =
     {
 	  layers =
