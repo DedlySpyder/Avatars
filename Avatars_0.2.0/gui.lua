@@ -68,17 +68,22 @@ function drawSelectionGUI(player, pageNumber)
 		end
 		
 		--Footer
-		local footFlag = (totalAvatars > table_avatars_per_page)
-		if footFlag then
+		local footerFlag = (totalAvatars > table_avatars_per_page)
+		
+		--Page Back
+		if footerFlag then
 			selectionFrame.add{type="button", name="pageBack", caption="<", style="avatar_table_button_change_page"}
 		end
 		
+		--Page Number
 		selectionFrame.add{type="label", name="pageNumber", caption=pageNumber, style="avatar_table_general"}
 		
-		if footFlag then
+		--Page Forward
+		if footerFlag then
 			selectionFrame.add{type="button", name="pageForward", caption=">", style="avatar_table_button_change_page"}
 		end
 		
+		--Avatar Total
 		selectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
 	end
 end
@@ -102,10 +107,9 @@ function updateSelectionGUI(player, allPlayersBool)
 		pageNumber = 1
 	end
 	
-	--Update all players, if needed
+	--If bool, then update each players table, if it is open and on the same page as the triggering player
 	if allPlayersBool then
 		for _, players in ipairs(game.players) do
-		players.print("Foreach")
 			local playersSelectionFrame = players.gui.center.selectionFrame
 			if (playersSelectionFrame ~= nil and playersSelectionFrame.valid) then
 				currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption)
@@ -115,6 +119,7 @@ function updateSelectionGUI(player, allPlayersBool)
 			end
 		end
 	else
+		--Otherwise, just update the current player
 		drawSelectionGUI(player, pageNumber)
 	end
 end
@@ -150,17 +155,25 @@ end
 function updateRenameGUI(player, oldName, newName)
 	--Check if a name change occured
 	if (newName ~= nil) then
+		--Update Selection GUI first, to maintain order
 		updateSelectionGUI(player, true)
+		
+		--Update Rename GUI for each player
 		for _, players in ipairs(game.players) do
 			local changeNameFrame = players.gui.center.changeNameFrame
 			if (changeNameFrame ~= nil and changeNameFrame.valid) then
+				--Perserve the textfield
 				local currentTextField = changeNameFrame.newNameField.text
+				
+				--Check for each player
 				if (changeNameFrame.currentNameFlow.currentName.caption == oldName) then
 					drawRenameGUI(players, newName)
 				else
 					local currentName = changeNameFrame.currentNameFlow.currentName.caption
 					drawRenameGUI(players, currentName)
 				end
+				
+				--Put back the textfield
 				players.gui.center.changeNameFrame.newNameField.text = currentTextField
 			end
 		end
