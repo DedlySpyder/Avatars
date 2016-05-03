@@ -162,7 +162,7 @@ function updateRenameGUI(player, oldName, newName)
 		for _, players in ipairs(game.players) do
 			local changeNameFrame = players.gui.center.changeNameFrame
 			if (changeNameFrame ~= nil and changeNameFrame.valid) then
-				--Perserve the textfield
+				--Perserve the text in the textfield
 				local currentTextField = changeNameFrame.newNameField.text
 				
 				--Check for each player
@@ -173,7 +173,7 @@ function updateRenameGUI(player, oldName, newName)
 					drawRenameGUI(players, currentName)
 				end
 				
-				--Put back the textfield
+				--Put back the text in the textfield
 				players.gui.center.changeNameFrame.newNameField.text = currentTextField
 			end
 		end

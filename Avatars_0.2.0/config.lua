@@ -24,7 +24,7 @@ avatarTint = {r = 188, g = 198, b = 204, a = 1.0}
 --This may need changed if translated to other languages
 --If the translated header runs off the column, then lower this
 --Requires a full game restart when changed
-table_avatar_name_header_left_padding = 40 
+table_avatar_name_header_left_padding = 100
 
 --DEBUG MODE
 debug_mode = false

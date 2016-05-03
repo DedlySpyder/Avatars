@@ -99,6 +99,7 @@ function checkGUI(event)
 	end
 end
 
+--Counts the number of avatars in the same force as the player
 function avatarCount(player)
 	local totalAvatars = 0
 	for _, avatar in ipairs(global.avatars) do
@@ -423,8 +424,8 @@ end
 
 
 --Remote Calls
---Sometimes remote calls don't want to work, not sure the issue
--- /c remote.call("Ava", "manualSwapBack") --This currently doesn't work :S
+--Sometimes remote calls don't want to work, not sure why
+-- /c remote.call("Ava", "manualSwapBack")
 remote.add_interface("Ava", {
 	manualSwapBack = function()
 		player = game.player
