@@ -1,0 +1,9 @@
+{
+  "name": "Avatars",
+  "version": "0.2.1",
+  "title": "Avatars",
+  "author": "DedlySpyder",
+  "contact": "DedlySpyder@gmail.com",
+  "homepage": "",
+  "description": "This mod allows players to create and remotely control Avatars. Avatars act like players, with a few minor exceptions (they do not heal, but they can be repaired). The mod also includes a few custom entities to control and create the Avatars, and uses a complete item chain to produce the Avatars."
+}
