@@ -19,7 +19,8 @@ function driving(event)
 		drawSelectionGUI(player, 1)
 		debugLog("Getting in")
 	else 
-		destroyAllGUI(player)
+		destroySelectionGUI(player)
+		destroyRenameGUI(player)
 		debugLog("Getting out")
 	end
 end
