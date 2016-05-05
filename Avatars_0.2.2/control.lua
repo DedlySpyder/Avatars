@@ -287,33 +287,38 @@ function entityBuilt(event)
 	
 	--Add avatars to the table
 	if (entity.name == "avatar") then
-		global.avatars = doesAvatarTableExistOrCreate(global.avatars)
-		
-		local defaultStringLength = #default_avatar_name
-		local lastNameInTable = nil
-		
-		--Find the last name that has a default name
-		for _, avatar in ipairs(global.avatars) do
-			local name = avatar.name
-			local namePrefix = string.sub(name, 1, defaultStringLength)
-			if (namePrefix == default_avatar_name) then lastNameInTable = name end --If a sort function is added, this will need to sort first
-			debugLog(lastNameInTable)
-		end
-
-		--Find out if it is higher than the total number of avatars
-		--This is caused when one is destroyed
-		local currentIncrement = #global.avatars
-		if (lastNameInTable ~= nil) then
-			local lastIncrement = tonumber(string.sub(lastNameInTable, defaultStringLength+1, #lastNameInTable))
-			debugLog(lastIncrement)
-			--Determine the increment to use
-			if (lastIncrement >= currentIncrement) then currentIncrement = lastIncrement + 1 end
-		end
-		
-		--Inser the new avatar to the table
-		table.insert(global.avatars, {avatarEntity=entity, name=default_avatar_name..currentIncrement})
-		debugLog("new avatar: " .. #global.avatars .. ", " .. global.avatars[#global.avatars].name)
+		addAvatarToTable(entity)
 	end
+end
+
+--Add the avatar to the table
+function addAvatarToTable(entity)
+	global.avatars = doesAvatarTableExistOrCreate(global.avatars)
+		
+	local defaultStringLength = #default_avatar_name
+	local lastNameInTable = nil
+	
+	--Find the last name that has a default name
+	for _, avatar in ipairs(global.avatars) do
+		local name = avatar.name
+		local namePrefix = string.sub(name, 1, defaultStringLength)
+		if (namePrefix == default_avatar_name) then lastNameInTable = name end --If a sort function is added, this will need to sort first
+		debugLog(lastNameInTable)
+	end
+
+	--Find out if it is higher than the total number of avatars
+	--This is caused when one is destroyed
+	local currentIncrement = #global.avatars
+	if (lastNameInTable ~= nil) then
+		local lastIncrement = tonumber(string.sub(lastNameInTable, defaultStringLength+1, #lastNameInTable))
+		debugLog(lastIncrement)
+		--Determine the increment to use
+		if (lastIncrement >= currentIncrement) then currentIncrement = lastIncrement + 1 end
+	end
+	
+	--Inser the new avatar to the table
+	table.insert(global.avatars, {avatarEntity=entity, name=default_avatar_name..currentIncrement})
+	debugLog("new avatar: " .. #global.avatars .. ", " .. global.avatars[#global.avatars].name)
 end
 
 script.on_event(defines.events.on_robot_built_entity, entityBuilt)
@@ -425,39 +430,54 @@ end
 
 
 --Remote Calls
---Sometimes remote calls don't want to work, not sure why
--- /c remote.call("Ava", "manualSwapBack")
-remote.add_interface("Ava", {
-	manualSwapBack = function()
-		player = game.player
-		local positionX = player.character.position.x
-		local positionY = player.character.position.y
-		
-		local playerData = getPlayerData(player)
-		--Check for the avatarEntity to exist or not
-		--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
-		for _, avatar in ipairs(global.avatars) do
-			if (avatar.name == playerData.currentAvatarName) then
-				avatar.avatarEntity = player.character
+--Mod Interfaces
+
+--remote.call("Avatars_avatar_placement", "addAvatar", arg)
+remote.add_interface("Avatars_avatar_placement", {
+	addAvatar = function(entity)
+		if (entity ~= nil and entity.valid) then
+			if (entity.name == "avatar") then
+				addAvatarToTable(entity)
 			end
 		end
-		--Give back the player's body
-		player.character = playerData.realBody
-		
-		--Clear the table
-		playerData.realBody = nil
-		playerData.currentAvatar = nil
-		playerData.currentAvatarName = nil
-		
-		--GUI clean up
-		destroyAllGUI(player)
+	end
+})
+
+--User Commands
+--Sometimes remote calls don't want to work, not sure why
+-- /c remote.call("AvatarsSwap", "manualSwapBack")
+remote.add_interface("AvatarsSwap", {
+	manualSwapBack = function()
+		player = game.player
+		if (player.character.name ~= "player") then
+			local playerData = getPlayerData(player)
+			--Check for the avatarEntity to exist or not
+			--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
+			for _, avatar in ipairs(global.avatars) do
+				if (avatar.name == playerData.currentAvatarName) then
+					avatar.avatarEntity = player.character
+				end
+			end
+			--Give back the player's body
+			player.character = playerData.realBody
+			
+			--Clear the table
+			playerData.realBody = nil
+			playerData.currentAvatar = nil
+			playerData.currentAvatarName = nil
+			
+			--GUI clean up
+			destroyAllGUI(player)
+		else
+			player.print{"avatar-remote-call-in-your-body"}
+		end
 	end
 })
 
 --LAST DITCH EFFORT
 --Only use this is your body was destroyed somehow and you can't reload a save (this will create a new body)
--- /c remote.call("Ava", "createNewBody")
-remote.add_interface("Ava", {
+-- /c remote.call("AvatarsLastResort", "createNewBody")
+remote.add_interface("AvatarsLastResort", {
 	createNewBody = function()
 		player = game.player
 		if (player.character.name ~= "player") then
