@@ -224,6 +224,13 @@ function loseAvatarControl(event, player)
 	
 	local playerData = getPlayerData(player)
 	
+	--Test to make sure that player is controlling an avatar
+	--Otherwise there are issues with other control changing mods
+	if (player.character.name ~= "avatar") then
+		player.print{"Avatars-error-cannot-disconnect-from-nonavatar"}
+		return
+	end
+	
 	-- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
     if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > event.tick) then return end
     playerData.lastBodySwap = event.tick
