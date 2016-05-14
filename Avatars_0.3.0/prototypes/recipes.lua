@@ -13,7 +13,7 @@ data:extend ({
 	  {"avatar-skin", 2}
     },
     result = "avatar",
-	category = "avatar",
+	category = "advanced-crafting",
 	energy_required = 20
  },
  {
@@ -38,15 +38,30 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"steel-plate", 20},
-	  {"iron-gear-wheel", 50},
-	  {"smart-inserter", 5},
-	  {"processing-unit", 5},
-	  {"assembling-machine-3", 2}
+	  {"assembling-machine-3", 1},
+	  {"processing-unit", 1},
+	  {"smart-inserter", 1}
     },
     result = "avatar-assembling-machine",
 	category = "crafting",
-	energy_required = 10
+	energy_required = 5
+ },
+ {
+    type = "recipe",
+    name = "avatar-remote-deployment-unit",
+    enabled = false,
+    ingredients =
+    {
+      {"steel-plate", 20},
+	  {"iron-gear-wheel", 20},
+	  {"smart-inserter", 5},
+	  {"processing-unit", 5},
+	  {"radar", 1}
+	  
+    },
+    result = "avatar-remote-deployment-unit",
+	category = "crafting",
+	energy_required = 5
  },
  {
     type = "recipe",

@@ -94,39 +94,40 @@ function printPosition(entity)
 	return position
 end
 
---Update Selection GUI
-function updateSelectionGUI(player, allPlayersBool)
+--Update Selection GUI for the current player
+function updateSelectionGUI(player)
+	--Find the current page number
+	local pageNumber = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
 	
-	local pageNumber
-	
-	--pageNumber only exists if there are multiple pages
-	local selectionFrame = player.gui.center.selectionFrame
-	if (selectionFrame.pageNumber ~= nil and selectionFrame.pageNumber.valid) then
-		pageNumber = tonumber(selectionFrame.pageNumber.caption)
-	else
-		pageNumber = 1
-	end
-	
-	--If bool, then update each players table, if it is open and on the same page as the triggering player
-	if allPlayersBool then
-		for _, players in ipairs(game.players) do
-			local playersSelectionFrame = players.gui.center.selectionFrame
-			if (playersSelectionFrame ~= nil and playersSelectionFrame.valid) then
-				currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption)
-				if (pageNumber == currentPageNumber) then
-					drawSelectionGUI(players, pageNumber)
-				end
+	--Redraw the GUI
+	drawSelectionGUI(player, pageNumber)
+end
+
+--Update the Selection GUI for all players on this page
+function updateSelectionGUIAll(pageNumber)
+	for _, player in ipairs(game.players) do
+		local playersSelectionFrame = player.gui.center.selectionFrame
+		if (playersSelectionFrame ~= nil and playersSelectionFrame.valid) then
+			local currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption)
+			if (pageNumber == currentPageNumber) then
+				debugLog("Updating Slection GUI of "..player.name)
+				drawSelectionGUI(player, pageNumber)
 			end
 		end
-	else
-		--Otherwise, just update the current player
-		drawSelectionGUI(player, pageNumber)
 	end
+end
+
+--Returns true or false if the Selection GUI is open
+function verifySelectionGUI(player)
+	if (player.gui.center.selectionFrame ~= nil and player.gui.center.selectionFrame.valid) then
+		return true
+	end
+	return false
 end
 
 --Destroy Selection GUI
 function destroySelectionGUI(player)
-	if (player.gui.center.selectionFrame ~= nil and player.gui.center.selectionFrame.valid) then 
+	if verifySelectionGUI(player) then 
 		player.gui.center.selectionFrame.destroy()
 	end
 end
@@ -147,8 +148,8 @@ function drawRenameGUI(player, name)
 	
 	--Buttons
 	local buttonsFlow = changeNameFrame.add{type="flow", name="buttonsFlow"}
-	buttonsFlow.add{type="button", name="avatar_sbmt", caption={"Avatars-change-name-button-submit"}}
-	buttonsFlow.add{type="button", name="avatar_cncl", caption={"Avatars-change-name-button-cancel"}}
+	buttonsFlow.add{type="button", name="avatar_sbmt", caption={"Avatars-submit-button"}}
+	buttonsFlow.add{type="button", name="avatar_cncl", caption={"Avatars-cancel-button"}}
 end
 
 --Update Rename GUI
@@ -156,7 +157,9 @@ function updateRenameGUI(player, oldName, newName)
 	--Check if a name change occured
 	if (newName ~= nil) then
 		--Update Selection GUI first, to maintain order
-		updateSelectionGUI(player, true)
+		if verifySelectionGUI(player) then
+			updateSelectionGUIAll(tonumber(player.gui.center.selectionFrame.pageNumber.caption))
+		end
 		
 		--Update Rename GUI for each player
 		for _, players in ipairs(game.players) do
@@ -179,14 +182,22 @@ function updateRenameGUI(player, oldName, newName)
 		end
 	else
 		--If not, update with the old name
-		updateSelectionGUI(player, false)
+		updateSelectionGUI(player)
 		drawRenameGUI(player, oldName)
 	end
 end
 
+--Returns true or false if the Rename GUI is open
+function verifyRenameGUI(player)
+	if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
+		return true
+	end
+	return false
+end
+
 --Destroy Rename GUI
 function destroyRenameGUI(player)
-	if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
+	if verifyRenameGUI(player) then
 		player.gui.center.changeNameFrame.destroy()
 	end 
 end
@@ -205,9 +216,42 @@ function destroyDisconnectGUI(player)
 	end 
 end
 
+--Avatar Remote Deployment Unit GUI
+--Draw ARDU GUI
+function drawARDUGUI(player, ARDU)
+	--Destroy old ARDU GUI
+	destroyARDUGUI(player)
+	
+	--Get the ARDU from the table
+	local ARDUData = getARDUFromTable(ARDU)
+	
+	if (ARDUData ~= nil) then
+		--Rename Frame and labels
+		local ARDUGUI = player.gui.center.add{type="frame", name="avatarARDUFrame", direction="vertical", caption={"Avatars-ARDU-rename-header"}}
+		local currentNameFlow = ARDUGUI.add{type="flow", name="currentNameFlow", direction="horizontal"}
+		currentNameFlow.add{type="label", name="currentNameLabel", caption={"Avatars-ARDU-rename-current-name"}}
+		currentNameFlow.add{type="label", name="currentName", caption=ARDUData.name, style="avatar_ARDU_current_name"}
+		ARDUGUI.add{type="textfield", name="newNameField"}
+		
+		--Buttons
+		local buttonsFlow = ARDUGUI.add{type="flow", name="buttonsFlow"}
+		buttonsFlow.add{type="button", name="avatar_ARDU", caption={"Avatars-submit-button"}}
+	else
+		player.print{"Avatars-error-ARDU-not-found"}
+	end
+end
+
+--Destroy ARDU GUI
+function destroyARDUGUI(player)
+	if (player.gui.center.avatarARDUFrame ~= nil and player.gui.center.avatarARDUFrame.valid) then
+		player.gui.center.avatarARDUFrame.destroy()
+	end 
+end
+
 --Destroys all GUI
 function destroyAllGUI(player)
 	destroySelectionGUI(player)
 	destroyRenameGUI(player)
 	destroyDisconnectGUI(player)
+	destroyARDUGUI(player)
 end

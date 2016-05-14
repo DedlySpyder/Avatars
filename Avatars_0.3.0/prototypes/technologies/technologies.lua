@@ -15,6 +15,10 @@ data:extend ({
         recipe = "avatar-control-center"
       },
 	  {
+		type = "unlock-recipe",
+		recipe = "avatar-remote-deployment-unit"
+	  },
+	  {
         type = "unlock-recipe",
         recipe = "avatar-assembling-machine"
       },

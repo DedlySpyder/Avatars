@@ -150,3 +150,10 @@ data.raw["gui-style"].default["avatar_table_total_avatars"] =
 	font = "font-table",
 	left_padding = 5
 }
+
+--ARDU current name
+data.raw["gui-style"].default["avatar_ARDU_current_name"] =
+{
+	type = "label_style",
+	minimal_width = 200
+}

@@ -1,31 +1,41 @@
 require "defines"
 require "gui"
 require "config"
+require "scripts"
 
---Dev notes
---GUI interfaces
---drawSelectionGUI(player, pageNumber), updateSelectionGUI(player, allPlayersBool) this bool is a flag for who to update, destroySelectionGUI(player)
---drawRenameGUI(player, name), updateRenameGUI(player, oldName, newName), destroyRenameGUI(player)
---drawRenameGUI(player, name), updateRenameGUI(player, oldName, newName), destroyRenameGUI(player)
---drawDisconnectGUI(player), destroyDisconnectGUI(player)
---destroyAllGUI(player)
+--Migration involving global data
+script.on_configuration_changed(function(data)
+	if data.mod_changes.Avatars then
+		local oldVersion = data.mod_changes.Avatars.old_version
+		if oldVersion and oldVersion < "0.3.0" then
+			migrateTo_0_3_0()
+		end
+	end
+end)
 
 --Check on entering or leaving a vehicle
-function driving(event)
+function on_driving(event)
 	local player = game.get_player(event.player_index)
 	
-	--Check for entering or leaving the Avatar Control Center
+	--Check for entering the Avatar Control Center
 	if player.vehicle and player.vehicle.name == "avatar-control-center" then
 		drawSelectionGUI(player, 1)
 		debugLog("Getting in")
-	else 
+		
+	--Check for entering the Avatar Remote Deployment unit (ARDU)
+	elseif player.vehicle and player.vehicle.name == "avatar-remote-deployment-unit" then
+		drawARDUGUI(player, player.vehicle)
+		
+	--Otherwise, destroy GUIs
+	else
 		destroySelectionGUI(player)
 		destroyRenameGUI(player)
+		destroyARDUGUI(player)
 		debugLog("Getting out")
 	end
 end
 
-script.on_event(defines.events.on_player_driving_changed_state, driving)
+script.on_event(defines.events.on_player_driving_changed_state, on_driving)
 
 --Check on GUI click
 function checkGUI(event)
@@ -39,7 +49,7 @@ function checkGUI(event)
 		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
 		if (avatarCount(player) > page*table_avatars_per_page) then
 			drawSelectionGUI(player, page+1)
-			if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
+			if verifyRenameGUI(player) then
 				destroyRenameGUI(player)
 			end
 		end
@@ -51,14 +61,14 @@ function checkGUI(event)
 		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
 		if (page > 1) then
 			drawSelectionGUI(player, page-1)
-			if (player.gui.center.changeNameFrame ~= nil and player.gui.center.changeNameFrame.valid) then
+			if verifyRenameGUI(player) then
 				destroyRenameGUI(player, nil)
 			end
 		end
 		return
 	end
 	
-	--Other button
+	--Other button ("avatar_"..4LetterCode...)
 	local modSubString = string.sub(elementName, 1, 7)
 	
 	--Look for button header
@@ -80,10 +90,10 @@ function checkGUI(event)
 		if (modButton == "ctrl") then
 			--Obtain the name of the avatar to control
 			local name = string.sub(elementName, 13)
-			gainAvatarControl(event, name)
+			gainAvatarControl(player, name, event.tick)
 		end
 		
-		--Submit button (to submite a rename)
+		--Submit button (to submit a rename)
 		if (modButton == "sbmt") then
 			changeAvatarNameSubmit(player)
 		end
@@ -95,194 +105,20 @@ function checkGUI(event)
 		
 		--Exit button (to disconnect from the avatar)
 		if (modButton == "exit") then
-			loseAvatarControl(event, player)
+			loseAvatarControl(player, event.tick)
 		end
-	end
-end
-
---Counts the number of avatars in the same force as the player
-function avatarCount(player)
-	local totalAvatars = 0
-	for _, avatar in ipairs(global.avatars) do
-		if (avatar == nil) then break end
-		if (avatar.avatarEntity.force.name == player.force.name) then
-			totalAvatars = totalAvatars + 1
-		end
-	end
-	return totalAvatars
-end
-
---Submiting the name
-function changeAvatarNameSubmit(player)
-	local changeNameFrame = player.gui.center.changeNameFrame
-	
-	--Obtain the old name
-	local oldName = changeNameFrame.currentNameFlow.currentName.caption
-	
-	--Make sure the text field is valid
-	if (changeNameFrame.newNameField ~= nil and changeNameFrame.newNameField.valid) then
-	
-		--Make sure a name was entered
-		if (changeNameFrame.newNameField.text ~= "") then
-			--Obtain the new name
-			local newName = changeNameFrame.newNameField.text
-			local flag = false
-			local renamedAvatar = nil
-			for _, avatar in ipairs(global.avatars) do
-				--If the new name matches any avatars, then break the loop and throw an error
-				if (avatar.name == newName) then
-					flag = false
-					debugLog("Duplicate name found")
-					break
-				end
-				--Catch the matching name but still check for duplicate names
-				if (avatar.name == oldName) then
-					flag = true
-					renamedAvatar = avatar
-					debugLog("Found the old name")
-				end
-			end
-			
-			--Final check and set
-			if flag then
-				renamedAvatar.name = newName
-				updateRenameGUI(player, oldName, newName)
-			else
-				--Name in use
-				player.print{"Avatars-error-name-in-use"}
-				updateRenameGUI(player, oldName, nil)
-				player.gui.center.changeNameFrame.newNameField.text = newName
-			end
-		else
-			--Blank text field
-			player.print{"Avatars-error-blank-name"}
-			updateRenameGUI(player, oldName, nil)
-		end
-	end
-end
-
---Give control of an avatar to a player
-function gainAvatarControl(event, name)
-	debugLog("Gaining control of "..name)
-	
-	local player = game.get_player(event.player_index)
-	local playerData = getPlayerData(player) --{player=nil, realBody=nil, currentAvatar=nil, currentAvatarName=nil, lastBodySwap=nil}
 		
-    -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
-    if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > event.tick) then return end
-    playerData.lastBodySwap = event.tick
-	
-	--Players can only control an avatar from their real body
-	if (player.character.name ~= "player") then
-		player.print{"Avatars-error-only-control-from-real-body"}
-		return
-	end
-	
-	--Store the real body
-	playerData.realBody = player.character
-	
-	--Find the avatar
-	for _, avatar in ipairs(global.avatars) do
-		if (avatar.name == name) then
-			debugLog(avatar.name.." found")
-			
-			local owner = nil
-			--Make sure no one else is controlling it
-			for _, players in ipairs(global.avatarPlayerData) do
-				if (players.currentAvatar == avatar.avatarEntity) then
-					owner = players.player.name
-					break
-				end
-			end
-			
-			if (owner ~= nil) then
-				player.print{"Avatars-error-already-controlled", owner}
-				return
-			end
-			--Give it to the player
-			playerData.currentAvatar = avatar.avatarEntity
-			playerData.currentAvatarName = avatar.name
-			break
+		--The ARDU submit button
+		if (modButton =="ARDU") then
+			changeARDUName(player)
 		end
 	end
-	
-	--Final check
-	if (playerData.realBody ~= nil) and (playerData.currentAvatar ~= nil) then
-		debugLog("Final check")
-		playerData.currentAvatar.active = true
-		player.character = playerData.currentAvatar
-	end
-	
-	--GUI clean up
-	destroyAllGUI(player)
-	drawDisconnectGUI(player)
-end
-
---Take control from a player
-function loseAvatarControl(event, player)
-	debugLog("Going back to the body")
-	
-	local playerData = getPlayerData(player)
-	
-	--Test to make sure that player is controlling an avatar
-	--Otherwise there are issues with other control changing mods
-	if (player.character.name ~= "avatar") then
-		player.print{"Avatars-error-cannot-disconnect-from-nonavatar"}
-		return
-	end
-	
-	-- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
-    if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > event.tick) then return end
-    playerData.lastBodySwap = event.tick
-	
-	--Check for the avatarEntity to exist or not
-	--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
-	for _, avatar in ipairs(global.avatars) do
-		if (avatar.name == playerData.currentAvatarName) then
-			avatar.avatarEntity = player.character
-		end
-	end
-	
-	--Give back the player's body
-	player.character = playerData.realBody
-	
-	--Clear the table
-	playerData.realBody = nil
-	playerData.currentAvatar = nil
-	playerData.currentAvatarName = nil
-	
-	--GUI clean up
-	destroyDisconnectGUI(player)
-	drawSelectionGUI(player, 1)
-end
-
---Look up the player in global.avatarPlayerData, or create an entry for them
-function getPlayerData(player)
-	global.avatarPlayerData = doesPlayerTableExistOrCreate(global.avatarPlayerData)
-	if (player == nil) then return end
-	
-	--Look up the player
-	for _, playerData in ipairs(global.avatarPlayerData) do
-		if (playerData.player == player) then
-			debugLog(player.name.." was found in the table")
-			return playerData
-		end
-	end
-	
-	--Add to the table when necessary
-	debugLog(player.name.." was added to the table")
-	local playerData = {player=player, realBody=nil, currentAvatar=nil, currentAvatarName=nil, lastBodySwap=nil}
-	
-	table.insert(global.avatarPlayerData, playerData)
-	debugLog("Players is PlayerData:"..#global.avatarPlayerData)
-	
-	return playerData
 end
 
 script.on_event(defines.events.on_gui_click, checkGUI)
 
 --Check on an entity being built
-function entityBuilt(event)
+function on_entityBuilt(event)
 	local entity = event.created_entity
 		
 	--Dummy fuel to avoid the error signal
@@ -296,45 +132,27 @@ function entityBuilt(event)
 	if (entity.name == "avatar") then
 		addAvatarToTable(entity)
 	end
-end
-
---Add the avatar to the table
-function addAvatarToTable(entity)
-	global.avatars = doesAvatarTableExistOrCreate(global.avatars)
-		
-	local defaultStringLength = #default_avatar_name
-	local lastNameInTable = nil
 	
-	--Find the last name that has a default name
-	for _, avatar in ipairs(global.avatars) do
-		local name = avatar.name
-		local namePrefix = string.sub(name, 1, defaultStringLength)
-		if (namePrefix == default_avatar_name) then lastNameInTable = name end --If a sort function is added, this will need to sort first
-		debugLog(lastNameInTable)
-	end
-
-	--Find out if it is higher than the total number of avatars
-	--This is caused when one is destroyed
-	local currentIncrement = #global.avatars
-	if (lastNameInTable ~= nil) then
-		local lastIncrement = tonumber(string.sub(lastNameInTable, defaultStringLength+1, #lastNameInTable))
-		debugLog(lastIncrement)
-		--Determine the increment to use
-		if (lastIncrement >= currentIncrement) then currentIncrement = lastIncrement + 1 end
+	--Dummy fuel and add to table
+	if (entity.name == "avatar-remote-deployment-unit") then
+		entity.insert{name="coal", count=1}
+		addARDUToTable(entity)
 	end
 	
-	--Inser the new avatar to the table
-	table.insert(global.avatars, {avatarEntity=entity, name=default_avatar_name..currentIncrement})
-	debugLog("new avatar: " .. #global.avatars .. ", " .. global.avatars[#global.avatars].name)
+	--Add to table
+	if (entity.name == "avatar-assembling-machine") then
+		addAvatarAssemblerTotable(entity)
+	end
 end
 
-script.on_event(defines.events.on_robot_built_entity, entityBuilt)
-script.on_event(defines.events.on_built_entity, entityBuilt)
+script.on_event(defines.events.on_robot_built_entity, on_entityBuilt)
+script.on_event(defines.events.on_built_entity, on_entityBuilt)
 
 --Check on entity being destroyed or deconstructed
-function entityDestroyed(event)
+function on_entityDestroyed(event)
 	local entity = event.entity
 	
+	--Destruction of an Avatar Control Center
 	if (entity.name == "avatar-control-center") then
 		--Remove dummy fuel
 		entity.clear_items_inside()
@@ -344,12 +162,12 @@ function entityDestroyed(event)
 		if (playerDataTable ~= nil) then
 			for _, playerData in ipairs(playerDataTable) do
 				if (entity.passenger == playerData.realBody) then
-					--Deactive the current avatar
-					--The game will continue it's actions otherwise, which can cause a game crash
 					if (playerData.currentAvatar ~= nil) then
+						--Deactive the current avatar
+						--The game will continue it's actions otherwise, which can cause a game crash
 						playerData.currentAvatar.active = false
 						local player = playerData.player
-						loseAvatarControl(event, player)
+						loseAvatarControl(player, event.tick)
 						destroyAllGUI(player)
 						player.print{"Avatars-error-avatar-control-center-destroyed"}
 					end
@@ -359,6 +177,7 @@ function entityDestroyed(event)
 		return
 	end
 	
+	--Destruction of an Avatar
 	if (entity.name == "avatar") then
 		local player = nil
 		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
@@ -367,12 +186,13 @@ function entityDestroyed(event)
 		if (playerDataTable ~= nil) then
 			for _, playerData in ipairs(playerDataTable) do
 				if (playerData.currentAvatar == entity) then
-					--Stop a game over screen --Will need added functionality for 0.13 to support MP properly
+					--Stop a game over screen                        --Will need added functionality for 0.13 to support MP properly
 					game.set_game_state{game_finished=false}
 					player = playerData.player
 					
 					--Give back control of the player's body
-					loseAvatarControl(event, player)
+					--Passing tick 0 to force the swap no matter what
+					loseAvatarControl(player, 0)
 					player.print{"Avatars-error-controlled-avatar-death"}
 				end
 			end
@@ -381,6 +201,8 @@ function entityDestroyed(event)
 		--Remove the avatar from the global table
 		for _, currentAvatar in ipairs(global.avatars) do
 			if (currentAvatar.avatarEntity == entity) then
+				local avatarEntity = currentAvatar.avatarEntity
+				
 				local newFunction = function (arg) return arg.avatarEntity == entity end --Function that returns true or false if the entities match
 				global.avatars = removeFromTable(newFunction, global.avatars)
 				debugLog("deleted avatar: " .. #global.avatars .. ", " .. currentAvatar.name)
@@ -390,43 +212,61 @@ function entityDestroyed(event)
 					--They need the GUI if so
 					drawSelectionGUI(player, 1)
 				end
+				
+				--Attempts to deploy a new avatar
+				redeployAvatarFromARDU(avatarEntity)
+			end
+		end
+		return
+	end
+	
+	--Destruction of an ARDU
+	if (entity.name == "avatar-remote-deployment-unit") then
+		entity.clear_items_inside()
+		--Remove it from the global table
+		for _, currentARDU in ipairs(global.avatarARDUTable) do
+			if (currentARDU.entity == entity) then
+				removeARDUFromTable(entity)
+			end
+		end
+		return
+	end
+	
+	--Destruction of an Assembling Machine
+	if (entity.name == "avatar-assembling-machine") then
+		for _, currentAssembler in ipairs(global.avatarAssemblingMachines) do
+			if (currentAssembler.entity == entity) then
+				removeAvatarAssemlerFromTable(entity)
 			end
 		end
 	end
 end
 
---Removes an entity from the global table
---Works by adding everything except the old entry to a new table and overwritting the old table
-function removeFromTable(func, avatarTable)
-	if (avatarTable == nil) then return nil end
-	local newTable = {}
-	for _, row in ipairs(avatarTable) do
-		if not func(row) then table.insert(newTable, row) end
+script.on_event(defines.events.on_preplayer_mined_item, on_entityDestroyed)
+script.on_event(defines.events.on_robot_pre_mined, on_entityDestroyed)
+script.on_event(defines.events.on_entity_died, on_entityDestroyed)
+
+function on_Tick(event)
+	--Every 5 seconds - Check to deploy the initial avatar for ARDUs
+	if ((game.tick % (60*5)) == 0) then
+		if (global.avatarARDUTable ~= nil) then
+			for _, ARDU in ipairs(global.avatarARDUTable) do
+				if not ARDU.flag then --This only triggers once
+					local flag = deployAvatarFromARDU(ARDU)
+					if flag then ARDU.flag = flag end
+					debugLog("Attempted first deployment from "..ARDU.name)
+				end
+			end
+		end
 	end
-	return newTable
-end
-
-script.on_event(defines.events.on_preplayer_mined_item, entityDestroyed)
-script.on_event(defines.events.on_robot_pre_mined, entityDestroyed)
-script.on_event(defines.events.on_entity_died, entityDestroyed)
-
---Make sure global.avatarPlayerData exists
-function doesPlayerTableExistOrCreate(checkTable)
-	if checkTable == nil then
-		return {player=nil, realBody=nil, currentAvatar=nil, lastBodySwap=nil}
-	else
-		return checkTable
-	end
-end
-
---Make sure global.avatars exists
-function doesAvatarTableExistOrCreate(checkTable)
-	if checkTable == nil then
-		return {avatarEntity=nil,name=""}
-	else
-		return checkTable
+	
+	--Every 15 seconds - check to place avatars in the avatar assembling machines
+	if ((game.tick % (60*15)) == 0) then 
+		placeAvatarInAssemblers()
 	end
 end
+
+script.on_event(defines.events.on_tick, on_Tick)
 
 --DEBUG messages
 function debugLog(message)
@@ -520,7 +360,9 @@ remote.add_interface("AvatarsLastResort", {
 remote.add_interface("Ava", {
 	testing = function()
 		if debug_mode then
-			game.player.insert({name="avatar-control-center", count=2})
+			game.player.insert({name="avatar-control-center", count=5})
+			game.player.insert({name="avatar-assembling-machine", count=5})
+			game.player.insert({name="avatar-remote-deployment-unit", count=5})
 			game.player.insert({name="avatar", count=25})
 		end
 	end
