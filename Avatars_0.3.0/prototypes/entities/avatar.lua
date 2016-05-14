@@ -5,6 +5,7 @@ data:extend({
     name = "avatar",
     icon = "__base__/graphics/icons/player.png",
     flags = {"pushable", "placeable-off-grid", "player-creation"},
+	minable = {hardness = 0.2, mining_time = 2, result = "avatar"},
     max_health = 100,
     alert_when_damaged = true,
     healing_per_tick = 0,

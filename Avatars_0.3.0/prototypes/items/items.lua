@@ -15,7 +15,7 @@ data:extend({
 	icon = "__Avatars__/graphics/icons/avatar-control-center.png",
 	flags = {"goes-to-quickbar"},
 	subgroup = "avatar-supporting-structures",
-	order = "b[control-center]-a[avatar-control-center]",
+	order = "c[control-center]-a[avatar-control-center]",
 	place_result = "avatar-control-center",
 	stack_size = 5
   },
@@ -27,6 +27,16 @@ data:extend({
 	subgroup = "avatar-supporting-structures",
 	order = "a[assembly]-a[avatar-assembling-machine]",
 	place_result = "avatar-assembling-machine",
+	stack_size = 5
+  },
+  {
+	type = "item",
+	name = "avatar-remote-deployment-unit",
+	icon = "__Avatars__/graphics/icons/avatar-remote-deployment-unit.png",
+	flags = {"goes-to-quickbar"},
+	subgroup = "avatar-supporting-structures",
+	order = "b[remote-structures]-a[avatar-remote-deployment-unit]",
+	place_result = "avatar-remote-deployment-unit",
 	stack_size = 5
   }
 })
