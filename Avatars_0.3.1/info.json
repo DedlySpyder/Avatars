@@ -1,0 +1,10 @@
+{
+  "name": "Avatars",
+  "version": "0.3.1",
+  "title": "Avatars",
+  "author": "DedlySpyder",
+  "contact": "DedlySpyder@gmail.com",
+  "homepage": "",
+  "description": "This mod allows players to create and remotely control Avatars. Avatars act like players, with a few minor exceptions. The mod also includes a few custom entities to control and create the Avatars.",
+  "dependencies": ["base"]
+}

@@ -63,3 +63,18 @@ data:extend({
     stack_size = 5
   }
 })
+
+intermediates = {	"actuator",
+					"avatar-arm",
+					"avatar-leg",
+					"avatar-head",
+					"avatar-internals",
+					"avatar-torso",
+					"avatar-skin"
+				}
+
+for _, item in ipairs(intermediates) do
+	table.insert(data.raw.module["productivity-module"].limitation, item)
+	table.insert(data.raw.module["productivity-module-2"].limitation, item)
+	table.insert(data.raw.module["productivity-module-3"].limitation, item)
+end
