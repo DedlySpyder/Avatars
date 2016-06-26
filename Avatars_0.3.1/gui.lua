@@ -1,14 +1,37 @@
 --Selection GUI - The main table that displays and allows for renaming and control of avatars
 --Draw Selection GUI
 function drawSelectionGUI(player, pageNumber)
-	--Create the frame variable
-	local selectionFrame
+	--Obtain the proper sort of the table to use (based on the current GUI if possible)
+	local sort = getCurrentSort(player)
+	
+	debugLog(sort)
+	
+	local sortedTable = getSortedTable(sort, player.position)
+	
+	local defaultSort = false --This is all for trying to do sorting with check boxes, time to just wait for radio buttons :S
+	local nameAscendingSort = false
+	local nameDescendingSort = false
+	local distanceAscendingSort = false
+	local distanceDescendingSort = false
+	if (sort == "default") then
+		defaultSort = true
+	elseif (sort == "name_ascending") then
+		nameAscendingSort = true
+	elseif (sort == "name_descending") then
+		nameDescendingSort = true
+	elseif (sort == "distance_ascending") then
+		distanceAscendingSort = true
+	elseif (sort == "distance_descending") then
+		distanceDescendingSort = true
+	end
 	
 	--Destroy old Selection GUI
 	destroySelectionGUI(player)
 	
 	--Create the frame to hold everything
-	selectionFrame = player.gui.center.add{type="frame", name="selectionFrame", direction="vertical", caption={"Avatars-table-header", printPosition(player)}}
+	local selectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", printPosition(player)}}
+	
+	selectionFrame.add{type="flow", name="avatar_sort_"..sort}
 	
 	--Table to display items
 	avatarTable = selectionFrame.add{type="table", name="avatarTable", colspan=4}
@@ -16,17 +39,34 @@ function drawSelectionGUI(player, pageNumber)
 	--Columns in the table
 	numberFrame = avatarTable.add{type="frame", name="numberFrame", direction="vertical"}
 	nameFrame = avatarTable.add{type="frame", name="nameFrame", direction="vertical", style="avatar_table_avatar_name_frame"}
-	locationFrame = avatarTable.add{type="frame", name="locationFrame", direction="vertical", style="avatar_table_avatar_location_frame"}
+	locationFrame = avatarTable.add{type="frame", name="locationFrame", direction="vertical", style="avatar_table_avatar_distance_frame"}
 	controlFrame = avatarTable.add{type="frame", name="controlFrame", direction="vertical"}
 	
 	--Column headers
-	numberFrame.add{type="label", caption="#", style="avatar_table_general"}
-	numberFrame.add{type="label", caption="-", style="avatar_table_general"}
-	nameFrame.add{type="label", caption={"Avatars-table-avatar-name-header"}, style="avatar_table_header_avatar_name"}
+	numberFrame.add{type="flow", direction="horizontal", name="nameSortFlow"}
+	numberFrame.nameSortFlow.add{type="flow", name="nameFlow", style="avatar_table_header_flow_top_padding"}
+	numberFrame.nameSortFlow.nameFlow.add{type="label", caption="#", style="avatar_table_header_label_general"}
+	numberFrame.nameSortFlow.add{type="checkbox", name="avatar_sort_default", state=defaultSort, style="avatar_table_checkbox_general"} --checkbox
+	numberFrame.add{type="label", caption="-----", style="avatar_table_general"}
+	
+	nameFrame.add{type="flow", direction="horizontal", name="nameSortFlow"}
+	nameFrame.nameSortFlow.add{type="flow", name="nameFlow", style="avatar_table_header_flow_top_padding"}
+	nameFrame.nameSortFlow.nameFlow.add{type="label", caption={"Avatars-table-avatar-name-header"}, style="avatar_table_header_avatar_name"}
+	nameFrame.nameSortFlow.add{type="flow", direction="vertical", name="sortStackFlow"}
+	nameFrame.nameSortFlow.sortStackFlow.add{type="checkbox", name="avatar_sort_name_ascending", state=nameAscendingSort, style="avatar_table_checkbox_top"}
+	nameFrame.nameSortFlow.sortStackFlow.add{type="checkbox", name="avatar_sort_name_descending", state=nameDescendingSort, style="avatar_table_checkbox_bottom"}
 	nameFrame.add{type="label", caption="-------------------------------------", style="avatar_table_general"}
-	locationFrame.add{type="label", caption={"Avatars-table-avatar-location-header"}, style="avatar_table_label_avatar_location"}
-	locationFrame.add{type="label", caption="-----------------", style="avatar_table_label_avatar_location"}
-	controlFrame.add{type="label", caption={"Avatars-table-control-header"}, style="avatar_table_general"}
+	
+	locationFrame.add{type="flow", direction="horizontal", name="nameSortFlow"}
+	locationFrame.nameSortFlow.add{type="flow", name="nameFlow", style="avatar_table_header_flow_top_padding"}
+	locationFrame.nameSortFlow.nameFlow.add{type="label", caption={"Avatars-table-avatar-distance-header"}, style="avatar_table_header_label_general"}
+	locationFrame.nameSortFlow.add{type="flow", direction="vertical", name="sortStackFlow"}
+	locationFrame.nameSortFlow.sortStackFlow.add{type="checkbox", name="avatar_sort_distance_ascending", state=distanceAscendingSort, style="avatar_table_checkbox_top"}
+	locationFrame.nameSortFlow.sortStackFlow.add{type="checkbox", name="avatar_sort_distance_descending", state=distanceDescendingSort, style="avatar_table_checkbox_bottom"}
+	locationFrame.add{type="label", caption="-------------------", style="avatar_table_label_avatar_distance"}
+	
+	controlFrame.add{type="flow", name="nameFlow", style="avatar_table_header_flow_top_padding"}
+	controlFrame.nameFlow.add{type="label", caption={"Avatars-table-control-header"}, style="avatar_table_header_label_general"}
 	controlFrame.add{type="label", caption="--------------", style="avatar_table_general"}
 	
 	--Calculation for the first and last item to display
@@ -40,10 +80,10 @@ function drawSelectionGUI(player, pageNumber)
 	--Total avatars in the player's force
 	local totalAvatars = 0
 	
-	if (global.avatars ~= nil) then
+	if (sortedTable ~= nil) then
 		local row = 1
 		local itemsDisplayed = 0
-		for _, avatar in ipairs(global.avatars) do
+		for _, avatar in ipairs(sortedTable) do
 			if (avatar == nil) then break end
 			--Make sure the avatar is in the same force
 			local avatarEntity = avatar.avatarEntity
@@ -53,11 +93,11 @@ function drawSelectionGUI(player, pageNumber)
 					totalAvatars = totalAvatars + 1
 					--Make sure the avatar should be on this page, and that the page isn't full
 					if (row >= firstItem) and (row <= lastItem) and (itemsDisplayed <= table_avatars_per_page) then
-						numberFrame.add{type="label", caption=row, style="avatar_table_general"}
+						numberFrame.add{type="label", caption=row, style="avatar_table_label_avatar_number"}
 						nameRow = nameFrame.add{type="flow", direction="horizontal"}
 						nameRow.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
 						nameRow.add{type="button", name="avatar_rnam_"..avatar.name, style="avatar_table_button_rename"} --button name "rnam_"
-						locationFrame.add{type="label", caption=printPosition(avatarEntity), style="avatar_table_label_avatar_location"}
+						locationFrame.add{type="label", caption=getDistance(player.position, avatarEntity.position), style="avatar_table_label_avatar_distance"}
 						controlFrame.add{type="button", name="avatar_ctrl_"..avatar.name, caption={"Avatars-table-control-button"}, style="avatar_table_button_control"} -- button name "ctrl_"
 						
 						itemsDisplayed = itemsDisplayed + 1
@@ -88,16 +128,46 @@ function drawSelectionGUI(player, pageNumber)
 	end
 end
 
+--Obtains the current sort name
+function getCurrentSort(player)
+	if verifySelectionGUI(player) then
+		for _, selectionChild in ipairs(player.gui.center.avatarSelectionFrame.children_names) do
+			if (string.sub(selectionChild, 1, 12) == "avatar_sort_") then
+				debugLog(selectionChild)
+				return string.sub(selectionChild, 13, #selectionChild)
+			end
+		end
+		--TODO return stuff
+		--avatar_sort_
+		--name_ascending, name_descending, distance_ascending, distance_descending
+	else
+		return "default"
+	end
+end
+
 --Creates a printable position
 function printPosition(entity)
 	local position = "(" ..math.floor(entity.position.x) ..", " ..math.floor(entity.position.y) ..")"
 	return position
 end
 
+--Find the distance of an avatar from the player
+function getDistance(startPosition, endPosition)
+	local xDistance = startPosition.x - endPosition.x
+	local yDistance = startPosition.y - endPosition.y
+	
+	--Find the total distance of the line
+	local distance = math.sqrt((xDistance^2) + (yDistance^2))
+	
+	--Round the distance (found from http://lua-users.org/wiki/SimpleRound)
+	local mult = 10^(1) --The power is the number of decimal places to round to
+	return math.floor(distance * mult + 0.5) / mult
+end
+
 --Update Selection GUI for the current player
 function updateSelectionGUI(player)
 	--Find the current page number
-	local pageNumber = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
+	local pageNumber = tonumber(player.gui.center.avatarSelectionFrame.pageNumber.caption)
 	
 	--Redraw the GUI
 	drawSelectionGUI(player, pageNumber)
@@ -106,9 +176,9 @@ end
 --Update the Selection GUI for all players on this page
 function updateSelectionGUIAll(pageNumber)
 	for _, player in ipairs(game.players) do
-		local playersSelectionFrame = player.gui.center.selectionFrame
+		local playersSelectionFrame = player.gui.center.avatarSelectionFrame
 		if (playersSelectionFrame ~= nil and playersSelectionFrame.valid) then
-			local currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption)
+			local currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption) -- need someway to read the sort (will see what radio buttons can do)
 			if (pageNumber == currentPageNumber) then
 				debugLog("Updating Slection GUI of "..player.name)
 				drawSelectionGUI(player, pageNumber)
@@ -119,7 +189,7 @@ end
 
 --Returns true or false if the Selection GUI is open
 function verifySelectionGUI(player)
-	if (player.gui.center.selectionFrame ~= nil and player.gui.center.selectionFrame.valid) then
+	if (player.gui.center.avatarSelectionFrame ~= nil and player.gui.center.avatarSelectionFrame.valid) then
 		return true
 	end
 	return false
@@ -128,7 +198,7 @@ end
 --Destroy Selection GUI
 function destroySelectionGUI(player)
 	if verifySelectionGUI(player) then 
-		player.gui.center.selectionFrame.destroy()
+		player.gui.center.avatarSelectionFrame.destroy()
 	end
 end
 
@@ -158,7 +228,7 @@ function updateRenameGUI(player, oldName, newName)
 	if (newName ~= nil) then
 		--Update Selection GUI first, to maintain order
 		if verifySelectionGUI(player) then
-			updateSelectionGUIAll(tonumber(player.gui.center.selectionFrame.pageNumber.caption))
+			updateSelectionGUIAll(tonumber(player.gui.center.avatarSelectionFrame.pageNumber.caption))
 		end
 		
 		--Update Rename GUI for each player

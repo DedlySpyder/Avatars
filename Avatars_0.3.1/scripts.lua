@@ -271,6 +271,87 @@ function changeARDUName(player)
 	end
 end
 
+--Sorting Scripts
+
+--Called when a sort button is clicked
+function sortTable(player, sort)
+	for _, selectionChild in pairs(player.gui.center.avatarSelectionFrame.children_names) do
+		if (string.sub(selectionChild, 1, 12) == "avatar_sort_") then
+			
+			--string.sub(selectionChild, 13)
+		end
+	end
+	
+	updateSelectionGUI(player)
+end
+
+--
+function getSortedTable(sort, position)
+	--Check the sort string
+	if (sort == "name_ascending") then
+		--Comapre the name strings
+		local newFunction = function(a,b) return a.name < b.name end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+	elseif (sort == "name_descending") then
+		--Comapre the name strings
+		local newFunction = function(a,b) return a.name > b.name end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+	elseif (sort == "distance_ascending") then
+		--Compare the distances
+		local newFunction = function(a,b) 
+								local aDistance = getDistance(position, a.avatarEntity.position)
+								local bDistance = getDistance(position, b.avatarEntity.position)
+								return aDistance < bDistance
+							end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+	elseif (sort == "distance_descending") then
+		--Compare the distances
+		local newFunction = function(a,b) 
+								local aDistance = getDistance(position, a.avatarEntity.position)
+								local bDistance = getDistance(position, b.avatarEntity.position)
+								return aDistance > bDistance
+							end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+	else
+		return global.avatars
+	end
+end
+
+--Takes a table (list) and sorts it based on the function provided
+function getNewSortedTable(list, func)
+	local changesMade
+	local itemCount = #list
+	
+	--Repeat until there are no changes made
+	repeat
+		changesMade = false
+		--The first item will never need comapred to nothing
+		for i=2, itemCount do
+			if func(list[i], list[i-1]) then
+				--Swap the data
+				local temp = list[i-1]
+				list[i-1] = list[i]
+				list[i] = temp
+				
+				--Set the flag
+				changesMade = true
+			end
+		end
+		itemCount = itemCount - 1
+	until changesMade == false
+	
+	return list
+end
+
+--Copies a table by value
+function copyTable(oldTable)
+	local newTable = {}
+	for i, row in pairs(oldTable) do
+		newTable[i] = row
+	end
+	return newTable
+end
+
 --Avatar Control
 
 --Give control of an avatar to a player

@@ -46,7 +46,7 @@ function checkGUI(event)
 	
 	--Page forward button
 	if (elementName == "pageForward") then
-		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
+		local page = tonumber(player.gui.center.avatarSelectionFrame.pageNumber.caption)
 		if (avatarCount(player) > page*table_avatars_per_page) then
 			drawSelectionGUI(player, page+1)
 			if verifyRenameGUI(player) then
@@ -58,7 +58,7 @@ function checkGUI(event)
 	
 	--Page back button
 	if (elementName == "pageBack") then
-		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
+		local page = tonumber(player.gui.center.avatarSelectionFrame.pageNumber.caption)
 		if (page > 1) then
 			drawSelectionGUI(player, page-1)
 			if verifyRenameGUI(player) then
@@ -109,8 +109,12 @@ function checkGUI(event)
 		end
 		
 		--The ARDU submit button
-		if (modButton =="ARDU") then
+		if (modButton == "ARDU") then
 			changeARDUName(player)
+		end
+		
+		if (modButton == "sort") then
+			sortTable(player, string.sub(elementName, 13, #elementName))
 		end
 	end
 end
@@ -222,7 +226,7 @@ function on_entityDestroyed(event)
 	
 	--Destruction of an ARDU
 	if (entity.name == "avatar-remote-deployment-unit") then
-		entity.clear_items_inside()
+		entity.get_inventory(defines.inventory.fuel).clear()
 		--Remove it from the global table
 		for _, currentARDU in ipairs(global.avatarARDUTable) do
 			if (currentARDU.entity == entity) then

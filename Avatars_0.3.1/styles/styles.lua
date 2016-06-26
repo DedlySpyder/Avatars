@@ -30,6 +30,40 @@ data.raw["gui-style"].default["avatar_table_general"] =
 	text_align = "center"
 }
 
+--Style for the checkboxes
+data.raw["gui-style"].default["avatar_table_checkbox_general"] =
+{
+	type = "checkbox_style",
+	top_padding = 35
+}
+
+data.raw["gui-style"].default["avatar_table_checkbox_top"] =
+{
+	type = "checkbox_style",
+	top_padding = 15
+}
+
+data.raw["gui-style"].default["avatar_table_checkbox_bottom"] =
+{
+	type = "checkbox_style",
+	top_padding = 3
+}
+
+data.raw["gui-style"].default["avatar_table_header_flow_top_padding"] =
+{
+	type = "flow_style",
+	top_padding = 13
+}
+
+data.raw["gui-style"].default["avatar_table_header_label_general"] =
+{
+	type = "label_style",
+	font = "font-table",
+	align = "center",
+	text_align = "center",
+	--top_padding = 15
+}
+
 --Header for the Avatar Name column **This may throw off localized versions**
 data.raw["gui-style"].default["avatar_table_header_avatar_name"] =
 {
@@ -37,7 +71,28 @@ data.raw["gui-style"].default["avatar_table_header_avatar_name"] =
 	font = "font-table",
 	align = "center",
 	text_align = "center",
-	left_padding = table_avatar_name_header_left_padding
+	left_padding = table_avatar_name_header_left_padding,
+	--top_padding = 8
+}
+
+data.raw["gui-style"].default["avatar_table_header_avatar_distance"] =
+{
+	type = "label_style",
+	font = "font-table",
+	align = "center",
+	text_align = "center",
+	width = 140,
+	--top_padding = 15
+}
+
+--Label for the number column
+data.raw["gui-style"].default["avatar_table_label_avatar_number"] =
+{
+	type = "label_style",
+	font = "font-table",
+	align = "center",
+	text_align = "center",
+	width = 25
 }
 
 --Label for the individual names
@@ -61,20 +116,20 @@ data.raw["gui-style"].default["avatar_table_avatar_name_frame"] =
 }
 
 --Label for the locations
-data.raw["gui-style"].default["avatar_table_label_avatar_location"] =
+data.raw["gui-style"].default["avatar_table_label_avatar_distance"] =
 {
 	type = "label_style",
 	font = "font-table",
-	width = table_avatar_location_labels_width
+	width = 140
 }
 
 --Configures the entire Avatar Location column 
-data.raw["gui-style"].default["avatar_table_avatar_location_frame"] =
+data.raw["gui-style"].default["avatar_table_avatar_distance_frame"] =
 {
     type = "frame_style",
     parent = "frame_style",
 	font = "font-table",
-    width = table_avatar_location_column_width,
+    width = 165,
 	align = "center"
 }
 

@@ -34,4 +34,4 @@ avatarTint = {r = 188, g = 198, b = 204, a = 1.0}
 table_avatar_name_header_left_padding = 100
 
 --DEBUG MODE
-debug_mode = false
+debug_mode = true
