@@ -269,8 +269,10 @@ script.on_event(defines.events.on_tick, on_Tick)
 
 --DEBUG messages
 function debugLog(message)
-	if debug_mode then
-		game.player.print(message)
+	for _, player in pairs(game.players) do
+		if debug_mode then
+			player.print(message)
+		end
 	end
 end 
 

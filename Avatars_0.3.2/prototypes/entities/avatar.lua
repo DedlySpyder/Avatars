@@ -1,46 +1,14 @@
-data:extend({
+local avatar = util.table.deepcopy(data.raw["player"]["player"])
 
- {
-    type = "player",
-    name = "avatar",
-    icon = "__base__/graphics/icons/player.png",
-    flags = {"pushable", "placeable-off-grid", "player-creation"},
-	minable = {hardness = 0.2, mining_time = 2, result = "avatar"},
-    max_health = 100,
-    alert_when_damaged = true,
-    healing_per_tick = 0,
-    collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
-    selection_box = {{-0.4, -1.4}, {0.4, 0.2}},
-    crafting_categories = {"crafting"},
-    mining_categories = {"basic-solid"},
-    inventory_size = 60,
-    build_distance = 6,
-    drop_item_distance = 6,
-    reach_distance = 6,
-    reach_resource_distance = 2.7,
-    ticks_to_keep_gun = 600,
-    ticks_to_keep_aiming_direction = 100,
-    damage_hit_tint = {r = 1, g = 0, b = 0, a = 0},
-    running_speed = 0.15,
-    distance_per_frame = 0.13,
-    maximum_corner_sliding_distance = 0.7,
-    subgroup = "creatures",
-    order="a",
-    eat =
-    {
-      {
-        filename = "__base__/sound/eat.ogg",
-        volume = 1
-      }
-    },
-    heartbeat =
-    {
-      {
-        filename = "__Avatars__/sounds/fizzle.wav"
-      }
-    },
-
-    animations =
+avatar.name = "avatar"
+avatar.flags = {"pushable", "placeable-off-grid", "player-creation"}
+avatar.minable = {hardness = 0.2, mining_time = 2, result = "avatar"}
+avatar.alert_when_damaged = true
+avatar.healing_per_tick = 0
+avatar.crafting_categories = {"crafting"}
+avatar.mining_categories = {"basic-solid"}
+avatar.heartbeat = { { filename = "__Avatars__/sounds/fizzle.wav" } }
+avatar.animations =
     {
       {
         idle =
@@ -92,9 +60,9 @@ data:extend({
           }
         }
       },
-      {
+	  {
         -- heavy-armor is not in the demo
-        armors = data.is_demo and {"basic-armor"} or {"basic-armor", "heavy-armor"},
+        armors = data.is_demo and {"light-armor"} or {"light-armor", "heavy-armor"},
         idle =
         {
           layers =
@@ -158,7 +126,7 @@ data:extend({
       },
       {
         -- modular armors are not in the demo
-        armors = data.is_demo and {} or {"basic-modular-armor", "power-armor", "power-armor-mk2"},
+        armors = data.is_demo and {} or {"modular-armor", "power-armor", "power-armor-mk2"},
         idle =
         {
           layers =
@@ -220,33 +188,6 @@ data:extend({
           }
         }
       }
-    },
-    light =
-    {
-      {
-        minimum_darkness = 0.3,
-        intensity = 0.4,
-        size = 25,
-      },
-      {
-        type = "oriented",
-        minimum_darkness = 0.3,
-        picture =
-        {
-          filename = "__core__/graphics/light-cone.png",
-          priority = "medium",
-          scale = 2,
-          width = 200,
-          height = 200
-        },
-        shift = {0, -13},
-        size = 2,
-        intensity = 0.6
-      },
-    },
-    mining_speed = 0.01,
-    mining_with_hands_particles_animation_positions = {29, 63},
-    mining_with_tool_particles_animation_positions = {28},
-    running_sound_animation_positions = {5, 16}
-  }
-})
+	}
+
+data:extend ({ avatar })
