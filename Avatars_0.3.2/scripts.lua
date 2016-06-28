@@ -489,7 +489,7 @@ function migrateTo_0_3_0()
 			if (entities ~= nil) then
 				for _, entity in ipairs(entities) do
 					--Obtain the contents of the assembler
-					local inputInventory = entity.get_inventory(2).get_contents()
+					local inputInventory = entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()
 					local outputInventory = entity.get_output_inventory().get_contents()
 					local moduleInventory = entity.get_module_inventory().get_contents()
 					
@@ -509,9 +509,9 @@ function migrateTo_0_3_0()
 															  }
 					
 					--Obtain a reference to the new inventories
-					local newInputInventory = newAssembler.get_inventory(2)
-					local newOutputInventory = newAssembler.get_inventory(3)
-					local newModuleInventory = newAssembler.get_inventory(4)
+					local newInputInventory = newAssembler.get_inventory(defines.inventory.assembling_machine_input)
+					local newOutputInventory = entity.get_output_inventory()
+					local newModuleInventory = entity.get_module_inventory()
 					
 					--Replace the items
 					for item, count in pairs(outputInventory) do

@@ -1,4 +1,3 @@
-require "defines"
 require "gui"
 require "config"
 require "scripts"
@@ -15,7 +14,7 @@ end)
 
 --Check on entering or leaving a vehicle
 function on_driving(event)
-	local player = game.get_player(event.player_index)
+	local player = game.players[event.player_index]
 	
 	--Check for entering the Avatar Control Center
 	if player.vehicle and player.vehicle.name == "avatar-control-center" then
@@ -41,7 +40,7 @@ script.on_event(defines.events.on_player_driving_changed_state, on_driving)
 function checkGUI(event)
 	local element = event.element
 	local elementName = element.name
-	local player = game.get_player(event.player_index)
+	local player = game.players[event.player_index]
 	debugLog("Clicked "..elementName)
 	
 	--Page forward button
@@ -270,8 +269,10 @@ script.on_event(defines.events.on_tick, on_Tick)
 
 --DEBUG messages
 function debugLog(message)
-	if debug_mode then
-		game.player.print(message)
+	for _, player in pairs(game.players) do
+		if debug_mode then
+			player.print(message)
+		end
 	end
 end 
 

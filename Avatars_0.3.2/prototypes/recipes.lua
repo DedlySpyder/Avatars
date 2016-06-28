@@ -40,7 +40,7 @@ data:extend ({
     {
 	  {"assembling-machine-3", 1},
 	  {"processing-unit", 1},
-	  {"smart-inserter", 1}
+	  {"filter-inserter", 1}
     },
     result = "avatar-assembling-machine",
 	category = "crafting",
@@ -54,7 +54,7 @@ data:extend ({
     {
       {"steel-plate", 20},
 	  {"iron-gear-wheel", 20},
-	  {"smart-inserter", 5},
+	  {"filter-inserter", 5},
 	  {"processing-unit", 5},
 	  {"radar", 1}
 	  
