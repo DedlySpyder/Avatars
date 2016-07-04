@@ -1,6 +1,7 @@
 --Selection GUI - The main table that displays and allows for renaming and control of avatars
 --Draw Selection GUI
 function drawSelectionGUI(player, pageNumber)
+	debugLog("Drawing Selection GUI")
 	--Create the frame variable
 	local selectionFrame
 	
@@ -105,7 +106,7 @@ end
 
 --Update the Selection GUI for all players on this page
 function updateSelectionGUIAll(pageNumber)
-	for _, player in ipairs(game.players) do
+	for _, player in pairs(game.players) do
 		local playersSelectionFrame = player.gui.center.selectionFrame
 		if (playersSelectionFrame ~= nil and playersSelectionFrame.valid) then
 			local currentPageNumber = tonumber(playersSelectionFrame.pageNumber.caption)
@@ -162,7 +163,7 @@ function updateRenameGUI(player, oldName, newName)
 		end
 		
 		--Update Rename GUI for each player
-		for _, players in ipairs(game.players) do
+		for _, players in pairs(game.players) do
 			local changeNameFrame = players.gui.center.changeNameFrame
 			if (changeNameFrame ~= nil and changeNameFrame.valid) then
 				--Perserve the text in the textfield

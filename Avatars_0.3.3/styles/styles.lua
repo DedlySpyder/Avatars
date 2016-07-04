@@ -26,8 +26,8 @@ data.raw["gui-style"].default["avatar_table_general"] =
 {
 	type = "label_style",
 	font = "font-table",
-	align = "center",
-	text_align = "center"
+	--align = "center",
+	--text_align = "center"
 }
 
 --Header for the Avatar Name column **This may throw off localized versions**

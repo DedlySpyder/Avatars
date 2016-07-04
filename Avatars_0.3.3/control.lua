@@ -117,7 +117,7 @@ end
 script.on_event(defines.events.on_gui_click, checkGUI)
 
 --Check on an entity being built
-function on_entityBuilt(event)
+function on_entity_built(event)
 	local entity = event.created_entity
 		
 	--Dummy fuel to avoid the error signal
@@ -144,11 +144,11 @@ function on_entityBuilt(event)
 	end
 end
 
-script.on_event(defines.events.on_robot_built_entity, on_entityBuilt)
-script.on_event(defines.events.on_built_entity, on_entityBuilt)
+script.on_event(defines.events.on_robot_built_entity, on_entity_built)
+script.on_event(defines.events.on_built_entity, on_entity_built)
 
 --Check on entity being destroyed or deconstructed
-function on_entityDestroyed(event)
+function on_entity_destroyed(event)
 	local entity = event.entity
 	
 	--Destruction of an Avatar Control Center
@@ -180,22 +180,6 @@ function on_entityDestroyed(event)
 	if (entity.name == "avatar") then
 		local player = nil
 		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
-		
-		--Check if a player was controlling the avatar
-		if (playerDataTable ~= nil) then
-			for _, playerData in ipairs(playerDataTable) do
-				if (playerData.currentAvatar == entity) then
-					--Stop a game over screen                        --Will need added functionality for 0.13 to support MP properly
-					game.set_game_state{game_finished=false}
-					player = playerData.player
-					
-					--Give back control of the player's body
-					--Passing tick 0 to force the swap no matter what
-					loseAvatarControl(player, 0)
-					player.print{"Avatars-error-controlled-avatar-death"}
-				end
-			end
-		end
 		
 		--Remove the avatar from the global table
 		for _, currentAvatar in ipairs(global.avatars) do
@@ -241,11 +225,32 @@ function on_entityDestroyed(event)
 	end
 end
 
-script.on_event(defines.events.on_preplayer_mined_item, on_entityDestroyed)
-script.on_event(defines.events.on_robot_pre_mined, on_entityDestroyed)
-script.on_event(defines.events.on_entity_died, on_entityDestroyed)
+script.on_event(defines.events.on_preplayer_mined_item, on_entity_destroyed)
+script.on_event(defines.events.on_robot_pre_mined, on_entity_destroyed)
+script.on_event(defines.events.on_entity_died, on_entity_destroyed)
 
-function on_Tick(event)
+--Handles a player dying while controlling an avatar
+function on_preplayer_died(event)
+	local player = game.players[event.player_index]
+	
+	if (player.character.name == "avatar") then
+		loseAvatarControl(player, 0)
+		player.print{"Avatars-error-controlled-avatar-death"}
+	end
+end
+
+script.on_event(defines.events.on_pre_player_died, on_preplayer_died)
+
+--Handler for the hotkey to disconnect from an avatar
+function on_hotkey(event)
+	local player = game.players[event.player_index]
+	
+	loseAvatarControl(player, event.tick)
+end
+
+script.on_event("avatars_disconnect", on_hotkey)
+
+function on_tick(event)
 	--Every 5 seconds - Check to deploy the initial avatar for ARDUs
 	if ((game.tick % (60*5)) == 0) then
 		if (global.avatarARDUTable ~= nil) then
@@ -265,16 +270,16 @@ function on_Tick(event)
 	end
 end
 
-script.on_event(defines.events.on_tick, on_Tick)
+script.on_event(defines.events.on_tick, on_tick)
 
 --DEBUG messages
 function debugLog(message)
-	for _, player in pairs(game.players) do
-		if debug_mode then
+	if debug_mode then
+		for _, player in pairs(game.players) do
 			player.print(message)
 		end
 	end
-end 
+end
 
 
 --Remote Calls
@@ -293,9 +298,10 @@ remote.add_interface("Avatars_avatar_placement", {
 
 --User Commands
 --Sometimes remote calls don't want to work, not sure why
--- /c remote.call("AvatarsSwap", "manualSwapBack")
-remote.add_interface("AvatarsSwap", {
-	manualSwapBack = function()
+remote.add_interface("Avatars", {
+	--Used to force a swap back to the player's body
+	-- /c remote.call("Avatars", "manual_swap_back")
+	manual_swap_back = function()
 		player = game.player
 		if (player.character.name ~= "player") then
 			local playerData = getPlayerData(player)
@@ -319,14 +325,11 @@ remote.add_interface("AvatarsSwap", {
 		else
 			player.print{"avatar-remote-call-in-your-body"}
 		end
-	end
-})
-
---LAST DITCH EFFORT
---Only use this is your body was destroyed somehow and you can't reload a save (this will create a new body)
--- /c remote.call("AvatarsLastResort", "createNewBody")
-remote.add_interface("AvatarsLastResort", {
-	createNewBody = function()
+	end,
+	--LAST DITCH EFFORT
+	--Only use this is your body was destroyed somehow and you can't reload a save (this will create a new body)
+	-- /c remote.call("Avatars", "create_new_body")
+	create_new_body = function()
 		player = game.player
 		if (player.character.name ~= "player") then
 			local playerData = getPlayerData(player)
@@ -361,10 +364,12 @@ remote.add_interface("AvatarsLastResort", {
 remote.add_interface("Ava", {
 	testing = function()
 		if debug_mode then
-			game.player.insert({name="avatar-control-center", count=5})
-			game.player.insert({name="avatar-assembling-machine", count=5})
-			game.player.insert({name="avatar-remote-deployment-unit", count=5})
-			game.player.insert({name="avatar", count=25})
+			for _, player in pairs(game.players) do
+				player.insert({name="avatar-control-center", count=5})
+				player.insert({name="avatar-assembling-machine", count=5})
+				player.insert({name="avatar-remote-deployment-unit", count=5})
+				player.insert({name="avatar", count=25})
+			end
 		end
 	end
 })
