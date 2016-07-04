@@ -114,7 +114,7 @@ end
 function removeFromTable(func, oldTable)
 	if (oldTable == nil) then return nil end
 	local newTable = {}
-	for _, row in ipairs(oldTable) do
+	for _, row in pairs(oldTable) do
 		if not func(row) then table.insert(newTable, row) end
 	end
 	return newTable
@@ -211,6 +211,7 @@ function changeAvatarNameSubmit(player)
 			
 			--Final check and set
 			if flag then
+				debugLog("Renaming Avatar")
 				renamedAvatar.name = newName
 				updateRenameGUI(player, oldName, newName)
 			else
@@ -487,7 +488,7 @@ function migrateTo_0_3_0()
 				name = "avatar-assembling-machine",
 			})
 			if (entities ~= nil) then
-				for _, entity in ipairs(entities) do
+				for _, entity in pairs(entities) do
 					--Obtain the contents of the assembler
 					local inputInventory = entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()
 					local outputInventory = entity.get_output_inventory().get_contents()
