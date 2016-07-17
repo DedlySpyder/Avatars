@@ -22,6 +22,7 @@ data:extend(
   }
 })
 
+--Header frame styles
 local headerFrameHeight = 35
 
 local nameHeader = {type = "frame_style", height = headerFrameHeight}
@@ -40,20 +41,21 @@ data.raw["gui-style"].default["avatar_table_location_header_frame"] = locationHe
 data.raw["gui-style"].default["avatar_table_rename_header_frame"] = renameHeader
 data.raw["gui-style"].default["avatar_table_control_header_frame"] = controlHeader
 
-
+--General table label style
 data.raw["gui-style"].default["avatar_table_general"] =
 {
 	type = "label_style",
 	font = "font-table"
 }
 
+--Scroll pane for the table
 data.raw["gui-style"].default["avatar_table_scroll_pane"] =
 {
 	type = "scroll_pane_style",
 	maximal_height = 400
 }
 
---Header for the Avatar Name column **This may throw off localized versions**
+--Header for the Avatar Name column **This may be thrown off in other localizations**
 data.raw["gui-style"].default["avatar_table_header_avatar_name"] =
 {
 	type = "label_style",
@@ -63,6 +65,7 @@ data.raw["gui-style"].default["avatar_table_header_avatar_name"] =
 
 
 --Sort Radio Button styles
+--Sort radio button style
 data.raw["gui-style"].default["avatar_table_name_sort_radiobutton"] =
 {
 	type = "radiobutton_style",
@@ -70,6 +73,7 @@ data.raw["gui-style"].default["avatar_table_name_sort_radiobutton"] =
 	width = 285
 }
 
+--Beginning space to align the descending radio buttons
 data.raw["gui-style"].default["avatar_table_sort_leading_null_label"] =
 {
 	type = "label_style",
@@ -77,6 +81,7 @@ data.raw["gui-style"].default["avatar_table_sort_leading_null_label"] =
 	width = 28
 }
 
+--Trailing space to fill out the frame
 data.raw["gui-style"].default["avatar_table_sort_trailing_null_label"] =
 {
 	type = "label_style",
@@ -84,7 +89,7 @@ data.raw["gui-style"].default["avatar_table_sort_trailing_null_label"] =
 	width = 300
 }
 
-
+--Frame style for each entry in the table
 data.raw["gui-style"].default["avatar_table_row_frame"] =
 {
 	type = "frame_style",
@@ -93,7 +98,6 @@ data.raw["gui-style"].default["avatar_table_row_frame"] =
 }
 
 --Label for the individual names
---This stops the label from pushing into the location column
 --Name Length is approximately 30 before it runs under other elements
 data.raw["gui-style"].default["avatar_table_label_avatar_name"] =
 {
@@ -125,57 +129,12 @@ data.raw["gui-style"].default["avatar_table_button"] =
     left_padding = 0
 }
 
+--Gap between the rename and control buttons
 data.raw["gui-style"].default["avatar_table_label_gap"] =
 {
 	type = "label_style",
 	font = "font-table",
 	width = 15
-}
-
-
-
-
---REDO OF STYLES
-
-
---Configures the entire Avatar Name column 
-data.raw["gui-style"].default["avatar_table_avatar_name_frame"] =
-{
-    type = "frame_style",
-    parent = "frame_style",
-	font = "font-table",
-    width = table_avatar_name_column_width,
-	align = "center"
-}
-
-
-
-
---Configures the entire Avatar Location column 
-data.raw["gui-style"].default["avatar_table_avatar_location_frame"] =
-{
-    type = "frame_style",
-    parent = "frame_style",
-	font = "font-table",
-    width = table_avatar_location_column_width,
-	align = "center"
-}
-
-
-
-
---Change page button
-data.raw["gui-style"].default["avatar_table_button_change_page"] =
-{
-    type = "button_style",
-    parent = "button_style",
-	font = "font-button-change-page",
-    width = 20,
-    height = 26,
-    top_padding = 0,
-    right_padding = 0,
-    bottom_padding = 0,
-    left_padding = 0
 }
 
 --Total avatars footer

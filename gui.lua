@@ -2,14 +2,15 @@
 --Draw Selection GUI
 function drawSelectionGUI(player)
 	debugLog("Drawing Selection GUI")
-	--Create the frame variable
-	local avatarSelectionFrame
 	
+	--Determine the sort
 	local sortValues
 	if verifySelectionGUI(player) then
+		--Get the sort from the current selection GUI
 		debugLog("Old Selection GUI found")
 		sortValues = getSortValues(player)
 	else
+		--Default sort values
 		sortValues = {	name_ascending = true,
 						name_descending = false,
 						location_ascending = false,
@@ -20,27 +21,30 @@ function drawSelectionGUI(player)
 	--Destroy old Selection GUI
 	destroySelectionGUI(player)
 	
+	--Obtain a sorted table to display
 	local sortedTable = getSortedTable(sortValues, player.position)
 	
 	--Create the frame to hold everything
-	avatarSelectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", printPosition(player)}}
+	local avatarSelectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", printPosition(player)}}
 	
+	--Fill in the GUI if there is data
 	if (sortedTable ~= nil and #sortedTable > 0) then
+		--Flow to align the header frames
 		local headerFlow = avatarSelectionFrame.add{type="flow", name="headerFlow", direction="horizontal"}
 		
+		--Column header frames
 		local nameHeader = headerFlow.add{type="frame", name="nameHeader", direction="vertical", style="avatar_table_name_header_frame"}
 		local locationHeader = headerFlow.add{type="frame", name="locationHeader", direction="vertical", style="avatar_table_location_header_frame"}
 		local renameHeader = headerFlow.add{type="frame", name="renameHeader", direction="vertical", style="avatar_table_rename_header_frame"}
 		local controlHeader = headerFlow.add{type="frame", name="controlHeader", direction="vertical", style="avatar_table_control_header_frame"}
 		
-		--Column headers 
+		--Header labels
 		nameHeader.add{type="label", caption={"Avatars-table-avatar-name-header"}, style="avatar_table_header_avatar_name"}
 		locationHeader.add{type="label", caption={"Avatars-table-avatar-location-header"}, style="avatar_table_general"}
 		renameHeader.add{type="label", caption={"Avatars-table-rename-avatar-header"}, style="avatar_table_general"}
 		controlHeader.add{type="label", caption={"Avatars-table-control-avatar-header"}, style="avatar_table_general"}
 		
-		--TODO - make sort buttons function like radio buttons (and sort)
-		
+		--Create the "Asending" sort row
 		local upperSortFlow = avatarSelectionFrame.add{type="flow", name="upperSortFlow", direction="horizontal"}
 		upperSortFlow.add{type="label", caption={"Avatars-table-sort-prefix"}}
 		upperSortFlow.add{	type="radiobutton", 
@@ -56,6 +60,7 @@ function drawSelectionGUI(player)
 							state=sortValues.location_ascending}
 		upperSortFlow.add{type="label", caption="", style="avatar_table_sort_trailing_null_label"}
 		
+		--Create the "Descending" sort row
 		local lowerSortFlow = avatarSelectionFrame.add{type="flow", name="lowerSortFlow", direction="horizontal"}
 		lowerSortFlow.add{type="label", caption="", style="avatar_table_sort_leading_null_label"}
 		lowerSortFlow.add{	type="radiobutton", 
@@ -71,29 +76,41 @@ function drawSelectionGUI(player)
 							state=sortValues.location_descending}
 		lowerSortFlow.add{type="label", caption="", style="avatar_table_sort_trailing_null_label"}
 		
+		--Frame and scroll pane creation
 		local tableFrame = avatarSelectionFrame.add{type="frame", name="tableFrame", direction="vertical"}
-		
 		local selectionScrollPane = tableFrame.add{type="scroll-pane", name="selectionScrollPane", direction="vertical", style="avatar_table_scroll_pane"}
 		
+		--Total avatar count
 		local totalAvatars = 0
 		
+		--Iterate through the avatars
 		for _, avatar in ipairs(sortedTable) do
 			if (avatar == nil) then break end
-			--Make sure the avatar is in the same force
 			local avatarEntity = avatar.avatarEntity
 			if (avatarEntity ~= nil and avatarEntity.valid) then
+				--Make sure the avatar is in the same force
 				if (avatarEntity.force == player.force) then
 					--Add it to the count
 					totalAvatars = totalAvatars + 1
+					
+					--Create the row frame
 					local row = selectionScrollPane.add{type="frame", direction="horizontal", style="avatar_table_row_frame"}
 					
+					--Fill in the row
 					row.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
-					
 					row.add{type="label", caption=getDistance(player.position, avatarEntity.position), style="avatar_table_label_avatar_location"}
-					row.add{type="button", name="avatar_rnam_"..avatar.name, caption={"Avatars-table-rename-button"}, tooltip={"Avatars-table-rename-button-tooltip", avatar.name}, style="avatar_table_button"} --button name "rnam_"
-					--Rename needs locale
+					row.add{
+								type="button", 
+								name="avatar_rnam_"..avatar.name, 
+								caption={"Avatars-table-rename-button"}, 
+								tooltip={"Avatars-table-rename-button-tooltip", avatar.name}, 
+								style="avatar_table_button"}
 					row.add{type="label", style="avatar_table_label_gap"}
-					row.add{type="button", name="avatar_ctrl_"..avatar.name, caption={"Avatars-table-control-button"}, tooltip={"Avatars-table-control-button-tooltip", avatar.name}, style="avatar_table_button"} -- button name "ctrl_"
+					row.add{	type="button", 
+								name="avatar_ctrl_"..avatar.name, 
+								caption={"Avatars-table-control-button"}, 
+								tooltip={"Avatars-table-control-button-tooltip", avatar.name}, 
+								style="avatar_table_button"}
 				end
 			end
 		end
@@ -101,105 +118,6 @@ function drawSelectionGUI(player)
 		--Avatar Total
 		avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
 	end
-	
-	
-	--[[
-	--Total avatars in the player's force
-	
-	
-	if (global.avatars ~= nil) then
-		for _, avatar in ipairs(global.avatars) do
-			if (avatar == nil) then break end
-			--Make sure the avatar is in the same force
-			local avatarEntity = avatar.avatarEntity
-			if (avatarEntity ~= nil and avatarEntity.valid) then
-				if (avatarEntity.force == player.force) then
-					--Add it to the count
-					totalAvatars = totalAvatars + 1
-					nameRow = nameFrame.add{type="flow", direction="horizontal"}
-					nameRow.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
-					nameRow.add{type="button", name="avatar_rnam_"..avatar.name, style="avatar_table_button_rename"} --button name "rnam_"
-					locationFrame.add{type="label", caption=printPosition(avatarEntity), style="avatar_table_label_avatar_location"}
-					controlFrame.add{type="button", name="avatar_ctrl_"..avatar.name, caption={"Avatars-table-control-button"}, style="avatar_table_button_control"} -- button name "ctrl_"
-				end
-			end
-		end
-		--Footer 
-		--Avatar Total
-		avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
-	end
-	]]
-	
-	--[[
-	
-	avatarSelectionFrame.add{type="radiobutton", name="sort", caption="something", state=true}
-	
-	numberFrame = avatarTable.add{type="frame", name="numberFrame", direction="vertical"}
-	
-	
-	
-	numberFrame.add{type="label", caption="#", style="avatar_table_general"}
-	numberFrame.add{type="label", caption="-", style="avatar_table_general"}
-	
-	
-	--Calculation for the first and last item to display
-	local firstItem = 1
-	if (pageNumber ~= 1) then
-		debugLog("Adjusting page number "..pageNumber)
-		firstItem = ((pageNumber-1)*table_avatars_per_page)+1
-	end
-	local lastItem = firstItem+(table_avatars_per_page-1)
-	
-	--Total avatars in the player's force
-	local totalAvatars = 0
-	
-	if (global.avatars ~= nil) then
-		local row = 1
-		local itemsDisplayed = 0
-		for _, avatar in ipairs(global.avatars) do
-			if (avatar == nil) then break end
-			--Make sure the avatar is in the same force
-			local avatarEntity = avatar.avatarEntity
-			if (avatarEntity ~= nil and avatarEntity.valid) then
-				if (avatarEntity.force.name == player.force.name) then
-					--Add it to the count
-					totalAvatars = totalAvatars + 1
-					--Make sure the avatar should be on this page, and that the page isn't full
-					if (row >= firstItem) and (row <= lastItem) and (itemsDisplayed <= table_avatars_per_page) then
-						numberFrame.add{type="label", caption=row, style="avatar_table_general"}
-						nameRow = nameFrame.add{type="flow", direction="horizontal"}
-						nameRow.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
-						nameRow.add{type="button", name="avatar_rnam_"..avatar.name, style="avatar_table_button_rename"} --button name "rnam_"
-						locationFrame.add{type="label", caption=printPosition(avatarEntity), style="avatar_table_label_avatar_location"}
-						controlFrame.add{type="button", name="avatar_ctrl_"..avatar.name, caption={"Avatars-table-control-button"}, style="avatar_table_button_control"} -- button name "ctrl_"
-						
-						itemsDisplayed = itemsDisplayed + 1
-					end
-				end
-				row = row + 1
-			end
-		end
-		
-		--Footer
-		local footerFlag = (totalAvatars > table_avatars_per_page)
-		
-		--Page Back
-		if footerFlag then
-			avatarSelectionFrame.add{type="button", name="pageBack", caption="<", style="avatar_table_button_change_page"}
-		end
-		
-		--Page Number
-		avatarSelectionFrame.add{type="label", name="pageNumber", caption=pageNumber, style="avatar_table_general"}
-		
-		--Page Forward
-		if footerFlag then
-			avatarSelectionFrame.add{type="button", name="pageForward", caption=">", style="avatar_table_button_change_page"}
-		end
-		
-		--Avatar Total
-		avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
-	end
-	]]
 end
 
 --Creates a printable position
@@ -211,7 +129,9 @@ end
 --Update Selection GUI for the current player
 function updateSelectionGUI(player)
 	--Redraw the GUI
-	drawSelectionGUI(player)
+	if verifyRenameGUI then
+		drawSelectionGUI(player)
+	end
 end
 
 --Update the Selection GUI for all players on this page
@@ -277,8 +197,8 @@ function drawRenameGUI(player, name)
 	buttonsFlow.add{type="button", name="avatar_cncl", caption={"Avatars-cancel-button"}}
 end
 
---Update Rename GUI
-function updateRenameGUI(player, oldName, newName)
+--Update Rename GUI when the submit button has be pressed
+function updateRenameGUIOnSubmit(player, oldName, newName)
 	--Check if a name change occured
 	if (newName ~= nil) then
 		--Update Selection GUI first, to maintain order
@@ -309,6 +229,23 @@ function updateRenameGUI(player, oldName, newName)
 		--If not, update with the old name
 		updateSelectionGUI(player)
 		drawRenameGUI(player, oldName)
+	end
+end
+
+--Update the Rename GUI
+function updateRenameGUI(player)
+	--Update Selection GUI first, to maintain order
+	updateSelectionGUI(player)
+	
+	if verifyRenameGUI(player) then
+		--Preserve the name and the text in the text box
+		local currentName = player.gui.center.changeNameFrame.currentNameFlow.currentName.caption
+		local textBoxData = player.gui.center.changeNameFrame.newNameField.text
+		
+		drawRenameGUI(player, currentName)
+		
+		--Replace the text in the text box
+		player.gui.center.changeNameFrame.newNameField.text = textBoxData
 	end
 end
 

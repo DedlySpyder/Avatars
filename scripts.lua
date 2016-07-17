@@ -106,7 +106,7 @@ end
 function removeARDUFromTable(entity)
 	local newFunction = function (arg) return arg.entity == entity end --Function that returns true or false if the entities match
 	global.avatarARDUTable = removeFromTable(newFunction, global.avatarARDUTable)
-	debugLog("deleted ARDU: " .. #global.avatarARDUTable)
+	debugLog("Deleted ARDU: " .. #global.avatarARDUTable)
 end
 
 --Removes an entity from a global table
@@ -114,7 +114,7 @@ end
 function removeFromTable(func, oldTable)
 	if (oldTable == nil) then return nil end
 	local newTable = {}
-	for _, row in pairs(oldTable) do
+	for _, row in ipairs(oldTable) do
 		if not func(row) then table.insert(newTable, row) end
 	end
 	return newTable
@@ -309,17 +309,17 @@ function changeAvatarNameSubmit(player)
 			if flag then
 				debugLog("Renaming Avatar")
 				renamedAvatar.name = newName
-				updateRenameGUI(player, oldName, newName)
+				updateRenameGUIOnSubmit(player, oldName, newName)
 			else
 				--Name in use
 				player.print{"Avatars-error-name-in-use"}
-				updateRenameGUI(player, oldName, nil)
+				updateRenameGUIOnSubmit(player, oldName, nil)
 				player.gui.center.changeNameFrame.newNameField.text = newName
 			end
 		else
 			--Blank text field
 			player.print{"Avatars-error-blank-name"}
-			updateRenameGUI(player, oldName, nil)
+			updateRenameGUIOnSubmit(player, oldName, nil)
 		end
 	end
 end
@@ -571,84 +571,6 @@ end
 
 
 --Migration Scripts
-
---0.3.0 Migration
-function migrateTo_0_3_0()
-	--Search code taken from Factorio Standard Library Project
-	--Find all old assemblers and replace them (to add to the table and to spawn the new fluid boxes)
-	for _, surface in pairs(game.surfaces) do
-		for chunk in surface.get_chunks() do
-			local entities = surface.find_entities_filtered(
-			{
-				area = { left_top = { x = chunk.x * 32, y = chunk.y * 32 }, right_bottom = {x = (chunk.x + 1) * 32, y = (chunk.y + 1) * 32}},
-				name = "avatar-assembling-machine",
-			})
-			if (entities ~= nil) then
-				for _, entity in pairs(entities) do
-					--Obtain the contents of the assembler
-					local inputInventory = entity.get_inventory(defines.inventory.assembling_machine_input).get_contents()
-					local outputInventory = entity.get_output_inventory().get_contents()
-					local moduleInventory = entity.get_module_inventory().get_contents()
-					
-					--Obtain the other needed data
-					local recipe = entity.recipe
-					local position = entity.position
-					local force = entity.force
-					
-					--This search doubles up sometimes, so make sure that the assembler does not leave a nil value in the table
-					removeAvatarAssemlerFromTable(entity)
-					entity.destroy()
-					local newAssembler = surface.create_entity{
-																name="avatar-assembling-machine",
-																position=position,
-																force=force,
-																recipe=recipe.name
-															  }
-					
-					--Obtain a reference to the new inventories
-					local newInputInventory = newAssembler.get_inventory(defines.inventory.assembling_machine_input)
-					local newOutputInventory = entity.get_output_inventory()
-					local newModuleInventory = entity.get_module_inventory()
-					
-					--Replace the items
-					for item, count in pairs(outputInventory) do
-						newOutputInventory.insert({name=item, count=count})
-					end
-					for item, count in pairs(moduleInventory) do
-						newModuleInventory.insert({name=item, count=count})
-					end
-					for item, count in pairs(inputInventory) do
-						newInputInventory.insert({name=item, count=count})
-					end
-					
-					--Add to the table
-					addAvatarAssemblerTotable(newAssembler) --still not working...
-					debugLog("Assembler migrated: "..#global.avatarAssemblingMachines)
-				end
-			end
-		end
-	end
-	
-	--Migrate the current default name iteration
-	if (global.avatars ~= nil) then
-		local defaultStringLength = #default_avatar_name
-		local lastDefaultName = nil
-		for _, avatar in ipairs(global.avatars) do
-			local name = avatar.name
-			local namePrefix = string.sub(name, 1, defaultStringLength)
-			if (namePrefix == default_avatar_name) then lastDefaultName = name end --If a sort function is added, this will need to sort first
-			debugLog(lastDefaultName)
-		end
-		
-		--If a default name was being used, set the increment
-		if (lastDefaultName ~= nil) then
-			local lastIncrement = tonumber(string.sub(lastDefaultName, defaultStringLength+1, #lastDefaultName))
-			
-			global.avatarDefaultCount = doesAvatarDefaultCountExistOrCreate(global.avatarDefaultCount)
-			global.avatarDefaultCount = lastIncrement + 1
-		end
-	end
-end
 
 --0.4.0 Migration
 function migrateTo_0_4_0()
