@@ -24,7 +24,7 @@ avataranimations =
       apply_runtime_tint = false, --?need to change?
       animation_speed = 0.15,
       shift = {-0.015625, -0.8125},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     idlewithgun =
     {
@@ -48,7 +48,7 @@ avataranimations =
       apply_runtime_tint = false,
       animation_speed = 0.15,
       shift = {-0.046875, -0.703125},
-	  tint = avatar_tint--,
+	  tint = avatarTint--,
       --apply_runtime_tint = false
     },
     miningwithhands =
@@ -73,7 +73,7 @@ avataranimations =
       animation_speed = 0.6,
       apply_runtime_tint = false,
       shift = {-0.15625, -0.390625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     miningwithtool =
     {
@@ -99,7 +99,7 @@ avataranimations =
       animation_speed = 0.9,
       apply_runtime_tint = false,
       shift = {-0.046875, -0.390625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     runningwithgun =
     {
@@ -123,7 +123,7 @@ avataranimations =
       direction_count = 18,
       apply_runtime_tint = false,
       shift = {0.015625,  -0.625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     running =
     {
@@ -147,7 +147,7 @@ avataranimations =
       direction_count = 8,
       apply_runtime_tint = false,
       shift = {0, -0.703125},
-	  tint = avatar_tint
+	  tint = avatarTint
     }
   },
 
@@ -175,7 +175,7 @@ avataranimations =
       apply_runtime_tint = false,
       animation_speed = 0.15,
       shift = {-0.03125, -0.796875},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     idlewithgun =
     {
@@ -198,7 +198,7 @@ avataranimations =
       frame_count = 22,
       animation_speed = 0.15,
       shift =  {-0.03125, -0.734375},
-	  tint = avatar_tint,
+	  tint = avatarTint,
       apply_runtime_tint = false
     },
     miningwithhands =
@@ -223,7 +223,7 @@ avataranimations =
       animation_speed = 0.6,
       apply_runtime_tint = false,
       shift = {-0.15625, -0.40625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     miningwithtool =
     {
@@ -249,7 +249,7 @@ avataranimations =
       animation_speed = 0.9,
       apply_runtime_tint = false,
       shift = {-0.0625, -0.390625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     runningwithgun =
     {
@@ -271,7 +271,7 @@ avataranimations =
       direction_count = 18,
       apply_runtime_tint = false,
       shift = {0,  -0.65625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     running =
     {
@@ -293,7 +293,7 @@ avataranimations =
       direction_count = 8,
       apply_runtime_tint = false,
       shift = {0, -0.796875},
-	  tint = avatar_tint
+	  tint = avatarTint
     }
   },
 
@@ -321,7 +321,7 @@ avataranimations =
       apply_runtime_tint = false,
       animation_speed = 0.15,
       shift = {-0.015625, -0.796875},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     idlewithgun =
     {
@@ -345,7 +345,7 @@ avataranimations =
       apply_runtime_tint = false,
       animation_speed = 0.15,
       shift = {-0.03125, -0.703125},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     miningwithhands =
     {
@@ -369,7 +369,7 @@ avataranimations =
       animation_speed = 0.6,
       apply_runtime_tint = false,
       shift = {-0.15625, -0.40625},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     miningwithtool =
     {
@@ -395,7 +395,7 @@ avataranimations =
       animation_speed = 0.9,
       apply_runtime_tint = false,
       shift = {-0.046875, -0.359375},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     runningwithgun =
     {
@@ -417,7 +417,7 @@ avataranimations =
       direction_count = 18,
       apply_runtime_tint = false,
       shift = {0,  -0.609375},
-	  tint = avatar_tint
+	  tint = avatarTint
     },
     running =
     {
@@ -439,7 +439,7 @@ avataranimations =
       direction_count = 8,
       apply_runtime_tint = false,
       shift = {0, -0.890625},
-	  tint = avatar_tint
+	  tint = avatarTint
     }
   }
 }
