@@ -50,7 +50,7 @@ function addAvatarToTable(entity)
 	global.avatarDefaultCount = currentIncrement + 1
 	
 	--Insert the new avatar to the table
-	table.insert(global.avatars, {avatarEntity=entity, name=default_avatar_name..currentIncrement})
+	table.insert(global.avatars, {avatarEntity=entity, name=default_avatar_name..string.format("%03d",currentIncrement)})
 	debugLog("new avatar: " .. #global.avatars .. ", " .. global.avatars[#global.avatars].name)
 end
 
@@ -68,7 +68,7 @@ function addARDUToTable(entity)
 	--Inser the new ARDU to the table
 	table.insert(global.avatarARDUTable, {
 											entity=entity, 
-											name=default_avatar_remote_deployment_unit_name..currentIncrement,
+											name=default_avatar_remote_deployment_unit_name..string.format("%03d", currentIncrement),
 											flag=false,
 											deployedAvatar=nil,
 											currentIteration=0
@@ -173,6 +173,102 @@ function doesARDUCountExistOrCreate(checkVar)
 	else
 		return checkVar
 	end
+end
+
+--Sorting Scripts
+
+function getSortValues(player)
+	debugLog("Obtaining old sort values")
+	local selectionFrame = player.gui.center.avatarSelectionFrame
+	
+	return {	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
+				name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
+				location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
+				location_descending = selectionFrame.lowerSortFlow.avatar_sort_location_descending.state,
+		   }
+end
+
+function getSortedTable(sortValues, position)
+	--Check the sort string
+	if (sortValues.name_ascending) then
+		--Comapre the name strings
+		local newFunction = function(a,b) return a.name < b.name end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+		
+	elseif (sortValues.name_descending) then
+		--Comapre the name strings
+		local newFunction = function(a,b) return a.name > b.name end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+		
+	elseif (sortValues.location_ascending) then
+		--Compare the distances
+		local newFunction = function(a,b) 
+								local aDistance = getDistance(position, a.avatarEntity.position)
+								local bDistance = getDistance(position, b.avatarEntity.position)
+								return aDistance < bDistance
+							end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+		
+	elseif (sortValues.location_descending) then
+		--Compare the distances
+		local newFunction = function(a,b) 
+								local aDistance = getDistance(position, a.avatarEntity.position)
+								local bDistance = getDistance(position, b.avatarEntity.position)
+								return aDistance > bDistance
+							end
+		return getNewSortedTable(copyTable(global.avatars), newFunction)
+		
+	else
+		return global.avatars
+	end
+end
+
+--Takes a table (list) and sorts it based on the function provided
+function getNewSortedTable(list, func)
+	local changesMade
+	local itemCount = #list
+	
+	--Repeat until there are no changes made
+	repeat
+		changesMade = false
+		--The first item will never need comapred to nothing
+		for i=2, itemCount do
+			if func(list[i], list[i-1]) then
+				--Swap the data
+				local temp = list[i-1]
+				list[i-1] = list[i]
+				list[i] = temp
+				
+				--Set the flag
+				changesMade = true
+			end
+		end
+		itemCount = itemCount - 1
+	until changesMade == false
+	
+	return list
+end
+
+--Find the distance of an avatar from the player
+function getDistance(startPosition, endPosition)
+	local xDistance = startPosition.x - endPosition.x
+	local yDistance = startPosition.y - endPosition.y
+	
+	--Find the total distance of the line
+	local distance = math.sqrt((xDistance^2) + (yDistance^2))
+	
+	--Round the distance (found from http://lua-users.org/wiki/SimpleRound)
+	local mult = 10^(1) --The power is the number of decimal places to round to
+	return math.floor(distance * mult + 0.5) / mult
+end
+
+--Copies a table by value
+function copyTable(oldTable)
+	local newTable = {}
+	for i, row in pairs(oldTable) do
+		newTable[i] = row
+	end
+	return newTable
 end
 
 
@@ -372,7 +468,7 @@ function loseAvatarControl(player, tick)
 	
 	--GUI clean up
 	destroyDisconnectGUI(player)
-	drawSelectionGUI(player, 1)
+	drawSelectionGUI(player)
 end
 
 --Avatar Deployment
@@ -399,7 +495,7 @@ function deployAvatarFromARDU(ARDU)
 				for _, currentAvatar in ipairs(global.avatars) do
 					if (currentAvatar.avatarEntity == avatar) then
 						--Rename it to the ARDU name
-						currentAvatar.name = (ARDU.name.." "..default_avatar_deployed_prefix.." "..ARDU.currentIteration)
+						currentAvatar.name = (ARDU.name.." "..default_avatar_deployed_prefix.." "..string.format("%03d",ARDU.currentIteration))
 						global.avatarDefaultCount = global.avatarDefaultCount - 1
 						break
 					end
@@ -550,6 +646,20 @@ function migrateTo_0_3_0()
 			
 			global.avatarDefaultCount = doesAvatarDefaultCountExistOrCreate(global.avatarDefaultCount)
 			global.avatarDefaultCount = lastIncrement + 1
+		end
+	end
+end
+
+--0.4.0 Migration
+function migrateTo_0_4_0()
+	--Default avatar names need to have leading zeroes in order to sort correctly
+	if global.avatars then
+		for i, avatar in ipairs(global.avatars) do
+			local nameSubString = string.sub(avatar.name, 1, #default_avatar_name)
+			if (default_avatar_name == nameSubString) then
+				local avatarNumber = string.format("%03d", tonumber(string.sub(avatar.name, #default_avatar_name+1, #avatar.name)))
+				global.avatars[i].name = default_avatar_name..avatarNumber
+			end
 		end
 	end
 end

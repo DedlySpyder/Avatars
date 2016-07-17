@@ -9,6 +9,9 @@ script.on_configuration_changed(function(data)
 		if oldVersion and oldVersion < "0.3.0" then
 			migrateTo_0_3_0()
 		end
+		if oldVersion and oldVersion < "0.4.0" then
+			migrateTo_0_4_0()
+		end
 	end
 end)
 
@@ -18,7 +21,7 @@ function on_driving(event)
 	
 	--Check for entering the Avatar Control Center
 	if player.vehicle and player.vehicle.name == "avatar-control-center" then
-		drawSelectionGUI(player, 1)
+		drawSelectionGUI(player)
 		debugLog("Getting in")
 		
 	--Check for entering the Avatar Remote Deployment unit (ARDU)
@@ -38,34 +41,9 @@ script.on_event(defines.events.on_player_driving_changed_state, on_driving)
 
 --Check on GUI click
 function checkGUI(event)
-	local element = event.element
-	local elementName = element.name
+	local elementName = event.element.name
 	local player = game.players[event.player_index]
 	debugLog("Clicked "..elementName)
-	
-	--Page forward button
-	if (elementName == "pageForward") then
-		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
-		if (avatarCount(player) > page*table_avatars_per_page) then
-			drawSelectionGUI(player, page+1)
-			if verifyRenameGUI(player) then
-				destroyRenameGUI(player)
-			end
-		end
-		return
-	end
-	
-	--Page back button
-	if (elementName == "pageBack") then
-		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
-		if (page > 1) then
-			drawSelectionGUI(player, page-1)
-			if verifyRenameGUI(player) then
-				destroyRenameGUI(player, nil)
-			end
-		end
-		return
-	end
 	
 	--Other button ("avatar_"..4LetterCode...)
 	local modSubString = string.sub(elementName, 1, 7)
@@ -115,6 +93,38 @@ function checkGUI(event)
 end
 
 script.on_event(defines.events.on_gui_click, checkGUI)
+
+--Handles the checkbox checked event
+function checkboxChecked(event)
+	local elementName = event.element.name
+	local player = game.players[event.player_index]
+	
+	--Check for avatar sort checkbox ("avatar_sort_")
+	local modSubString = string.sub(elementName, 1, 12)
+	
+	if (modSubString == "avatar_sort_") then
+		debugLog("Avatar Mod Radio-button press")
+		
+		--Look for the individual button
+		local modButton = string.sub(elementName, 13, #elementName)
+		debugLog("Radio-button pushed: "..modButton)
+		
+		--Check for each sort button
+		if (modButton == "name_ascending") then
+			flipRadioButtons(player, modButton)
+		elseif (modButton == "name_descending") then
+			flipRadioButtons(player, modButton)
+		elseif (modButton == "location_ascending") then
+			flipRadioButtons(player, modButton)
+		elseif (modButton == "location_descending") then
+			flipRadioButtons(player, modButton)
+		end
+		
+		updateSelectionGUI(player)
+	end
+end
+
+script.on_event(defines.events.on_gui_checked_state_changed, checkboxChecked)
 
 --Check on an entity being built
 function on_entity_built(event)
@@ -193,7 +203,7 @@ function on_entity_destroyed(event)
 				--Will only be set if a player was in the avatar
 				if (player ~= nil) then
 					--They need the GUI if so
-					drawSelectionGUI(player, 1)
+					drawSelectionGUI(player)
 				end
 				
 				--Attempts to deploy a new avatar
