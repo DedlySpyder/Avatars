@@ -6,8 +6,8 @@ require "scripts"
 script.on_configuration_changed(function(data)
 	if data.mod_changes.Avatars then
 		local oldVersion = data.mod_changes.Avatars.old_version
-		if oldVersion and oldVersion < "0.3.0" then
-			migrateTo_0_3_0()
+		if oldVersion and oldVersion < "0.4.0" then
+			migrateTo_0_4_0()
 		end
 	end
 end)
@@ -18,7 +18,7 @@ function on_driving(event)
 	
 	--Check for entering the Avatar Control Center
 	if player.vehicle and player.vehicle.name == "avatar-control-center" then
-		drawSelectionGUI(player, 1)
+		drawSelectionGUI(player)
 		debugLog("Getting in")
 		
 	--Check for entering the Avatar Remote Deployment unit (ARDU)
@@ -38,34 +38,9 @@ script.on_event(defines.events.on_player_driving_changed_state, on_driving)
 
 --Check on GUI click
 function checkGUI(event)
-	local element = event.element
-	local elementName = element.name
+	local elementName = event.element.name
 	local player = game.players[event.player_index]
 	debugLog("Clicked "..elementName)
-	
-	--Page forward button
-	if (elementName == "pageForward") then
-		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
-		if (avatarCount(player) > page*table_avatars_per_page) then
-			drawSelectionGUI(player, page+1)
-			if verifyRenameGUI(player) then
-				destroyRenameGUI(player)
-			end
-		end
-		return
-	end
-	
-	--Page back button
-	if (elementName == "pageBack") then
-		local page = tonumber(player.gui.center.selectionFrame.pageNumber.caption)
-		if (page > 1) then
-			drawSelectionGUI(player, page-1)
-			if verifyRenameGUI(player) then
-				destroyRenameGUI(player, nil)
-			end
-		end
-		return
-	end
 	
 	--Other button ("avatar_"..4LetterCode...)
 	local modSubString = string.sub(elementName, 1, 7)
@@ -115,6 +90,39 @@ function checkGUI(event)
 end
 
 script.on_event(defines.events.on_gui_click, checkGUI)
+
+--Handles the checkbox checked event
+function checkboxChecked(event)
+	local elementName = event.element.name
+	local player = game.players[event.player_index]
+	
+	--Check for avatar sort checkbox ("avatar_sort_")
+	local modSubString = string.sub(elementName, 1, 12)
+	
+	if (modSubString == "avatar_sort_") then
+		debugLog("Avatar Mod Radio-button press")
+		
+		--Look for the individual button
+		local modButton = string.sub(elementName, 13, #elementName)
+		debugLog("Radio-button pushed: "..modButton)
+		
+		--Check for each sort button
+		if (modButton == "name_ascending") then
+			flipRadioButtons(player, modButton)
+		elseif (modButton == "name_descending") then
+			flipRadioButtons(player, modButton)
+		elseif (modButton == "location_ascending") then
+			flipRadioButtons(player, modButton)
+		elseif (modButton == "location_descending") then
+			flipRadioButtons(player, modButton)
+		end
+		
+		--Update the GUIs (updateRenameGUI triggers both rename and the selection gui, to maintain order)
+		updateRenameGUI(player)
+	end
+end
+
+script.on_event(defines.events.on_gui_checked_state_changed, checkboxChecked)
 
 --Check on an entity being built
 function on_entity_built(event)
@@ -178,8 +186,6 @@ function on_entity_destroyed(event)
 	
 	--Destruction of an Avatar
 	if (entity.name == "avatar") then
-		local player = nil
-		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
 		
 		--Remove the avatar from the global table
 		for _, currentAvatar in ipairs(global.avatars) do
@@ -189,12 +195,6 @@ function on_entity_destroyed(event)
 				local newFunction = function (arg) return arg.avatarEntity == entity end --Function that returns true or false if the entities match
 				global.avatars = removeFromTable(newFunction, global.avatars)
 				debugLog("deleted avatar: " .. #global.avatars .. ", " .. currentAvatar.name)
-				
-				--Will only be set if a player was in the avatar
-				if (player ~= nil) then
-					--They need the GUI if so
-					drawSelectionGUI(player, 1)
-				end
 				
 				--Attempts to deploy a new avatar
 				redeployAvatarFromARDU(avatarEntity)
@@ -209,6 +209,7 @@ function on_entity_destroyed(event)
 		--Remove it from the global table
 		for _, currentARDU in ipairs(global.avatarARDUTable) do
 			if (currentARDU.entity == entity) then
+				debugLog("Deleting ARDU, "..currentARDU.name)
 				removeARDUFromTable(entity)
 			end
 		end
@@ -252,7 +253,7 @@ script.on_event("avatars_disconnect", on_hotkey)
 
 function on_tick(event)
 	--Every 5 seconds - Check to deploy the initial avatar for ARDUs
-	if ((game.tick % (60*5)) == 0) then
+	if ((game.tick % (60*5)) == 17) then
 		if (global.avatarARDUTable ~= nil) then
 			for _, ARDU in ipairs(global.avatarARDUTable) do
 				if not ARDU.flag then --This only triggers once
@@ -265,7 +266,7 @@ function on_tick(event)
 	end
 	
 	--Every 15 seconds - check to place avatars in the avatar assembling machines
-	if ((game.tick % (60*15)) == 0) then 
+	if ((game.tick % (60*15)) == 23) then 
 		placeAvatarInAssemblers()
 	end
 end
@@ -296,8 +297,8 @@ remote.add_interface("Avatars_avatar_placement", {
 	end
 })
 
+
 --User Commands
---Sometimes remote calls don't want to work, not sure why
 remote.add_interface("Avatars", {
 	--Used to force a swap back to the player's body
 	-- /c remote.call("Avatars", "manual_swap_back")
@@ -360,8 +361,8 @@ remote.add_interface("Avatars", {
 })
 
 --DEBUG
--- /c remote.call("Ava", "testing")
-remote.add_interface("Ava", {
+remote.add_interface("Avatars_debug", {
+	-- /c remote.call("Avatars_debug", "testing")
 	testing = function()
 		if debug_mode then
 			for _, player in pairs(game.players) do
@@ -369,6 +370,26 @@ remote.add_interface("Ava", {
 				player.insert({name="avatar-assembling-machine", count=5})
 				player.insert({name="avatar-remote-deployment-unit", count=5})
 				player.insert({name="avatar", count=25})
+			end
+		end
+	end,
+	
+	-- /c remote.call("Avatars_debug", "avatars_list")
+	avatars_list = function()
+		if debug_mode then
+			for _, player in pairs(game.players) do
+				local count = 0
+				for _, avatar in ipairs(global.avatars) do
+					count = count + 1
+					
+					--Valid entity check
+					local validFlag = "false"
+					if (avatar.avatarEntity ~= nil and avatar.avatarEntity.valid) then
+						validFlag = "true"
+					end
+					
+					player.print(count..", "..avatar.name..", "..validFlag)
+				end
 			end
 		end
 	end
