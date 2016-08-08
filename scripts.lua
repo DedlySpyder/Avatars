@@ -190,36 +190,40 @@ end
 
 function getSortedTable(sortValues, position)
 	--Check the sort string
-	if (sortValues.name_ascending) then
-		--Comapre the name strings
-		local newFunction = function(a,b) return a.name < b.name end
-		return getNewSortedTable(copyTable(global.avatars), newFunction)
-		
-	elseif (sortValues.name_descending) then
-		--Comapre the name strings
-		local newFunction = function(a,b) return a.name > b.name end
-		return getNewSortedTable(copyTable(global.avatars), newFunction)
-		
-	elseif (sortValues.location_ascending) then
-		--Compare the distances
-		local newFunction = function(a,b) 
-								local aDistance = getDistance(position, a.avatarEntity.position)
-								local bDistance = getDistance(position, b.avatarEntity.position)
-								return aDistance < bDistance
-							end
-		return getNewSortedTable(copyTable(global.avatars), newFunction)
-		
-	elseif (sortValues.location_descending) then
-		--Compare the distances
-		local newFunction = function(a,b) 
-								local aDistance = getDistance(position, a.avatarEntity.position)
-								local bDistance = getDistance(position, b.avatarEntity.position)
-								return aDistance > bDistance
-							end
-		return getNewSortedTable(copyTable(global.avatars), newFunction)
-		
+	if (global.avatars) then
+		if (sortValues.name_ascending) then
+			--Comapre the name strings
+			local newFunction = function(a,b) return a.name < b.name end
+			return getNewSortedTable(copyTable(global.avatars), newFunction)
+			
+		elseif (sortValues.name_descending) then
+			--Comapre the name strings
+			local newFunction = function(a,b) return a.name > b.name end
+			return getNewSortedTable(copyTable(global.avatars), newFunction)
+			
+		elseif (sortValues.location_ascending) then
+			--Compare the distances
+			local newFunction = function(a,b) 
+									local aDistance = getDistance(position, a.avatarEntity.position)
+									local bDistance = getDistance(position, b.avatarEntity.position)
+									return aDistance < bDistance
+								end
+			return getNewSortedTable(copyTable(global.avatars), newFunction)
+			
+		elseif (sortValues.location_descending) then
+			--Compare the distances
+			local newFunction = function(a,b) 
+									local aDistance = getDistance(position, a.avatarEntity.position)
+									local bDistance = getDistance(position, b.avatarEntity.position)
+									return aDistance > bDistance
+								end
+			return getNewSortedTable(copyTable(global.avatars), newFunction)
+			
+		else
+			return global.avatars
+		end
 	else
-		return global.avatars
+		return {}
 	end
 end
 
