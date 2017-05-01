@@ -1,3 +1,5 @@
+require("mod-gui")
+
 --Selection GUI - The main table that displays and allows for renaming and control of avatars
 --Draw Selection GUI
 function drawSelectionGUI(player)
@@ -267,8 +269,12 @@ end
 --Disconnect GUI - Disconnect from the controlled avatar
 --Draw Disconnect GUI
 function drawDisconnectGUI(player)
-	local disconnect = player.gui.top.add{type="flow", name="avatarExit"}
-	disconnect.add{type="button", name="avatar_exit", tooltip={"Avatars-button-disconnect-tooltip", getPlayerData(player).currentAvatarName}, caption={"Avatars-button-disconnect"}}
+	mod_gui.get_button_flow(player).add{
+		type="button",
+		name="avatarExit",
+		tooltip={"Avatars-button-disconnect-tooltip", getPlayerData(player).currentAvatarName},
+		caption={"Avatars-button-disconnect"}
+	}
 end
 
 --Destroy Disconnect GUI

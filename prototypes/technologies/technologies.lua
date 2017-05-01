@@ -4,6 +4,7 @@ data:extend ({
     type = "technology",
     name = "avatars",
     icon = "__Avatars__/graphics/item-group/avatars.png",
+	icon_size = 64,
     effects =
     {
       {
@@ -60,7 +61,7 @@ data:extend ({
         {"science-pack-1", 1},
         {"science-pack-2", 1},
 		{"science-pack-3", 1},
-		{"alien-science-pack", 3}
+		{"high-tech-science-pack", 2}
       },
       time = 30
     },

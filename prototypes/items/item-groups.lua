@@ -6,6 +6,7 @@ data:extend({
     order = "e",
     inventory_order = "a",
     icon = "__Avatars__/graphics/item-group/avatars.png",
+	icon_size = 64
   },
   {
     type = "item-subgroup",

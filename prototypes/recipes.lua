@@ -153,7 +153,7 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"alien-artifact", 20},
+      {"wood", 10},
 	  {"coal", 10},
 	  {type="fluid", name="water", amount=10}
     },
