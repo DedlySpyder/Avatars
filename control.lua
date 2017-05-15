@@ -77,8 +77,13 @@ function checkGUI(event)
 			destroyRenameGUI(player)
 		end
 		
-		--Exit button (to disconnect from the avatar)
+		--Exit button (for control center ui)
 		if (modButton == "exit") then
+			destroySelectionGUI(player)
+		end
+		
+		--Disconnect button (to disconnect from the avatar)
+		if (modButton == "disc") then
 			loseAvatarControl(player, event.tick)
 		end
 		

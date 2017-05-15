@@ -29,6 +29,9 @@ function drawSelectionGUI(player)
 	--Create the frame to hold everything
 	local avatarSelectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", printPosition(player)}}
 	
+	--Total avatar count
+	local totalAvatars = 0
+	
 	--Fill in the GUI if there is data
 	if (sortedTable ~= nil and #sortedTable > 0) then
 		--Flow to align the header frames
@@ -82,9 +85,6 @@ function drawSelectionGUI(player)
 		local tableFrame = avatarSelectionFrame.add{type="frame", name="tableFrame", direction="vertical"}
 		local selectionScrollPane = tableFrame.add{type="scroll-pane", name="selectionScrollPane", direction="vertical", style="avatar_table_scroll_pane"}
 		
-		--Total avatar count
-		local totalAvatars = 0
-		
 		--Iterate through the avatars
 		for _, avatar in ipairs(sortedTable) do
 			if (avatar == nil) then break end
@@ -116,10 +116,13 @@ function drawSelectionGUI(player)
 				end
 			end
 		end
-		--Footer 
-		--Avatar Total
-		avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
 	end
+	
+	--Footer 
+	--Exit button
+	avatarSelectionFrame.add{type="button", name="avatar_exit", caption="Exit"}
+	--Avatar Total
+	avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
 end
 
 --Creates a printable position
@@ -155,6 +158,7 @@ end
 function destroySelectionGUI(player)
 	if verifySelectionGUI(player) then 
 		player.gui.center.avatarSelectionFrame.destroy()
+		destroyRenameGUI(player)
 	end
 end
 
@@ -269,19 +273,29 @@ end
 --Disconnect GUI - Disconnect from the controlled avatar
 --Draw Disconnect GUI
 function drawDisconnectGUI(player)
-	mod_gui.get_button_flow(player).add{
-		type="button",
-		name="avatarExit",
-		tooltip={"Avatars-button-disconnect-tooltip", getPlayerData(player).currentAvatarName},
-		caption={"Avatars-button-disconnect"}
-	}
+	if not verifyDisconnectGUI(player) then
+		mod_gui.get_button_flow(player).add{
+			type="button",
+			name="avatar_disc",
+			tooltip={"Avatars-button-disconnect-tooltip", getPlayerData(player).currentAvatarName},
+			caption={"Avatars-button-disconnect"}
+		}
+	end
 end
 
 --Destroy Disconnect GUI
 function destroyDisconnectGUI(player)
-	if (player.gui.top.avatarExit ~= nil and player.gui.top.avatarExit.valid) then
-		player.gui.top.avatarExit.destroy()
+	if verifyDisconnectGUI(player) then
+		mod_gui.get_button_flow(player)["avatar_disc"].destroy()
 	end 
+end
+
+--Verify Disconnect GUI
+function verifyDisconnectGUI(player)
+	if mod_gui.get_button_flow(player)["avatar_disc"] and mod_gui.get_button_flow(player)["avatar_disc"].valid then
+		return true
+	end
+	return false
 end
 
 --Avatar Remote Deployment Unit GUI
