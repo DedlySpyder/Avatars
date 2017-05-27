@@ -12,3 +12,7 @@ require("prototypes.items.item-groups")
 require("prototypes.recipes")
 require("prototypes.technologies.technologies")
 require("styles.styles")
+
+
+require("prototypes.mod-integration.angels")
+require("prototypes.mod-integration.bobs")

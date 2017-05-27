@@ -6,6 +6,16 @@
   "contact": "DedlySpyder@gmail.com",
   "homepage": "",
   "description": "This mod allows players to create and remotely control Avatars. Avatars act like players, with a few minor exceptions. The mod also includes a few custom entities to control and create the Avatars.",
-  "dependencies": ["base >= 0.15.0"],
+  "dependencies": [
+	"base >= 0.15.0", 
+	"? angelspetrochem >= 0.5.0", 
+	"? angelsrefining >= 0.7.0", 
+	"? angelssmelting >= 0.3.0",
+	"? bobplates >= 0.15.0",
+	"? bobassembly >= 0.15.0",
+	"? bobelectronics >= 0.15.0",
+	"? bobwarefare >= 0.15.0",
+	"? bobmodules >= 0.15.0"
+  ],
   "factorio_version": "0.15"
 }

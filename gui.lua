@@ -120,7 +120,7 @@ function drawSelectionGUI(player)
 	
 	--Footer 
 	--Exit button
-	avatarSelectionFrame.add{type="button", name="avatar_exit", caption="Exit"}
+	avatarSelectionFrame.add{type="button", name="avatar_exit", caption={"Avatars-table-exit-button"}}
 	--Avatar Total
 	avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
 end

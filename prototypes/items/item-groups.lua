@@ -10,20 +10,26 @@ data:extend({
   },
   {
     type = "item-subgroup",
-    name = "avatar-intermediate-product",
+    name = "avatar-silicone-product",
     group = "avatars",
     order = "a"
+  },
+  {
+    type = "item-subgroup",
+    name = "avatar-intermediate-product",
+    group = "avatars",
+    order = "b"
   },
   {
 	type = "item-subgroup",
 	name = "avatar-supporting-structures",
 	group = "avatars",
-	order = "b"
+	order = "c"
   },
   {
     type = "item-subgroup",
     name = "avatar",
     group = "avatars",
-    order = "c"
+    order = "d"
   }
 })

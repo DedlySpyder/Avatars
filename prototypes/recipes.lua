@@ -1,5 +1,4 @@
 data:extend ({
-
  {
     type = "recipe",
     name = "avatar",
@@ -57,7 +56,6 @@ data:extend ({
 	  {"filter-inserter", 5},
 	  {"processing-unit", 5},
 	  {"radar", 1}
-	  
     },
     result = "avatar-remote-deployment-unit",
 	category = "crafting",
@@ -71,7 +69,8 @@ data:extend ({
     {
       {"processing-unit", 3},
 	  {"electric-engine-unit", 5},
-	  {"steel-plate", 5}
+	  {"steel-plate", 5},
+	  {"iron-gear-wheel", 3}
     },
     result = "actuator",
 	category = "crafting",
@@ -153,9 +152,8 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"wood", 10},
-	  {"coal", 10},
-	  {type="fluid", name="water", amount=10}
+	  {"plastic-bar", 20},
+	  {type="fluid", name="water", amount=100}
     },
     result = "avatar-skin",
 	category = "advanced-crafting",
