@@ -1,8 +1,3 @@
---TODO - LOCALES!!!!
---TODO - ITEMS!!!! (copper-chloride, dimethyldichlorosilane, silicone)
---TODO - add these new ones to tech if using angel's petrochem
---TODO - remove that setting?
-
 --Angel's Petrochem
 if data.raw["fluid"]["gas-chlorine"] then
 	local purified_water = "water"
@@ -106,7 +101,7 @@ if data.raw["fluid"]["gas-chlorine"] then
 			flags = {"goes-to-main-inventory"},
 			subgroup = "avatar-silicone-product",
 			order = "a[silicone]-c[silicone]",
-			stack_size = "50"
+			stack_size = 50
 		}
 	})
 	
