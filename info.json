@@ -1,6 +1,6 @@
 {
   "name": "Avatars",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "title": "Avatars",
   "author": "DedlySpyder",
   "contact": "DedlySpyder@gmail.com",
@@ -14,7 +14,7 @@
 	"? bobplates >= 0.15.0",
 	"? bobassembly >= 0.15.0",
 	"? bobelectronics >= 0.15.0",
-	"? bobwarefare >= 0.15.0",
+	"? bobwarfare >= 0.15.0",
 	"? bobmodules >= 0.15.0"
   ],
   "factorio_version": "0.15"
