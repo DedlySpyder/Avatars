@@ -44,6 +44,7 @@ data:extend({
     type = "assembling-machine",
     name = "avatar-assembling-machine",
     icon = "__Avatars__/graphics/icons/avatar-assembling-machine.png",
+	icon_size = 32,
     flags = {"placeable-neutral","placeable-player", "player-creation"},
     minable = {hardness = 0.2, mining_time = 2, result = "avatar-assembling-machine"},
     max_health = 300,

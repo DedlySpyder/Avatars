@@ -119,7 +119,6 @@ data.raw["gui-style"].default["avatar_table_label_avatar_location"] =
 data.raw["gui-style"].default["avatar_table_button"] =
 {
     type = "button_style",
-    parent = "button_style",
 	font = "font-button-table",
     width = 100,
     height = 23,

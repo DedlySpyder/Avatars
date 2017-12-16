@@ -173,7 +173,7 @@ function on_entity_destroyed(event)
 		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
 		if (playerDataTable ~= nil) then
 			for _, playerData in ipairs(playerDataTable) do
-				if (entity.passenger == playerData.realBody) then
+				if (entity.get_driver() == playerData.realBody) then
 					if (playerData.currentAvatar ~= nil) then
 						--Deactive the current avatar
 						--The game will continue it's actions otherwise, which can cause a game crash
@@ -191,13 +191,13 @@ function on_entity_destroyed(event)
 	
 	--Destruction of an Avatar
 	if (entity.name == "avatar") then
-		
+		debugLog("test")
 		--Remove the avatar from the global table
 		for _, currentAvatar in ipairs(global.avatars) do
 			if (currentAvatar.avatarEntity == entity) then
 				local avatarEntity = currentAvatar.avatarEntity
 				
-				local newFunction = function (arg) return arg.avatarEntity == entity end --Function that returns true or false if the entities match
+				local newFunction = function (arg) return arg.avatarEntity == entity end --Function that returns true if the entities match
 				global.avatars = removeFromTable(newFunction, global.avatars)
 				debugLog("deleted avatar: " .. #global.avatars .. ", " .. currentAvatar.name)
 				
@@ -231,7 +231,7 @@ function on_entity_destroyed(event)
 	end
 end
 
-script.on_event(defines.events.on_preplayer_mined_item, on_entity_destroyed)
+script.on_event(defines.events.on_pre_player_mined_item, on_entity_destroyed)
 script.on_event(defines.events.on_robot_pre_mined, on_entity_destroyed)
 script.on_event(defines.events.on_entity_died, on_entity_destroyed)
 

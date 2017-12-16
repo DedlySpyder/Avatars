@@ -472,12 +472,12 @@ function loseAvatarControl(player, tick)
 	
 	--GUI clean up
 	destroyDisconnectGUI(player)
-	drawSelectionGUI(player)
 end
 
 --Avatar Deployment
 function deployAvatarFromARDU(ARDU)
-	if (ARDU.entity.passenger == nil) then
+	local player = ARDU.entity.get_driver()
+	if (player == nil) then
 		--Verify that the ARDU does not have an avatar deployed
 		if (ARDU.deployedAvatar == nil) then
 			local entity = ARDU.entity
@@ -486,7 +486,7 @@ function deployAvatarFromARDU(ARDU)
 			if (entity.get_item_count("avatar") > 0) then
 				--Create an avatar and place it inside the ARDU
 				local avatar = entity.surface.create_entity{name="avatar", position=entity.position, force=entity.force}
-				entity.passenger = avatar
+				entity.set_driver(avatar)
 				entity.remove_item({name="avatar", count=1})
 				debugLog("New avatar deployed")
 				
