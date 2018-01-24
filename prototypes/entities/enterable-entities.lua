@@ -22,7 +22,7 @@ data:extend({
 	collision_box = {{-1.4, -1.2}, {1.5, 1.2}},
     selection_box = {{-1.65, -1.65}, {1.65, 1.75}},
     effectivity = 0,
-    braking_power = "0W",
+    braking_power = "1W",
     burner =
     {
       effectivity = 0.01,
@@ -106,7 +106,7 @@ data:extend({
 	collision_box = {{-1.4, -1.2}, {0.6, 1.2}},
     selection_box = {{-1.65, -1.65}, {0.75, 1.75}},
     effectivity = 0,
-    braking_power = "0W",
+    braking_power = "1W",
     burner =
     {
       effectivity = 0.01,
