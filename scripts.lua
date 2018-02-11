@@ -385,12 +385,6 @@ function gainAvatarControl(player, name, tick)
     if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > tick) then return end
     playerData.lastBodySwap = tick
 	
-	--Players can only control an avatar from their real body
-	if (player.character.name ~= "player") then
-		player.print{"Avatars-error-only-control-from-real-body"}
-		return
-	end
-	
 	--Store the real body
 	playerData.realBody = player.character
 	
