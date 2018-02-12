@@ -385,6 +385,11 @@ function gainAvatarControl(player, name, tick)
     if (playerData.lastBodySwap ~= nil) and (playerData.lastBodySwap + 10 > tick) then return end
     playerData.lastBodySwap = tick
 	
+	if (player.character.name == "avatar") then
+		player.print{"Avatars-error-control-restriction"}
+		return
+	end
+	
 	--Store the real body
 	playerData.realBody = player.character
 	
