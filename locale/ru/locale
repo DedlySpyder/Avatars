@@ -1,0 +1,107 @@
+Avatars-error-name-in-use=Это имя уже используется.
+Avatars-error-blank-name=Пожалуйста введите имя.
+Avatars-error-control-restriction=Вы не можете контролировать аватара из другого аватара.
+Avatars-error-already-controlled=Этот аватар уже контролируется __1__.
+Avatars-error-avatar-control-center-destroyed=Центр управления аватаром был уничтожен.
+Avatars-error-controlled-avatar-death=Ваш аватар был уничтожен.
+Avatars-error-get-naked=У вас есть ровно 10 чтобы раздеться или потерять свои вещи.
+Avatars-error-cannot-disconnect-from-nonavatar=Ты должен быть аватаром для отключения.
+Avatars-error-ARDU-not-found=Не могу найти устройство удаленного развертывания для этого аватара.
+
+avatar-remote-call-still-have-a-body=У тебя все еще есть тело!
+avatar-remote-call-in-your-body=Ты все еще в своем теле!
+
+Avatars-table-header=Центр управления аватаром __1__
+
+Avatars-table-avatar-name-header=Имя аватара
+Avatars-table-avatar-location-header=Расстояние
+Avatars-table-rename-avatar-header=Переименовать
+Avatars-table-control-avatar-header=Контроль
+Avatars-table-sort-prefix=Сортировать:
+Avatars-table-ascending=По возрастанию
+Avatars-table-descending=По убыванию
+
+Avatars-table-sort-ascending-names-tooltip=Сортировка имен по возрастанию
+Avatars-table-sort-descending-names-tooltip=Сортировка имен по убыванию
+Avatars-table-sort-ascending-location-tooltip=Сортировка расстояний по возрастанию
+Avatars-table-sort-descending-location-tooltip=Сортировка расстояний по убыванию
+
+Avatars-table-exit-button=Выход
+Avatars-table-rename-button=Переименовать
+Avatars-table-control-button=Контроль
+
+Avatars-table-rename-button-tooltip=Переименовать __1__
+Avatars-table-control-button-tooltip=Получен контроль над __1__
+
+Avatars-table-total-avatars=Всего аватаров: __1__
+
+Avatars-change-name-change-name=Изменить имя аватара
+Avatars-change-name-current-name=Текущее имя:
+
+Avatars-submit-button=Подтвердить
+Avatars-cancel-button=Отменить
+
+Avatars-ARDU-rename-header=Изменить название устройства удаленного развертывания аватара
+Avatars-ARDU-rename-current-name=Текущее название:
+
+Avatars-button-disconnect=Отключение
+Avatars-button-disconnect-tooltip=Отключение от __1__
+
+[fluid-name]
+copper-chloride=Хлорид меди
+dimethyldichlorosilane=Диметилдихлорсилана
+
+[item-name]
+avatar=Аватар
+avatar-control-center=Центр управления аватаром
+avatar-assembling-machine=Машина по сборке аватара
+actuator=Привод
+avatar-arm=Рука аватара
+avatar-leg=Нога аватара
+avatar-head=Голова аватара
+avatar-internals=Внутренности аватара
+avatar-torso=Туловище аватара
+avatar-skin=Кожа аватара
+avatar-remote-deployment-unit=Устройство удаленного развертывания аватара
+avatar-retrieval-device=Устройство считывания аватара
+silicone=Силикон
+
+[item-description]
+avatar=Это ваше тело вдали от дома.
+avatar-control-center=Это строение позволяет вам контролировать ваших аватаров.
+avatar-assembling-machine=Машина по сборке используется исключительно для создания аватаров.
+avatar-remote-deployment-unit=Автоматически развертывает аватаров после уничтожения.
+avatar-retrieval-device=Подобрать аватаров.
+
+[recipe-name]
+avatar=Аватар
+avatar-control-center=Центр управления аватаром
+avatar-assembling-machine=Машина по сборке аватара
+actuator=Привод
+avatar-arm=Рука аватара
+avatar-leg=Нога аватара
+avatar-head=Голова аватара
+avatar-internals=Внутренности аватара
+avatar-torso=Туловище аватара
+avatar-skin=Кожа аватара
+avatar-remote-deployment-unit=Устройство удаленного развертывания аватара
+avatar-retrieval-device=Устройство считывания аватара
+
+[entity-name]
+avatar=Аватар
+avatar-corpse=Труп аватара
+avatar-control-center=Центр управления аватаром
+avatar-assembling-machine=Машина по сборке аватара
+avatar-remote-deployment-unit=Устройство удаленного развертывания аватара
+
+[technology-name]
+avatars=Аватары
+
+[technology-description]
+avatars=Постройка и управление механизироваными аватарами.
+
+[controls]
+avatars_disconnect=Отключение от аватара
+
+[item-group-name]
+avatars=Аватары
