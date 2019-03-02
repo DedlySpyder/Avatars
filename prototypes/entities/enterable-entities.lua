@@ -23,11 +23,10 @@ data:extend({
     selection_box = {{-1.65, -1.65}, {1.65, 1.75}},
     effectivity = 0,
     braking_power = "1W",
-    burner =
-    {
-      effectivity = 0.01,
-      fuel_inventory_size = 1,
-    },
+	energy_source =
+	{
+		type = "void"
+	},
     consumption = "0W",
     friction = 1,
     light = {{minimum_darkness = 0.3,intensity = 0, size = 0}},
@@ -89,7 +88,7 @@ data:extend({
     name = "avatar-remote-deployment-unit",
     icon = "__Avatars__/graphics/icons/avatar-remote-deployment-unit.png",
 	icon_size = 32,
-    flags = {"placeable-neutral", "player-creation"},
+    flags = {"placeable-neutral", "player-creation", "not-rotatable"},
     minable = {mining_time = 3, result = "avatar-remote-deployment-unit"},
 	mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
     max_health = 200,
@@ -107,11 +106,10 @@ data:extend({
     selection_box = {{-1.65, -1.65}, {0.75, 1.75}},
     effectivity = 0,
     braking_power = "1W",
-    burner =
-    {
-      effectivity = 0.01,
-      fuel_inventory_size = 1,
-    },
+	energy_source =
+	{
+		type = "void"
+	},
     consumption = "0W",
     friction = 1,
     light = {{minimum_darkness = 0.3,intensity = 0, size = 0}},

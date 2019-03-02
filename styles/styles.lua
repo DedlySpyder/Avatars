@@ -31,9 +31,9 @@ local renameHeader = {type = "frame_style", height = headerFrameHeight}
 local controlHeader = {type = "frame_style", height = headerFrameHeight}
 
 nameHeader.width = 300
-locationHeader.width = 130
-renameHeader.width = 125
-controlHeader.width = 120
+locationHeader.width = 135
+renameHeader.width = 130
+controlHeader.width = 125
 
 data.raw["gui-style"].default["avatar_table_header_frame"] = headerBasics
 data.raw["gui-style"].default["avatar_table_name_header_frame"] = nameHeader

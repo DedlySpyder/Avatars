@@ -36,7 +36,7 @@ avatar_corpse.pictures =
 local avatar = util.table.deepcopy(data.raw["player"]["player"])
 
 avatar.name = "avatar"
-avatar.flags = {"pushable", "placeable-off-grid", "player-creation"}
+avatar.flags = {"placeable-off-grid", "player-creation", "not-flammable"}
 avatar.minable = {hardness = 0.2, mining_time = 2, result = "avatar"}
 avatar.alert_when_damaged = true
 avatar.healing_per_tick = 0

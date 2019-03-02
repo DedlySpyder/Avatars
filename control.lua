@@ -147,7 +147,6 @@ function on_entity_built(event)
 	
 	--Dummy fuel and add to table
 	if (entity.name == "avatar-remote-deployment-unit") then
-		entity.insert{name="coal", count=1}
 		addARDUToTable(entity)
 	end
 	

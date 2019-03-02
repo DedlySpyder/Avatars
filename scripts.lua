@@ -470,7 +470,7 @@ function loseAvatarControl(player, tick)
 	playerData.currentAvatarName = nil
 	
 	--GUI clean up
-	destroyDisconnectGUI(player)
+	destroyAllGUI(player)
 end
 
 --Avatar Deployment
