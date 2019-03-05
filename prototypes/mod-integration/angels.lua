@@ -101,7 +101,6 @@ if data.raw["fluid"]["gas-chlorine"] then
 			name = "silicone",
 			icon = "__Avatars__/graphics/icons/silicone.png",
 			icon_size = 32,
-			flags = {"goes-to-main-inventory"},
 			subgroup = "avatar-silicone-product",
 			order = "a[silicone]-c[silicone]",
 			stack_size = 50
