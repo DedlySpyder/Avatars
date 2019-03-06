@@ -1,0 +1,107 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.4.16
+Date: 06. 03. 2019
+  Changes:
+    - Optimized image compression (Thanks SuperSandro2000)
+    - Moved changelog to be inside the game/mod portal
+---------------------------------------------------------------------------------------------------
+Version: 0.4.15
+Date: 04. 03. 2019
+  Changes:
+    - Fixed angel mod integration (Thanks SuperSandro2000 for pull request)
+---------------------------------------------------------------------------------------------------
+Version: 0.4.14
+Date: 01. 03. 2019
+  Changes:
+    - Support for 0.17
+---------------------------------------------------------------------------------------------------
+Version: 0.4.13
+Date: 28. 02. 2018
+  Changes:
+    - Fix to Russian locale file
+---------------------------------------------------------------------------------------------------
+Version: 0.4.12
+Date: 27. 02. 2018
+  Changes:
+    - Added Russian locale (Thanks IgorLutiy)
+---------------------------------------------------------------------------------------------------
+Version: 0.4.11
+Date: 11. 02. 2018
+  Changes:
+    - Fixed incompatibility with other mods that change the base character
+---------------------------------------------------------------------------------------------------
+Version: 0.4.10
+Date: 16. 12. 2017
+  Changes:
+    - Fixed issue with braking_power being 0W in Factorio version 0.16.18
+---------------------------------------------------------------------------------------------------
+Version: 0.4.9
+Date: 16. 12. 2017
+  Changes:
+    - Why was 6 afraid of 7? Because 7 8 9!
+    - (No but seriously, the mod portal said I already had a 0.4.9, so this version got skipped)
+---------------------------------------------------------------------------------------------------
+Version: 0.4.8
+Date: 16. 12. 2017
+  Changes:
+    - Support for 0.16
+---------------------------------------------------------------------------------------------------
+Version: 0.4.7
+Date: 20. 04. 2017
+  Changes:
+    - Fixed typo in dependencies
+---------------------------------------------------------------------------------------------------
+Version: 0.4.6
+Date: 04. 08. 2017
+  Changes:
+    - Fixed incompatibility regarding silicone stack size
+---------------------------------------------------------------------------------------------------
+Version: 0.4.5
+Date: 27. 05. 2017
+  Changes:
+    - Added recipe integration with Angel's and Bob's mods (thanks sbadkins4 for suggested recipes)
+---------------------------------------------------------------------------------------------------
+Version: 0.4.4
+Date: 15. 05. 2017
+  Changes:
+    - Fixed bug with the disconnect button not being destroyed
+    - Added an exit button to the control center UI
+---------------------------------------------------------------------------------------------------
+Version: 0.4.3
+Date: 01. 05. 2017
+  Changes:
+    - Support for 0.15
+---------------------------------------------------------------------------------------------------
+Version: 0.4.2
+Date: 26. 08. 2016
+  Changes:
+    - Support for 0.14
+---------------------------------------------------------------------------------------------------
+Version: 0.4.1
+Date: 07. 08. 2016
+  Changes:
+    - New Avatar Skin icon (thanks wildejackson)
+    - Fixed minor bug when entering a control center before placing any avatars
+---------------------------------------------------------------------------------------------------
+Version: 0.4.0
+Date: 17. 07. 2016
+  Changes:
+    - Reworked the avatar table GUI
+        - Added scroll pane in stead of a paging system
+        - GUI now shows avatar distance from the player, instead of the x,y coordinates
+        - Sorting by avatar name and distance
+    - Added tool tips to most buttons
+    - Now uses ticks 17 and 23 instead of tick 0
+---------------------------------------------------------------------------------------------------
+Version: 0.3.3
+Date: 01. 01. 2016
+  Changes:
+    - Added hotkey to disconnect from avatars (F2 by default)
+    - Updating the avatar death handling (you can now do dangerous things in multiplayer safely)
+    - Cleaned up some GUI alignments
+    - Fixed a few issues with GUI updates
+---------------------------------------------------------------------------------------------------
+Version: 0.3.2
+Date: 01. 01. 2016
+  Changes:
+    - Support for 0.13.0
