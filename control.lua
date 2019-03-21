@@ -230,9 +230,34 @@ function on_entity_destroyed(event)
 	end
 end
 
+function on_entity_died(event)
+	local entity = event.entity
+	
+	if (entity.name == "player") then
+		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
+		if (playerDataTable ~= nil) then
+			for _, playerData in ipairs(playerDataTable) do
+				local realBody = playerData.realBody
+				if (realBody == entity) then
+					local player = playerData.player
+					debugLog("Player's real body died")
+					
+					local newBody = realBody.surface.create_entity{name="dead-player", position=realBody.position, force=realBody.force}
+					playerData.realBody = newBody
+					loseAvatarControl(playerData.player, event.tick)
+					newBody.die(event.force, event.cause)
+					destroyAllGUI(player)
+				end
+			end
+		end
+	end
+	
+	on_entity_destroyed(event)
+end
+
 script.on_event(defines.events.on_pre_player_mined_item, on_entity_destroyed)
 script.on_event(defines.events.on_robot_pre_mined, on_entity_destroyed)
-script.on_event(defines.events.on_entity_died, on_entity_destroyed)
+script.on_event(defines.events.on_entity_died, on_entity_died)
 
 --Handles a player dying while controlling an avatar
 function on_preplayer_died(event)
