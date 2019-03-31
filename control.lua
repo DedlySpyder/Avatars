@@ -1,13 +1,20 @@
-require "gui"
+local AvatarControl = require "scripts/avatar_control"
+local Deployment = require "scripts/deployment"
+local GUI = require "scripts/gui"
+local Migrations = require "scripts/migrations"
+local Tables = require "scripts/tables"
 require "config"
-require "scripts"
+
+
+
+----------TODO - refactoring
 
 --Migration involving global data
 script.on_configuration_changed(function(data)
 	if data.mod_changes.Avatars then
 		local oldVersion = data.mod_changes.Avatars.old_version
 		if oldVersion and oldVersion < "0.4.0" then
-			migrateTo_0_4_0()
+			Migrations.to_0_4_0()
 		end
 	end
 end)
@@ -18,18 +25,18 @@ function on_driving(event)
 	
 	--Check for entering the Avatar Control Center
 	if player.vehicle and player.vehicle.name == "avatar-control-center" then
-		drawSelectionGUI(player)
+		GUI.Selection.draw(player)
 		debugLog("Getting in")
 		
 	--Check for entering the Avatar Remote Deployment unit (ARDU)
 	elseif player.vehicle and player.vehicle.name == "avatar-remote-deployment-unit" then
-		drawARDUGUI(player, player.vehicle)
+		GUI.ARDU.draw(player, player.vehicle)
 		
 	--Otherwise, destroy GUIs
 	else
-		destroySelectionGUI(player)
-		destroyRenameGUI(player)
-		destroyARDUGUI(player)
+		GUI.Selection.destroy(player)
+		GUI.Rename.destroy(player)
+		GUI.ARDU.destroy(player)
 		debugLog("Getting out")
 	end
 end
@@ -57,39 +64,39 @@ function checkGUI(event)
 		if (modButton == "rnam") then
 			--Obtain the old name
 			local name = string.sub(elementName, 13)
-			drawRenameGUI(player, name)
+			GUI.Rename.draw(player, name)
 		end
 		
 		--Control Button
 		if (modButton == "ctrl") then
 			--Obtain the name of the avatar to control
 			local name = string.sub(elementName, 13)
-			gainAvatarControl(player, name, event.tick)
+			AvatarControl.gainAvatarControl(player, name, event.tick)
 		end
 		
 		--Submit button (to submit a rename)
 		if (modButton == "sbmt") then
-			changeAvatarNameSubmit(player)
+			GUI.Trigger.changeAvatarNameSubmit(player)
 		end
 		
 		--Cancel button (to cancel a rename)
 		if (modButton == "cncl") then
-			destroyRenameGUI(player)
+			GUI.Rename.destroy(player)
 		end
 		
 		--Exit button (for control center ui)
 		if (modButton == "exit") then
-			destroySelectionGUI(player)
+			GUI.Selection.destroy(player)
 		end
 		
 		--Disconnect button (to disconnect from the avatar)
 		if (modButton == "disc") then
-			loseAvatarControl(player, event.tick)
+			AvatarControl.loseAvatarControl(player, event.tick)
 		end
 		
 		--The ARDU submit button
 		if (modButton =="ARDU") then
-			changeARDUName(player)
+			GUI.Trigger.changeARDUName(player)
 		end
 	end
 end
@@ -113,17 +120,17 @@ function checkboxChecked(event)
 		
 		--Check for each sort button
 		if (modButton == "name_ascending") then
-			flipRadioButtons(player, modButton)
+			GUI.Selection.flipRadioButtons(player, modButton)
 		elseif (modButton == "name_descending") then
-			flipRadioButtons(player, modButton)
+			GUI.Selection.flipRadioButtons(player, modButton)
 		elseif (modButton == "location_ascending") then
-			flipRadioButtons(player, modButton)
+			GUI.Selection.flipRadioButtons(player, modButton)
 		elseif (modButton == "location_descending") then
-			flipRadioButtons(player, modButton)
+			GUI.Selection.flipRadioButtons(player, modButton)
 		end
 		
-		--Update the GUIs (updateRenameGUI triggers both rename and the selection gui, to maintain order)
-		updateRenameGUI(player)
+		--Update the GUIs (GUI.Rename.update triggers both rename and the selection gui, to maintain order)
+		GUI.Rename.update(player)
 	end
 end
 
@@ -142,17 +149,17 @@ function on_entity_built(event)
 	
 	--Add avatars to the table
 	if (entity.name == "avatar") then
-		addAvatarToTable(entity)
+		Tables.Avatars.add(entity)
 	end
 	
 	--Dummy fuel and add to table
 	if (entity.name == "avatar-remote-deployment-unit") then
-		addARDUToTable(entity)
+		Tables.ARDU.add(entity)
 	end
 	
 	--Add to table
 	if (entity.name == "avatar-assembling-machine") then
-		addAvatarAssemblerTotable(entity)
+		Tables.AvatarAssemblingMachines.add(entity)
 	end
 end
 
@@ -169,7 +176,7 @@ function on_entity_destroyed(event)
 		entity.clear_items_inside()
 		
 		--Check if a player was using it
-		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
+		local playerDataTable = Tables.PlayerData.existsOrCreate(global.avatarPlayerData)
 		if (playerDataTable ~= nil) then
 			for _, playerData in ipairs(playerDataTable) do
 				if (entity.get_driver() == playerData.realBody) then
@@ -178,8 +185,8 @@ function on_entity_destroyed(event)
 						--The game will continue it's actions otherwise, which can cause a game crash
 						playerData.currentAvatar.active = false
 						local player = playerData.player
-						loseAvatarControl(player, event.tick)
-						destroyAllGUI(player)
+						AvatarControl.loseAvatarControl(player, event.tick)
+						GUI.destroyAll(player)
 						player.print{"Avatars-error-avatar-control-center-destroyed"}
 					end
 				end
@@ -197,11 +204,11 @@ function on_entity_destroyed(event)
 				local avatarEntity = currentAvatar.avatarEntity
 				
 				local newFunction = function (arg) return arg.avatarEntity == entity end --Function that returns true if the entities match
-				global.avatars = removeFromTable(newFunction, global.avatars)
+				global.avatars = Tables.remove(newFunction, global.avatars)
 				debugLog("deleted avatar: " .. #global.avatars .. ", " .. currentAvatar.name)
 				
 				--Attempts to deploy a new avatar
-				redeployAvatarFromARDU(avatarEntity)
+				Deployment.redeployFromARDU(avatarEntity)
 			end
 		end
 		return
@@ -214,7 +221,7 @@ function on_entity_destroyed(event)
 		for _, currentARDU in ipairs(global.avatarARDUTable) do
 			if (currentARDU.entity == entity) then
 				debugLog("Deleting ARDU, "..currentARDU.name)
-				removeARDUFromTable(entity)
+				Tables.ARDU.remove(entity)
 			end
 		end
 		return
@@ -224,7 +231,7 @@ function on_entity_destroyed(event)
 	if (entity.name == "avatar-assembling-machine") then
 		for _, currentAssembler in ipairs(global.avatarAssemblingMachines) do
 			if (currentAssembler.entity == entity) then
-				removeAvatarAssemlerFromTable(entity)
+				Tables.AvatarAssemblingMachines.remove(entity)
 			end
 		end
 	end
@@ -234,7 +241,7 @@ function on_entity_died(event)
 	local entity = event.entity
 	
 	if (entity.name == "player") then
-		local playerDataTable = doesPlayerTableExistOrCreate(global.avatarPlayerData)
+		local playerDataTable = Tables.PlayerData.existsOrCreate(global.avatarPlayerData)
 		if (playerDataTable ~= nil) then
 			for _, playerData in ipairs(playerDataTable) do
 				local realBody = playerData.realBody
@@ -244,9 +251,9 @@ function on_entity_died(event)
 					
 					local newBody = realBody.surface.create_entity{name="dead-player", position=realBody.position, force=realBody.force}
 					playerData.realBody = newBody
-					loseAvatarControl(playerData.player, event.tick)
+					AvatarControl.loseAvatarControl(playerData.player, event.tick)
 					newBody.die(event.force, event.cause)
-					destroyAllGUI(player)
+					GUI.destroyAll(player)
 				end
 			end
 		end
@@ -264,7 +271,7 @@ function on_preplayer_died(event)
 	local player = game.players[event.player_index]
 	
 	if (player.character.name == "avatar") then
-		loseAvatarControl(player, 0)
+		AvatarControl.loseAvatarControl(player, 0)
 		player.print{"Avatars-error-controlled-avatar-death"}
 	end
 end
@@ -275,7 +282,7 @@ script.on_event(defines.events.on_pre_player_died, on_preplayer_died)
 function on_hotkey(event)
 	local player = game.players[event.player_index]
 	
-	loseAvatarControl(player, event.tick)
+	AvatarControl.loseAvatarControl(player, event.tick)
 end
 
 script.on_event("avatars_disconnect", on_hotkey)
@@ -286,7 +293,7 @@ function on_tick(event)
 		if (global.avatarARDUTable ~= nil) then
 			for _, ARDU in ipairs(global.avatarARDUTable) do
 				if not ARDU.flag then --This only triggers once
-					local flag = deployAvatarFromARDU(ARDU)
+					local flag = Deployment.deployFromARDU(ARDU)
 					if flag then ARDU.flag = flag end
 					debugLog("Attempted first deployment from "..ARDU.name)
 				end
@@ -296,7 +303,7 @@ function on_tick(event)
 	
 	--Every 15 seconds - check to place avatars in the avatar assembling machines
 	if ((game.tick % (60*15)) == 23) then 
-		placeAvatarInAssemblers()
+		Deployment.deployFromAssemblers()
 	end
 end
 
@@ -320,7 +327,7 @@ remote.add_interface("Avatars_avatar_placement", {
 	addAvatar = function(entity)
 		if (entity ~= nil and entity.valid) then
 			if (entity.name == "avatar") then
-				addAvatarToTable(entity)
+				Tables.Avatars.add(entity)
 			end
 		end
 	end
@@ -334,7 +341,7 @@ remote.add_interface("Avatars", {
 	manual_swap_back = function()
 		player = game.player
 		if (player.character.name ~= "player") then
-			local playerData = getPlayerData(player)
+			local playerData = Tables.PlayerData.getPlayerData(player)
 			--Check for the avatarEntity to exist or not
 			--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
 			for _, avatar in ipairs(global.avatars) do
@@ -351,7 +358,7 @@ remote.add_interface("Avatars", {
 			playerData.currentAvatarName = nil
 			
 			--GUI clean up
-			destroyAllGUI(player)
+			GUI.destroyAll(player)
 		else
 			player.print{"avatar-remote-call-in-your-body"}
 		end
@@ -362,7 +369,7 @@ remote.add_interface("Avatars", {
 	create_new_body = function()
 		player = game.player
 		if (player.character.name ~= "player") then
-			local playerData = getPlayerData(player)
+			local playerData = Tables.PlayerData.getPlayerData(player)
 			
 			if (playerData.realBody ~= nil and playerData.realBody.valid) then
 				player.print{"avatar-remote-call-still-have-a-body"}
@@ -381,7 +388,7 @@ remote.add_interface("Avatars", {
 				playerData.currentAvatar = nil
 				
 				--GUI clean up
-				destroyDisconnectGUI(player)
+				GUI.Disconnect.destroy(player)
 			end
 		else
 			player.print{"avatar-remote-call-in-your-body"}

@@ -1,6 +1,5 @@
 --require("")
 require("config")
-require("gui")
 require("prototypes.avatar-animations")
 require("prototypes.entities.assembly")
 require("prototypes.entities.avatar")
