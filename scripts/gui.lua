@@ -1,5 +1,5 @@
 local Sort = require("sort")
-local Tables = require "scripts/tables"
+local Storage = require "storage"
 require("mod-gui")
 
 -- The returned table by this file will contain all the GUI related functions
@@ -118,7 +118,7 @@ GUI.Selection.draw = function(player)
 		--Iterate through the avatars
 		for _, avatar in ipairs(sortedTable) do
 			if (avatar == nil) then break end
-			local avatarEntity = avatar.avatarEntity
+			local avatarEntity = avatar.entity
 			if (avatarEntity ~= nil and avatarEntity.valid) then
 				--Make sure the avatar is in the same force
 				if (avatarEntity.force == player.force) then
@@ -312,7 +312,7 @@ GUI.Disconnect.draw = function(player)
 		mod_gui.get_button_flow(player).add{
 			type="button",
 			name="avatar_disc",
-			tooltip={"Avatars-button-disconnect-tooltip", Tables.PlayerData.getPlayerData(player).currentAvatarName},
+			tooltip={"Avatars-button-disconnect-tooltip", Storage.PlayerData.getOrCreate(player).currentAvatarData.name},
 			caption={"Avatars-button-disconnect"}
 		}
 	end
@@ -345,7 +345,7 @@ GUI.ARDU.draw = function(player, ARDU)
 	GUI.ARDU.destroy(player)
 	
 	--Get the ARDU from the table
-	local ARDUData = Tables.ARDU.get(ARDU)
+	local ARDUData = Storage.ARDU.getByEntity(ARDU)
 	
 	if (ARDUData ~= nil) then
 		--Rename Frame and labels

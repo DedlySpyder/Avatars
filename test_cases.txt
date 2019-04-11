@@ -1,0 +1,2 @@
+This will just be a running list of things that should be checked before creating a release
+

@@ -1,6 +1,9 @@
-local Tables = require "scripts/tables"
+local Storage = require "storage"
 
 local Deployment = {}
+
+---TODO - REWORK - ARDU will not be automatic anymore (after cleaning up other code)
+
 
 --Avatar Deployment
 Deployment.deployFromARDU = function(ARDU)
@@ -23,15 +26,15 @@ Deployment.deployFromARDU = function(ARDU)
 				ARDU.currentIteration = ARDU.currentIteration + 1
 				
 				--Add the avatar to the table (normal event is not triggered)
-				Tables.Avatars.add(avatar)
-				for _, currentAvatar in ipairs(global.avatars) do
-					if (currentAvatar.avatarEntity == avatar) then
-						--Rename it to the ARDU name
-						currentAvatar.name = (ARDU.name.." "..default_avatar_deployed_prefix.." "..string.format("%03d",ARDU.currentIteration))
-						global.avatarDefaultCount = global.avatarDefaultCount - 1
-						break
-					end
-				end
+				--TODO - can't I trigger the normal LUA event nowadays?
+				Storage.Avatars.add(avatar) --TODO - if I need to stick with this, then can't this return the avatar data table?
+				
+				-- Overwrite the name
+				local avatar = Storage.Avatars.getByEntity(avatar)
+				avatar.name = (ARDU.name.." "..settings.global["Avatars_default_avatar_remote_deployment_unit_name_deployed_prefix"].value.." "..string.format("%03d",ARDU.currentIteration))
+				
+				--Rollback the sequence increase (safer way to do??) --TODO
+				global.avatarDefaultCount = global.avatarDefaultCount - 1
 				return true
 			end
 		end
@@ -66,7 +69,7 @@ Deployment.deployFromAssemblers = function()
 					if assembler.entity.surface.can_place_entity{name="avatar", position=position, force=assembler.entity.force} then
 						--Place the avatar and add it to the table
 						local avatar = assembler.entity.surface.create_entity{name="avatar", position=position, force=assembler.entity.force} 
-						Tables.Avatars.add(avatar)
+						Storage.Avatars.add(avatar)
 						avatarOutput.remove({name="avatar", count=1})
 					end
 				end

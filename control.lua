@@ -2,10 +2,13 @@ local AvatarControl = require "scripts/avatar_control"
 local Deployment = require "scripts/deployment"
 local GUI = require "scripts/gui"
 local Migrations = require "scripts/migrations"
-local Tables = require "scripts/tables"
-require "config"
+local Storage = require "scripts/storage"
 
 
+
+script.on_init(function()
+	Storage.init()
+end)
 
 ----------TODO - refactoring
 
@@ -13,8 +16,14 @@ require "config"
 script.on_configuration_changed(function(data)
 	if data.mod_changes.Avatars then
 		local oldVersion = data.mod_changes.Avatars.old_version
-		if oldVersion and oldVersion < "0.4.0" then
-			Migrations.to_0_4_0()
+		if oldVersion then
+			if oldVersion < "0.4.0" then
+				Migrations.to_0_4_0()
+			end
+			
+			if oldVersion < "0.5.0" then
+				Migrations.to_0_5_0()
+			end
 		end
 	end
 end)
@@ -32,7 +41,7 @@ function on_driving(event)
 	elseif player.vehicle and player.vehicle.name == "avatar-remote-deployment-unit" then
 		GUI.ARDU.draw(player, player.vehicle)
 		
-	--Otherwise, destroy GUIs
+	--Otherwise, destroy vehcile GUIs
 	else
 		GUI.Selection.destroy(player)
 		GUI.Rename.destroy(player)
@@ -119,15 +128,7 @@ function checkboxChecked(event)
 		debugLog("Radio-button pushed: "..modButton)
 		
 		--Check for each sort button
-		if (modButton == "name_ascending") then
-			GUI.Selection.flipRadioButtons(player, modButton)
-		elseif (modButton == "name_descending") then
-			GUI.Selection.flipRadioButtons(player, modButton)
-		elseif (modButton == "location_ascending") then
-			GUI.Selection.flipRadioButtons(player, modButton)
-		elseif (modButton == "location_descending") then
-			GUI.Selection.flipRadioButtons(player, modButton)
-		end
+		GUI.Selection.flipRadioButtons(player, modButton)
 		
 		--Update the GUIs (GUI.Rename.update triggers both rename and the selection gui, to maintain order)
 		GUI.Rename.update(player)
@@ -142,24 +143,23 @@ function on_entity_built(event)
 		
 	--Dummy fuel to avoid the error signal
 	if (entity.name == "avatar-control-center") then
-		entity.insert{name="coal", count=1}
 		entity.operable = false
 		return
 	end
 	
 	--Add avatars to the table
 	if (entity.name == "avatar") then
-		Tables.Avatars.add(entity)
+		Storage.Avatars.add(entity)
 	end
 	
-	--Dummy fuel and add to table
+	--Add to table
 	if (entity.name == "avatar-remote-deployment-unit") then
-		Tables.ARDU.add(entity)
+		Storage.ARDU.add(entity)
 	end
 	
 	--Add to table
 	if (entity.name == "avatar-assembling-machine") then
-		Tables.AvatarAssemblingMachines.add(entity)
+		Storage.AvatarAssemblingMachines.add(entity)
 	end
 end
 
@@ -172,56 +172,40 @@ function on_entity_destroyed(event)
 	
 	--Destruction of an Avatar Control Center
 	if (entity.name == "avatar-control-center") then
-		--Remove dummy fuel
-		entity.clear_items_inside()
-		
 		--Check if a player was using it
-		local playerDataTable = Tables.PlayerData.existsOrCreate(global.avatarPlayerData)
-		if (playerDataTable ~= nil) then
-			for _, playerData in ipairs(playerDataTable) do
-				if (entity.get_driver() == playerData.realBody) then
-					if (playerData.currentAvatar ~= nil) then
-						--Deactive the current avatar
-						--The game will continue it's actions otherwise, which can cause a game crash
-						playerData.currentAvatar.active = false
-						local player = playerData.player
-						AvatarControl.loseAvatarControl(player, event.tick)
-						GUI.destroyAll(player)
-						player.print{"Avatars-error-avatar-control-center-destroyed"}
-					end
-				end
-			end
+		local driver = entity.get_driver()
+		local playerData = Storage.PlayerData.getByFunc(function(data) return data.realBody == driver end)
+		--TODO - this stopped working a while back, the player isn't the driver anymore (there is another TODO that fixed this maybe)
+		--will have to start keeping track of the control center itself
+		
+		if playerData and playerData.currentAvatarData then
+			--Deactive the current avatar
+			--The game will continue it's actions otherwise, which can cause a game crash --TODO - what? not if the ACC died? that doesn't kill the player IIRC
+			playerData.currentAvatarData.entity.active = false
+			local player = playerData.player
+			AvatarControl.loseAvatarControl(player, event.tick)
+			GUI.destroyAll(player)
+			player.print{"Avatars-error-avatar-control-center-destroyed"}
 		end
-		return
 	end
 	
 	--Destruction of an Avatar
 	if (entity.name == "avatar") then
-		debugLog("test")
-		--Remove the avatar from the global table
-		for _, currentAvatar in ipairs(global.avatars) do
-			if (currentAvatar.avatarEntity == entity) then
-				local avatarEntity = currentAvatar.avatarEntity
-				
-				local newFunction = function (arg) return arg.avatarEntity == entity end --Function that returns true if the entities match
-				global.avatars = Tables.remove(newFunction, global.avatars)
-				debugLog("deleted avatar: " .. #global.avatars .. ", " .. currentAvatar.name)
-				
-				--Attempts to deploy a new avatar
-				Deployment.redeployFromARDU(avatarEntity)
-			end
-		end
+		-- Remove the avatar from the global table
+		Storage.Avatars.remove(entity)
+		
+		-- Attempts to deploy a new avatar
+		Deployment.redeployFromARDU(avatarEntity)
 		return
 	end
 	
 	--Destruction of an ARDU
 	if (entity.name == "avatar-remote-deployment-unit") then
-		entity.clear_items_inside()
 		--Remove it from the global table
 		for _, currentARDU in ipairs(global.avatarARDUTable) do
 			if (currentARDU.entity == entity) then
 				debugLog("Deleting ARDU, "..currentARDU.name)
-				Tables.ARDU.remove(entity)
+				Storage.ARDU.remove(entity)
 			end
 		end
 		return
@@ -231,7 +215,7 @@ function on_entity_destroyed(event)
 	if (entity.name == "avatar-assembling-machine") then
 		for _, currentAssembler in ipairs(global.avatarAssemblingMachines) do
 			if (currentAssembler.entity == entity) then
-				Tables.AvatarAssemblingMachines.remove(entity)
+				Storage.AvatarAssemblingMachines.remove(entity)
 			end
 		end
 	end
@@ -241,22 +225,20 @@ function on_entity_died(event)
 	local entity = event.entity
 	
 	if (entity.name == "player") then
-		local playerDataTable = Tables.PlayerData.existsOrCreate(global.avatarPlayerData)
-		if (playerDataTable ~= nil) then
-			for _, playerData in ipairs(playerDataTable) do
-				local realBody = playerData.realBody
-				if (realBody == entity) then
-					local player = playerData.player
-					debugLog("Player's real body died")
-					
-					local newBody = realBody.surface.create_entity{name="dead-player", position=realBody.position, force=realBody.force}
-					playerData.realBody = newBody
-					AvatarControl.loseAvatarControl(playerData.player, event.tick)
-					newBody.die(event.force, event.cause)
-					GUI.destroyAll(player)
-				end
-			end
+		local playerData = Storage.PlayerData.getByEntity(entity)
+		
+		if playerData then
+			local player = playerData.player
+			local realBody = playerData.realBody
+			debugLog("Player's real body died")
+			
+			local newBody = realBody.surface.create_entity{name="dead-player", position=realBody.position, force=realBody.force}
+			playerData.realBody = newBody
+			AvatarControl.loseAvatarControl(playerData.player, event.tick)
+			newBody.die(event.force, event.cause)
+			GUI.destroyAll(player)
 		end
+		return
 	end
 	
 	on_entity_destroyed(event)
@@ -287,6 +269,9 @@ end
 
 script.on_event("avatars_disconnect", on_hotkey)
 
+-- TODO - this can be conditionally initialized, so it's not ALWAYS running
+-- TODO - script.on_nth_tick exists
+-- TODO - actually, the rework gets rid of it?
 function on_tick(event)
 	--Every 5 seconds - Check to deploy the initial avatar for ARDUs
 	if ((game.tick % (60*5)) == 17) then
@@ -309,16 +294,6 @@ end
 
 script.on_event(defines.events.on_tick, on_tick)
 
---DEBUG messages
-function debugLog(message)
-	if debug_mode then
-		for _, player in pairs(game.players) do
-			player.print(message)
-		end
-	end
-end
-
-
 --Remote Calls
 --Mod Interfaces
 
@@ -327,7 +302,7 @@ remote.add_interface("Avatars_avatar_placement", {
 	addAvatar = function(entity)
 		if (entity ~= nil and entity.valid) then
 			if (entity.name == "avatar") then
-				Tables.Avatars.add(entity)
+				Storage.Avatars.add(entity)
 			end
 		end
 	end
@@ -338,14 +313,17 @@ remote.add_interface("Avatars_avatar_placement", {
 remote.add_interface("Avatars", {
 	--Used to force a swap back to the player's body
 	-- /c remote.call("Avatars", "manual_swap_back")
+	
+	--TODO - this should just use the normal function to swap back...
+			--it should have a force boolean that ignores the safety checks
 	manual_swap_back = function()
 		player = game.player
 		if (player.character.name ~= "player") then
-			local playerData = Tables.PlayerData.getPlayerData(player)
+			local playerData = Storage.PlayerData.getOrCreate(player)
 			--Check for the avatarEntity to exist or not
 			--If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced
 			for _, avatar in ipairs(global.avatars) do
-				if (avatar.name == playerData.currentAvatarName) then
+				if (avatar.name == playerData.currentAvatarName) then -- TODO - wrong now (but might not need this code)
 					avatar.avatarEntity = player.character
 				end
 			end
@@ -354,8 +332,8 @@ remote.add_interface("Avatars", {
 			
 			--Clear the table
 			playerData.realBody = nil
-			playerData.currentAvatar = nil
-			playerData.currentAvatarName = nil
+			playerData.currentAvatar = nil-- TODO - wrong now (but might not need this code)
+			playerData.currentAvatarName = nil-- TODO - wrong now (but might not need this code)
 			
 			--GUI clean up
 			GUI.destroyAll(player)
@@ -369,7 +347,7 @@ remote.add_interface("Avatars", {
 	create_new_body = function()
 		player = game.player
 		if (player.character.name ~= "player") then
-			local playerData = Tables.PlayerData.getPlayerData(player)
+			local playerData = Storage.PlayerData.getOrCreate(player)
 			
 			if (playerData.realBody ~= nil and playerData.realBody.valid) then
 				player.print{"avatar-remote-call-still-have-a-body"}
@@ -385,7 +363,7 @@ remote.add_interface("Avatars", {
 				
 				--Clear the table
 				playerData.realBody = nil
-				playerData.currentAvatar = nil
+				playerData.currentAvatarData = nil
 				
 				--GUI clean up
 				GUI.Disconnect.destroy(player)
@@ -396,23 +374,32 @@ remote.add_interface("Avatars", {
 	end
 })
 
---DEBUG
-remote.add_interface("Avatars_debug", {
-	-- /c remote.call("Avatars_debug", "testing")
-	testing = function()
-		if debug_mode then
+
+--		DEBUG Things
+-- Only initialized if the debug_mode setting is true
+-- TODO - make this a setting
+local debug_mode = settings.global["Avatars_debug_mode"].value
+debugLog = function(s) end
+if debug_mode then
+	debugLog = function (message)
+		for _, player in pairs(game.players) do
+			player.print(message)
+		end
+	end
+	
+	remote.add_interface("Avatars_debug", {
+		-- /c remote.call("Avatars_debug", "testing")
+		testing = function()
 			for _, player in pairs(game.players) do
 				player.insert({name="avatar-control-center", count=5})
 				player.insert({name="avatar-assembling-machine", count=5})
 				player.insert({name="avatar-remote-deployment-unit", count=5})
 				player.insert({name="avatar", count=25})
 			end
-		end
-	end,
-	
-	-- /c remote.call("Avatars_debug", "avatars_list")
-	avatars_list = function()
-		if debug_mode then
+		end,
+		
+		-- /c remote.call("Avatars_debug", "avatars_list")
+		avatars_list = function()
 			for _, player in pairs(game.players) do
 				local count = 0
 				for _, avatar in ipairs(global.avatars) do
@@ -428,5 +415,5 @@ remote.add_interface("Avatars_debug", {
 				end
 			end
 		end
-	end
-})
+	})
+end

@@ -13,7 +13,7 @@ end
 
 Sort.getSortedTable = function(sortValues, position)
 	--Check the sort string
-	if (global.avatars) then
+	if (global.avatars) then --TODO - yes this fucking exists now
 		if (sortValues.name_ascending) then
 			--Comapre the name strings
 			local newFunction = function(a,b) return a.name < b.name end
@@ -27,8 +27,8 @@ Sort.getSortedTable = function(sortValues, position)
 		elseif (sortValues.location_ascending) then
 			--Compare the distances
 			local newFunction = function(a,b) 
-									local aDistance = Sort.getDistance(position, a.avatarEntity.position)
-									local bDistance = Sort.getDistance(position, b.avatarEntity.position)
+									local aDistance = Sort.getDistance(position, a.entity.position)
+									local bDistance = Sort.getDistance(position, b.entity.position)
 									return aDistance < bDistance
 								end
 			return Sort.getNewSortedTable(Sort.copyTable(global.avatars), newFunction)
@@ -36,8 +36,8 @@ Sort.getSortedTable = function(sortValues, position)
 		elseif (sortValues.location_descending) then
 			--Compare the distances
 			local newFunction = function(a,b) 
-									local aDistance = Sort.getDistance(position, a.avatarEntity.position)
-									local bDistance = Sort.getDistance(position, b.avatarEntity.position)
+									local aDistance = Sort.getDistance(position, a.entity.position)
+									local bDistance = Sort.getDistance(position, b.entity.position)
 									return aDistance > bDistance
 								end
 			return Sort.getNewSortedTable(Sort.copyTable(global.avatars), newFunction)
