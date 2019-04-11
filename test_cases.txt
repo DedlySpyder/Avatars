@@ -1,2 +1,25 @@
 This will just be a running list of things that should be checked before creating a release
 
+Basics:
+Can place a new avatar
+Can control an avatar
+Can disconnect from an avatar
+Can rename an avatar
+Can change the default name of an avatar and not break everything
+
+ARDU:
+Can rename an ARDU
+Can deploy an avatar from an ARDU
+
+Death:
+Can die in an avatar without gameover
+Player death ends game
+Destruction of ACC kicks player out of avatar
+Can place an avatar after one has been destroyed, and it keep incrementing up in numbers
+
+GUI:
+An ARDU is listed in the selection GUI, if it hasn't spawned an avatar
+	- If it has the avatar is shown and not the ARDU
+	- If the ARDU has been destroyed, then the avatar will be in the list
+
+MP:

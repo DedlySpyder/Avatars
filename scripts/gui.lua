@@ -54,16 +54,16 @@ GUI.Selection.draw = function(player)
 	GUI.Selection.destroy(player)
 	
 	--Obtain a sorted table to display
-	local sortedTable = Sort.getSortedTable(sortValues, player.position)
+	local sortedTable = Sort.getSortedTable(sortValues, player)
 	
 	--Create the frame to hold everything
 	local avatarSelectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", GUI.entityPositionString(player)}}
 	
 	--Total avatar count
-	local totalAvatars = 0
+	local totalEntries = 0
 	
 	--Fill in the GUI if there is data
-	if (sortedTable ~= nil and #sortedTable > 0) then
+	if sortedTable and #sortedTable > 0 then
 		--Flow to align the header frames
 		local headerFlow = avatarSelectionFrame.add{type="flow", name="headerFlow", direction="horizontal"}
 		
@@ -115,35 +115,46 @@ GUI.Selection.draw = function(player)
 		local tableFrame = avatarSelectionFrame.add{type="frame", name="tableFrame", direction="vertical"}
 		local selectionScrollPane = tableFrame.add{type="scroll-pane", name="selectionScrollPane", direction="vertical", style="avatar_table_scroll_pane"}
 		
-		--Iterate through the avatars
-		for _, avatar in ipairs(sortedTable) do
-			if (avatar == nil) then break end
-			local avatarEntity = avatar.entity
-			if (avatarEntity ~= nil and avatarEntity.valid) then
-				--Make sure the avatar is in the same force
-				if (avatarEntity.force == player.force) then
-					--Add it to the count
-					totalAvatars = totalAvatars + 1
-					
-					--Create the row frame
-					local row = selectionScrollPane.add{type="frame", direction="horizontal", style="avatar_table_row_frame"}
-					
-					--Fill in the row
-					row.add{type="label", name=avatar.name, caption=avatar.name, style="avatar_table_label_avatar_name"}
-					row.add{type="label", caption=Sort.getDistance(player.position, avatarEntity.position), style="avatar_table_label_avatar_location"}
-					row.add{
-								type="button", 
-								name="avatar_rnam_"..avatar.name, 
-								caption={"Avatars-table-rename-button"}, 
-								tooltip={"Avatars-table-rename-button-tooltip", avatar.name}, 
-								style="avatar_table_button"}
-					row.add{type="label", style="avatar_table_label_gap"}
-					row.add{	type="button", 
-								name="avatar_ctrl_"..avatar.name, 
-								caption={"Avatars-table-control-button"}, 
-								tooltip={"Avatars-table-control-button-tooltip", avatar.name}, 
-								style="avatar_table_button"}
+		-- Iterate through the avatars (and ARDUs)
+		for _, tableEntry in ipairs(sortedTable) do
+			--if not avatar then break end --TODO - why did I have this?
+			local entity = tableEntry.entity
+			if entity and entity.valid then
+				--Add it to the count
+				totalEntries = totalEntries + 1
+				
+
+				--Create the row frame
+				local row = selectionScrollPane.add{type="frame", direction="horizontal", style="avatar_table_row_frame"}
+				
+				local renameEnabled = true
+				local controlButtonName = nil
+				
+				-- Check if the entry is an ARDU
+				if tableEntry.currentIteration then
+					renameEnabled = false
+					controlButtonName = "avatar_ctrl_ardu_" .. tableEntry.name
+				else
+					controlButtonName = "avatar_ctrl_" .. tableEntry.name
 				end
+				
+				--Fill in the row
+				row.add{type = "label", name = tableEntry.name, caption = tableEntry.name, style = "avatar_table_label_avatar_name"}
+				row.add{type = "label", caption = Sort.getDistance(player.position, entity.position), style = "avatar_table_label_avatar_location"}
+				row.add{	type = "button",
+							name = "avatar_rnam_" .. tableEntry.name,
+							enabled = renameEnabled,
+							caption = {"Avatars-table-rename-button"},
+							tooltip = {"Avatars-table-rename-button-tooltip", tableEntry.name},
+							style = "avatar_table_button"
+				}
+				row.add{type = "label", style = "avatar_table_label_gap"}
+				row.add{	type = "button", 
+							name = controlButtonName, 
+							caption = {"Avatars-table-control-button"}, 
+							tooltip = {"Avatars-table-control-button-tooltip", tableEntry.name}, 
+							style = "avatar_table_button"
+				}
 			end
 		end
 	end
@@ -152,7 +163,7 @@ GUI.Selection.draw = function(player)
 	--Exit button
 	avatarSelectionFrame.add{type="button", name="avatar_exit", caption={"Avatars-table-exit-button"}}
 	--Avatar Total
-	avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalAvatars}, style="avatar_table_total_avatars"}
+	avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalEntries}, style="avatar_table_total_avatars"}
 end
 
 --Update Selection GUI for the current player

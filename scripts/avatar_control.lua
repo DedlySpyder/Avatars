@@ -1,7 +1,12 @@
-local GUI = require "scripts/gui"
+local Deployment = require "deployment"
+local GUI = require "gui"
 local Storage = require "storage"
 
 local AvatarControl = {}
+
+--TODO - avatar_control - make a canControl function that will return true/false & an error message
+--The GUI can use it to change make control buttons active/deactive
+
 
 -- We can't body swap too often, "Factorio hates it when you do that." -YARM
 --	@param playerData - a player's data from the global table
@@ -27,6 +32,24 @@ end
 AvatarControl.gainAvatarControl = function(player, name, tick)
 	debugLog("Gaining control of " .. name)
 	
+	-- Find the avatar (deploy it from an ARDU if needed)
+	local avatarData
+	if string.sub(name, 1, 5) == "ardu_" then
+		local arduName = string.sub(name, 6)
+		avatarData = Deployment.getOrDeploy(player, arduName) --TODO - this button should be disabled though?
+		
+		-- More granular error messages are given by the Deployment function
+		if not avatarData then return false end
+	else
+		avatarData = Storage.Avatars.getByName(name)
+	end
+	
+	-- Make sure no one else is controlling it
+	if avatarData.playerData then
+		player.print{"Avatars-error-already-controlled", avatarData.playerData.player.name}
+		return false
+	end
+	
 	local avatarControlCenter = player.vehicle
 	local playerData = Storage.PlayerData.getOrCreate(player)
 		
@@ -38,14 +61,6 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	
 	if (player.character.name == "avatar") then
 		player.print{"Avatars-error-control-restriction"}
-		return false
-	end
-	
-	-- Find the avatar and make sure no one else is controlling it
-	local avatarData = Storage.Avatars.getByName(name)
-	
-	if avatarData.playerData then
-		player.print{"Avatars-error-already-controlled", avatarData.playerData.player.name}
 		return false
 	end
 	

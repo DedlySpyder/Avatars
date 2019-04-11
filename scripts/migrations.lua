@@ -16,26 +16,45 @@ Migrations.to_0_4_0 = function()
 	end
 end
 
---TODO - call this in control.lua
 Migrations.to_0_5_0 = function()
 	Storage.init()
 	
 	-- Avatars table transistion: (playerData will be added below)
 	-- {avatarEntity, name} -> {entity, name}
+	--		Just renaming entity
 	for _, data in ipairs(global.avatars) do
 		data.entity = data.avatarEntity
 		data.avatarEntity = nil
 	end
 	
+	-- ARDU table transistion:
+	-- {entity, name, flag, deployedAvatar, currentIteration} -> {entity, name, deployedAvatarData, currentIteration}
+	--		ARDU is changing from the on_tick to on demand, so flag is unneeded
+	--		Changing avatar reference to just be the table entry
+	--		Also, having the avatar link back to the spawning ARDU, as needed
+	for _, data in ipairs(global.avatarARDUTable) do
+		if data.deployedAvatar then
+			local deployedAvatarData = Storage.Avatars.getByEntity(data.deployedAvatar) --TODO broken?
+			data.deployedAvatarData = deployedAvatarData
+			data.deployedAvatar = nil
+			
+			deployedAvatarData.arduData = data
+		end
+		
+		data.flag = nil
+	end
+	
 	-- PlayerData table transistion:
 	-- {player, realBody, currentAvatar, currentAvatarName, lastBodySwap} -> {player, realBody, currentAvatarData, lastBodySwap}
+	--		Changing avtar references to just be the table entry
+	--		Also, having the avatar link back to the controlling player, as needed
 	for _, data in ipairs(global.avatarPlayerData) do
 		if data.currentAvatar then
-			data.currentAvatarData = Storage.Avatars.getByEntity(data.currentAvatar)
+			local currentAvatarData = Storage.Avatars.getByEntity(data.currentAvatar)
+			data.currentAvatarData = currentAvatarData
 			data.currentAvatar = nil
 			
-			-- Avatars table is getting a reference back to the controlling player data
-			data.currentAvatarData.playerData = data
+			currentAvatarData.playerData = data
 		end
 		
 		data.currentAvatarName = nil

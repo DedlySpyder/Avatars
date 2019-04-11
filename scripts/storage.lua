@@ -7,14 +7,14 @@ local Storage = {}
 -- Initialize all of the tables, as needed
 -- Tables:
 --		avatars	- an array of all of the avatar entities themselves
---				- {entity, name, playerData}
+--				- {entity, name, playerData, arduData}
 --
 --		avatarPlayerData	- an array of information about each player
 --							- {player, realBody, currentAvatarData, lastBodySwap}
 -- 							- Note: avatars and the controlling player (if one) link to each other in the tables, for easy cross reference
 --
 --		avatarARDUTable	- an array of information for each ARDU
---						- {entity, name, flag, deployedAvatar, currentIteration}
+--						- {entity, name, deployedAvatarData, currentIteration}
 
 -- Counts - these are kept so that we will NEVER have a duplicate name
 --		avatarDefaultCount	- a sequence count of all of the avatars ever created
@@ -46,12 +46,15 @@ end
 -- Remove value(s) from a table, if they satify a function
 --	@param tbl - a table to remove values from
 --	@param func - a function to test each value against, removing the value if this function returns true
+--	@return - the removed values (in an array)
 Storage.removeFromTable = function(tbl, func)
 	local j = 1
+	local removed = {}
 	
 	-- For each value in tbl, if it satifies the function, then remove it
 	for i = 1, #tbl do
 		if func(tbl[i]) then
+			table.insert(removed, tbl[i])
 			tbl[i] = nil
 		else
 			-- If the value is to be kept, then move it up in the table if needed
@@ -63,18 +66,17 @@ Storage.removeFromTable = function(tbl, func)
 		end
 	end
 	
-	-- This return value doesn't need to be reassigned, as it is the same table as the input
-	return tbl
+	return removed
 end
 
-Storage.formatNumber = function(num)
+Storage.formatNumber = function(num) -- TODO - move somewhere else? and doc this
 	return string.format("%03d", num)
 end
 
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Avatars Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
--- {entity, name, playerData}
+-- {entity, name, playerData, arduData}
 Storage.Avatars = {}
 
 -- Add an avatar to the global table
@@ -89,7 +91,7 @@ Storage.Avatars.add = function(avatar)
 		
 		global.avatarDefaultCount = currentIncrement + 1
 	
-		table.insert(global.avatars, {entity=avatar, name=name, playerData=nil})
+		table.insert(global.avatars, {entity=avatar, name=name, playerData=nil, arduData=nil})
 		debugLog("Added avatar: " .. name)
 		return true
 	end
@@ -99,11 +101,18 @@ Storage.Avatars.add = function(avatar)
 end
 
 -- Remove an avatar from the global table
--- 	@param avatar - a LuaEntity of the avatar
-Storage.Avatars.remove = function(avatar)
+-- 	@param avatarEntity - a LuaEntity of the avatar
+Storage.Avatars.remove = function(avatarEntity)
 	debugLog("Attempting to remove avatar. Current count: " .. #global.avatars)
-	local newFunction = function(arg) return arg.entity == avatar end
-	Storage.removeFromTable(global.avatars, newFunction)
+	local newFunction = function(arg) return arg.entity == avatarEntity end
+	local removedAvatars = Storage.removeFromTable(global.avatars, newFunction)
+	
+	-- Clean up the ARDU data link
+	for _, avatar in ipairs(removedAvatars) do
+		if avatar.arduData then
+			avatar.arduData.deployedAvatarData = nil
+		end
+	end
 	
 	debugLog("New count: " .. #global.avatars)
 end
@@ -198,7 +207,7 @@ end
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ARDU Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
--- {entity, name, flag, deployedAvatar, currentIteration}
+-- {entity, name, deployedAvatarData, currentIteration}
 Storage.ARDU = {}
 
 -- Add an ARDU to the global table
@@ -216,8 +225,7 @@ Storage.ARDU.add = function(entity)
 		table.insert(global.avatarARDUTable, {
 												entity=entity, 
 												name=name,
-												flag=false, --TODO - what is "flag", rename it or remove it
-												deployedAvatar=nil,
+												deployedAvatarData=nil,
 												currentIteration=0
 											 })
 		debugLog("Added ARDU: " .. name)
@@ -228,15 +236,29 @@ Storage.ARDU.add = function(entity)
 	return false
 end
 
+-- Get the first value from the avatarARDUTable global table that satifies the provided function, or nil
+--	@param func - a function to test the values against
+--	@return - the table value
+Storage.ARDU.getByFunc = function(func)
+	for _, currentARDU in ipairs(global.avatarARDUTable) do
+		if func(currentARDU) then
+			return currentARDU
+		end
+	end
+end
+
 -- Get the value from the avatarARDUTable global table, using the ARDU's entity
 --	@param entity - the LuaEntity of the ARDU
 --	@return - the table value, or nil if not found
 Storage.ARDU.getByEntity = function(ARDU)
-	for _, currentARDU in ipairs(global.avatarARDUTable) do
-		if (currentARDU.entity == ARDU) then
-			return currentARDU
-		end
-	end
+	return Storage.ARDU.getByFunc(function(data) return data.entity == ARDU end)
+end
+
+-- Get the value from the avatarARDUTable global table, using the ARDU's entity
+--	@param name - the name of the ARDU
+--	@return - the table value, or nil if not found
+Storage.ARDU.getByName = function(name)
+	return Storage.ARDU.getByFunc(function(data) return data.name == name end)
 end
 
 -- Remove an ARDU from the global table
@@ -244,7 +266,14 @@ end
 Storage.ARDU.remove = function(entity)
 	debugLog("Attempting to remove ARDU. Current count: " .. #global.avatarARDUTable)
 	local newFunction = function (arg) return arg.entity == entity end
-	Storage.removeFromTable(global.avatarARDUTable, newFunction)
+	local removedArdus = Storage.removeFromTable(global.avatarARDUTable, newFunction)
+	
+	-- Clean up the Avatar data link
+	for _, ardu in ipairs(removedArdus) do
+		if ardu.deployedAvatarData then
+			ardu.deployedAvatarData.arduData = nil
+		end
+	end
 	
 	debugLog("New count: " .. #global.avatarARDUTable)
 end

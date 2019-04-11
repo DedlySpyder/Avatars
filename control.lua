@@ -138,9 +138,7 @@ end
 script.on_event(defines.events.on_gui_checked_state_changed, checkboxChecked)
 
 --Check on an entity being built
-function on_entity_built(event)
-	local entity = event.created_entity
-		
+function on_entity_built(entity)
 	--Dummy fuel to avoid the error signal
 	if (entity.name == "avatar-control-center") then
 		entity.operable = false
@@ -163,8 +161,17 @@ function on_entity_built(event)
 	end
 end
 
-script.on_event(defines.events.on_robot_built_entity, on_entity_built)
-script.on_event(defines.events.on_built_entity, on_entity_built)
+function on_game_built_entity(event)
+	on_entity_built(event.created_entity)
+end
+
+function on_script_built_entity(event)
+	on_entity_built(event.entity)
+end
+
+script.on_event(defines.events.on_robot_built_entity, on_game_built_entity)
+script.on_event(defines.events.on_built_entity, on_game_built_entity)
+script.on_event(defines.events.script_raised_built, on_script_built_entity)
 
 --Check on entity being destroyed or deconstructed
 function on_entity_destroyed(event)
@@ -192,22 +199,14 @@ function on_entity_destroyed(event)
 	--Destruction of an Avatar
 	if (entity.name == "avatar") then
 		-- Remove the avatar from the global table
+		-- (The player is no longer in control at this point)
 		Storage.Avatars.remove(entity)
-		
-		-- Attempts to deploy a new avatar
-		Deployment.redeployFromARDU(avatarEntity)
 		return
 	end
 	
 	--Destruction of an ARDU
 	if (entity.name == "avatar-remote-deployment-unit") then
-		--Remove it from the global table
-		for _, currentARDU in ipairs(global.avatarARDUTable) do
-			if (currentARDU.entity == entity) then
-				debugLog("Deleting ARDU, "..currentARDU.name)
-				Storage.ARDU.remove(entity)
-			end
-		end
+		Storage.ARDU.remove(entity)
 		return
 	end
 	
@@ -273,19 +272,6 @@ script.on_event("avatars_disconnect", on_hotkey)
 -- TODO - script.on_nth_tick exists
 -- TODO - actually, the rework gets rid of it?
 function on_tick(event)
-	--Every 5 seconds - Check to deploy the initial avatar for ARDUs
-	if ((game.tick % (60*5)) == 17) then
-		if (global.avatarARDUTable ~= nil) then
-			for _, ARDU in ipairs(global.avatarARDUTable) do
-				if not ARDU.flag then --This only triggers once
-					local flag = Deployment.deployFromARDU(ARDU)
-					if flag then ARDU.flag = flag end
-					debugLog("Attempted first deployment from "..ARDU.name)
-				end
-			end
-		end
-	end
-	
 	--Every 15 seconds - check to place avatars in the avatar assembling machines
 	if ((game.tick % (60*15)) == 23) then 
 		Deployment.deployFromAssemblers()

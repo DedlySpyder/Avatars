@@ -11,18 +11,20 @@ Sort.getCurrentState = function(player)
 		   }
 end
 
-Sort.getSortedTable = function(sortValues, position)
+Sort.getSortedTable = function(sortValues, player)
+	local position = player.position
+	
 	--Check the sort string
 	if (global.avatars) then --TODO - yes this fucking exists now
 		if (sortValues.name_ascending) then
 			--Comapre the name strings
 			local newFunction = function(a,b) return a.name < b.name end
-			return Sort.getNewSortedTable(Sort.copyTable(global.avatars), newFunction)
+			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
 			
 		elseif (sortValues.name_descending) then
 			--Comapre the name strings
 			local newFunction = function(a,b) return a.name > b.name end
-			return Sort.getNewSortedTable(Sort.copyTable(global.avatars), newFunction)
+			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
 			
 		elseif (sortValues.location_ascending) then
 			--Compare the distances
@@ -31,7 +33,7 @@ Sort.getSortedTable = function(sortValues, position)
 									local bDistance = Sort.getDistance(position, b.entity.position)
 									return aDistance < bDistance
 								end
-			return Sort.getNewSortedTable(Sort.copyTable(global.avatars), newFunction)
+			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
 			
 		elseif (sortValues.location_descending) then
 			--Compare the distances
@@ -40,7 +42,7 @@ Sort.getSortedTable = function(sortValues, position)
 									local bDistance = Sort.getDistance(position, b.entity.position)
 									return aDistance > bDistance
 								end
-			return Sort.getNewSortedTable(Sort.copyTable(global.avatars), newFunction)
+			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
 			
 		else
 			return global.avatars
@@ -91,12 +93,26 @@ end
 
 --Copies a table by value
 --TODO - more general than sort though?
-Sort.copyTable = function(oldTable)
-	local newTable = {}
-	for i, row in pairs(oldTable) do
-		newTable[i] = row
+Sort.getFilteredTable = function(player)
+	local force = player.force
+	local filteredTable = {}
+	
+	-- Add all avatars for this player's force
+	for _, data in ipairs(global.avatars) do
+		if data.entity.force == force then
+			table.insert(filteredTable, data)
+		end
 	end
-	return newTable
+	
+	-- Add ARDU's that do not have spawned avatars for this player's force
+	-- These are safe for all sort functions, because they have name and entity, just like avatars
+	for _, data in ipairs(global.avatarARDUTable) do
+		if not data.deployedAvatarData and data.entity.force == force then
+			table.insert(filteredTable, data)
+		end
+	end
+	
+	return filteredTable
 end
 
 return Sort
