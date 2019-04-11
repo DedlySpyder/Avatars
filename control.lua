@@ -154,11 +154,6 @@ function on_entity_built(entity)
 	if (entity.name == "avatar-remote-deployment-unit") then
 		Storage.ARDU.add(entity)
 	end
-	
-	--Add to table
-	if (entity.name == "avatar-assembling-machine") then
-		Storage.AvatarAssemblingMachines.add(entity)
-	end
 end
 
 function on_game_built_entity(event)
@@ -209,15 +204,6 @@ function on_entity_destroyed(event)
 		Storage.ARDU.remove(entity)
 		return
 	end
-	
-	--Destruction of an Assembling Machine
-	if (entity.name == "avatar-assembling-machine") then
-		for _, currentAssembler in ipairs(global.avatarAssemblingMachines) do
-			if (currentAssembler.entity == entity) then
-				Storage.AvatarAssemblingMachines.remove(entity)
-			end
-		end
-	end
 end
 
 function on_entity_died(event)
@@ -267,18 +253,6 @@ function on_hotkey(event)
 end
 
 script.on_event("avatars_disconnect", on_hotkey)
-
--- TODO - this can be conditionally initialized, so it's not ALWAYS running
--- TODO - script.on_nth_tick exists
--- TODO - actually, the rework gets rid of it?
-function on_tick(event)
-	--Every 15 seconds - check to place avatars in the avatar assembling machines
-	if ((game.tick % (60*15)) == 23) then 
-		Deployment.deployFromAssemblers()
-	end
-end
-
-script.on_event(defines.events.on_tick, on_tick)
 
 --Remote Calls
 --Mod Interfaces
@@ -378,7 +352,6 @@ if debug_mode then
 		testing = function()
 			for _, player in pairs(game.players) do
 				player.insert({name="avatar-control-center", count=5})
-				player.insert({name="avatar-assembling-machine", count=5})
 				player.insert({name="avatar-remote-deployment-unit", count=5})
 				player.insert({name="avatar", count=25})
 			end

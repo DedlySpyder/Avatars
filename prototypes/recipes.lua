@@ -33,20 +33,6 @@ data:extend ({
  },
  {
     type = "recipe",
-    name = "avatar-assembling-machine",
-    enabled = false,
-    ingredients =
-    {
-	  {"assembling-machine-3", 1},
-	  {"processing-unit", 1},
-	  {"filter-inserter", 1}
-    },
-    result = "avatar-assembling-machine",
-	category = "crafting",
-	energy_required = 5
- },
- {
-    type = "recipe",
     name = "avatar-remote-deployment-unit",
     enabled = false,
     ingredients =

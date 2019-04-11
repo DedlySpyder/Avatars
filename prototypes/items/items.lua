@@ -21,16 +21,6 @@ data:extend({
   },
   {
 	type = "item",
-	name = "avatar-assembling-machine",
-	icon = "__Avatars__/graphics/icons/avatar-assembling-machine.png",
-	icon_size = 32,
-	subgroup = "avatar-supporting-structures",
-	order = "a[assembly]-a[avatar-assembling-machine]",
-	place_result = "avatar-assembling-machine",
-	stack_size = 5
-  },
-  {
-	type = "item",
 	name = "avatar-remote-deployment-unit",
 	icon = "__Avatars__/graphics/icons/avatar-remote-deployment-unit.png",
 	icon_size = 32,

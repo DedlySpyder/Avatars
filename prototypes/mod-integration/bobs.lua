@@ -39,11 +39,6 @@ if data.raw["item"]["advanced-processing-unit"] then
 		--Actuator
 		table.insert(data.raw["recipe"]["actuator"].ingredients, {"advanced-processing-unit", 3})
 		
-		--Assembling Machine
-		bobmods.lib.recipe.remove_ingredient("avatar-assembling-machine", "processing-unit")
-		table.insert(data.raw["recipe"]["avatar-assembling-machine"].ingredients, {"processing-unit", 5})
-		table.insert(data.raw["recipe"]["avatar-assembling-machine"].ingredients, {"advanced-processing-unit", 5})
-		
 		--ARDU
 		table.insert(data.raw["recipe"]["avatar-remote-deployment-unit"].ingredients, {"advanced-processing-unit", 5})
 		
@@ -61,14 +56,6 @@ if data.raw["item"]["advanced-processing-unit"] then
 		--Avatar Arm
 		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"processing-unit", 5})
 		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"advanced-processing-unit", 3})
-	end
-end
-
---Bob's Assembly
-if data.raw["item"]["assembling-machine-6"] then
-	if bobmods.lib then
-		--Assembling Machine
-		bobmods.lib.recipe.replace_ingredient("avatar-assembling-machine", "assembling-machine-3", "assembling-machine-6")
 	end
 end
 

@@ -21,10 +21,6 @@ data:extend ({
 	  },
 	  {
         type = "unlock-recipe",
-        recipe = "avatar-assembling-machine"
-      },
-	  {
-        type = "unlock-recipe",
         recipe = "actuator"
       },
 	  {

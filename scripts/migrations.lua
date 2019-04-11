@@ -18,6 +18,7 @@ end
 
 Migrations.to_0_5_0 = function()
 	Storage.init()
+	script.on_event(defines.events.on_tick, nil)
 	
 	-- Avatars table transistion: (playerData will be added below)
 	-- {avatarEntity, name} -> {entity, name}

@@ -278,35 +278,4 @@ Storage.ARDU.remove = function(entity)
 	debugLog("New count: " .. #global.avatarARDUTable)
 end
 
-
-
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ AvatarAssemblingMachines Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
---TODO - AvatarAssemblingMachines global - get rid of this stuff
-Storage.AvatarAssemblingMachines = {}
-
---Add the Assembling Machine to the table
-Storage.AvatarAssemblingMachines.add = function(entity)
-	global.avatarAssemblingMachines = Storage.AvatarAssemblingMachines.existsOrCreate(global.avatarAssemblingMachines)
-	
-	table.insert(global.avatarAssemblingMachines, {entity=entity})
-end
-
---Remove Assemblers from the global table
-Storage.AvatarAssemblingMachines.remove = function(entity)
-	global.avatarAssemblingMachines = Storage.AvatarAssemblingMachines.existsOrCreate(global.avatarAssemblingMachines)
-	
-	local newFunction = function (arg) return arg.entity == entity end --Function that returns true or false if the entities match
-	Storage.removeFromTable(global.avatarAssemblingMachines, newFunction)
-	debugLog("deleted Assembler: " .. #global.avatarAssemblingMachines)
-end
-
---Make sure global.avatarAssemblingMachines exists
-Storage.AvatarAssemblingMachines.existsOrCreate = function(checkTable)
-	if checkTable == nil then
-		return {entity=nil}
-	else
-		return checkTable
-	end
-end
-
 return Storage
