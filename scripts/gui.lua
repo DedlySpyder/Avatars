@@ -11,13 +11,15 @@ require("mod-gui")
 
 local GUI = {}
 
---Creates a printable position
+-- Creates a printable position
+--	@param entity - a LuaEntity to get the string position for
+--	@return - a string of "(x, y)"
 GUI.entityPositionString = function(entity)
-	local position = "(" ..math.floor(entity.position.x) ..", " ..math.floor(entity.position.y) ..")"
-	return position
+	return "(" ..math.floor(entity.position.x) ..", " ..math.floor(entity.position.y) ..")"
 end
 
---Destroys all GUI
+-- Destroys all GUIs
+--	@param player - a LuaPlayer object to clear all GUIs for
 GUI.destroyAll = function(player)
 	GUI.Selection.destroy(player)
 	GUI.Rename.destroy(player)
@@ -25,9 +27,13 @@ GUI.destroyAll = function(player)
 	GUI.ARDU.destroy(player)
 end
 
-
+------------TODO rewriting GUI now...
 
 --~~~~~~~  Selection GUI ~~~~~~~--
+-- This GUI is the main table that displays all avatars controllable by the player & ARDUs that do not have a spawned avatar
+-- The player can rename or control any avatar
+-- They can also spawn a new avatar from an ARDU
+
 GUI.Selection = {}
 
 --Selection GUI - The main table that displays and allows for renaming and control of avatars
