@@ -2,7 +2,7 @@
 --Otherwise Storage is more or less done atm
 
 
-local Storage = {}
+Storage = {}
 
 -- Initialize all of the tables, as needed
 -- Tables:
@@ -92,6 +92,8 @@ Storage.Avatars.add = function(avatar)
 		global.avatarDefaultCount = currentIncrement + 1
 	
 		table.insert(global.avatars, {entity=avatar, name=name, playerData=nil, arduData=nil})
+		
+		GUI.Refresh.numOfAvatarsChanged()
 		debugLog("Added avatar: " .. name)
 		return true
 	end
@@ -106,6 +108,10 @@ Storage.Avatars.remove = function(avatarEntity)
 	debugLog("Attempting to remove avatar. Current count: " .. #global.avatars)
 	local newFunction = function(arg) return arg.entity == avatarEntity end
 	local removedAvatars = Storage.removeFromTable(global.avatars, newFunction)
+	
+	if #removedAvatars > 0 then
+		GUI.Refresh.numOfAvatarsChanged()
+	end
 	
 	-- Clean up the ARDU data link
 	for _, avatar in ipairs(removedAvatars) do
@@ -189,7 +195,7 @@ end
 -- Get the first value from the avatarPlayerData global table that satifies the provided function, or nil
 --	@param func - a function to test the values against
 --	@return - the table value
-Storage.PlayerData.getByFunc = function(func)
+Storage.PlayerData.getByFunc = function(func) --TODO don't use this directly
 	for _, playerData in ipairs(global.avatarPlayerData) do
 		if func(playerData) then
 			return playerData
@@ -277,5 +283,3 @@ Storage.ARDU.remove = function(entity)
 	
 	debugLog("New count: " .. #global.avatarARDUTable)
 end
-
-return Storage

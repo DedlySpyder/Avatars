@@ -1,8 +1,4 @@
-local Deployment = require "deployment"
-local GUI = require "gui"
-local Storage = require "storage"
-
-local AvatarControl = {}
+AvatarControl = {}
 
 -- Check if the player can control the avatar
 --	@param avatarData - the avatars table data
@@ -22,7 +18,7 @@ AvatarControl.canGainControl = function(avatarData, playerData, tick)
 	end
 	
 	-- Can't gain control if the player is currently in an avatar
-	if (player.character.name == "avatar") then
+	if (playerData.player.character.name == "avatar") then
 		return false, {"Avatars-error-control-restriction"}
 	end
 	
@@ -38,10 +34,6 @@ AvatarControl.isSafeToSwap = function(playerData, tick)
 		if playerData.lastBodySwap and playerData.lastBodySwap + 10 > tick then
 			return false
 		end
-		
-		playerData.lastBodySwap = tick
-	else
-		playerData.lastBodySwap = game.tick
 	end
 	
 	return true
@@ -90,6 +82,11 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 		return false
 	end
 	
+	if tick then
+		playerData.lastBodySwap = tick
+	else
+		playerData.lastBodySwap = game.tick
+	end
 	
 	avatarData.entity.active = true
 	player.character = avatarData.entity
@@ -141,5 +138,3 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	--GUI clean up
 	GUI.destroyAll(player)
 end
-
-return AvatarControl

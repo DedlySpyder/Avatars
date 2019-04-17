@@ -21,5 +21,10 @@ GUI:
 An ARDU is listed in the selection GUI, if it hasn't spawned an avatar
 	- If it has the avatar is shown and not the ARDU
 	- If the ARDU has been destroyed, then the avatar will be in the list
+Can't control an avatar from another avatar
+Can't rename an ARDU from an ACC
+An avatar can be renamed
+An avatar can't be named the same as another avatar
+An avatar can't be named an empty string
 
 MP:

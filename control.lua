@@ -1,8 +1,10 @@
-local AvatarControl = require "scripts/avatar_control"
-local Deployment = require "scripts/deployment"
-local GUI = require "scripts/gui"
-local Migrations = require "scripts/migrations"
-local Storage = require "scripts/storage"
+require "scripts/storage"
+require "scripts/deployment"
+require "scripts/avatar_control"
+require "scripts/sort"
+require "scripts/gui"
+
+require "scripts/migrations"
 
 
 

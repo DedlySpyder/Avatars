@@ -1,85 +1,66 @@
-local GUI = require("gui")
+Sort = {}
 
-local Sort = {}
-
-Sort.getSortValues = function(player)
-	debugLog("Obtaining sort values")
-	if GUI.Selection.verify(player) then
-		-- Get the sort from the current selection GUI
-		local selectionFrame = player.gui.center.avatarSelectionFrame
-		return	{	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
-					name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
-					location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
-					location_descending = selectionFrame.lowerSortFlow.avatar_sort_location_descending.state,
-				}
-	else
-		-- Default sort values
-		return	{	name_ascending = true,
-					name_descending = false,
-					location_ascending = false,
-					location_descending = false
-				}
-	end
-end
-
+-- Using the given sort values, create a sorted list of avatars/ARDUs
+--	@param sortValues - a table of the sorting names, each to a boolean
+--	@player player - a LuaPlayer object
+--	@return - a sorted version of avatars to display
 Sort.getSortedTable = function(sortValues, player)
 	local position = player.position
 	
-	--Check the sort string
-	if (global.avatars) then --TODO - yes this fucking exists now
-		if (sortValues.name_ascending) then
-			--Comapre the name strings
-			local newFunction = function(a,b) return a.name < b.name end
-			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
-			
-		elseif (sortValues.name_descending) then
-			--Comapre the name strings
-			local newFunction = function(a,b) return a.name > b.name end
-			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
-			
-		elseif (sortValues.location_ascending) then
-			--Compare the distances
-			local newFunction = function(a,b) 
-									local aDistance = Sort.getDistance(position, a.entity.position)
-									local bDistance = Sort.getDistance(position, b.entity.position)
-									return aDistance < bDistance
-								end
-			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
-			
-		elseif (sortValues.location_descending) then
-			--Compare the distances
-			local newFunction = function(a,b) 
-									local aDistance = Sort.getDistance(position, a.entity.position)
-									local bDistance = Sort.getDistance(position, b.entity.position)
-									return aDistance > bDistance
-								end
-			return Sort.getNewSortedTable(Sort.getFilteredTable(player), newFunction)
-			
-		else
-			return global.avatars
+	local sortFunction = nil
+	
+	-- Check the sort string
+	if (sortValues.name_ascending) then
+		-- Compare the name strings
+		sortFunction = function(a,b) return a.name < b.name end
+		
+	elseif (sortValues.name_descending) then
+		-- Compare the name strings
+		sortFunction = function(a,b) return a.name > b.name end
+		
+	elseif (sortValues.location_ascending) then
+		-- Compare the distances
+		sortFunction = function(a,b) 
+			local aDistance = Sort.getDistance(position, a.entity.position)
+			local bDistance = Sort.getDistance(position, b.entity.position)
+			return aDistance < bDistance
 		end
+		
+	elseif (sortValues.location_descending) then
+		-- Compare the distances
+		sortFunction = function(a,b) 
+			local aDistance = Sort.getDistance(position, a.entity.position)
+			local bDistance = Sort.getDistance(position, b.entity.position)
+			return aDistance > bDistance
+		end
+		
 	else
-		return {}
+		return Sort.getFilteredTable(player)
 	end
+	
+	return Sort.getNewSortedTable(Sort.getFilteredTable(player), sortFunction)
 end
 
---Takes a table (list) and sorts it based on the function provided
+-- Takes a table (list) and sorts it based on the function provided
+--	@param list - an indexed table
+--	@param func - a function to test if a sort needs to happen
+--	@return - a sorted list
 Sort.getNewSortedTable = function(list, func)
 	local changesMade
 	local itemCount = #list
 	
-	--Repeat until there are no changes made
+	-- Repeat until there are no changes made
 	repeat
 		changesMade = false
-		--The first item will never need comapred to nothing
+		-- The first item will never need compared to nothing
 		for i=2, itemCount do
 			if func(list[i], list[i-1]) then
-				--Swap the data
+				-- Swap the data
 				local temp = list[i-1]
 				list[i-1] = list[i]
 				list[i] = temp
 				
-				--Set the flag
+				-- Set the flag
 				changesMade = true
 			end
 		end
@@ -89,21 +70,27 @@ Sort.getNewSortedTable = function(list, func)
 	return list
 end
 
---Find the distance of an avatar from the player
+-- Find the distance of an avatar from the player
+--	@param startPosition - a position object of one entity
+--	@param endPosition - a position object of another entity
+--	@return - the distance between the two entities
 Sort.getDistance = function(startPosition, endPosition)
 	local xDistance = startPosition.x - endPosition.x
 	local yDistance = startPosition.y - endPosition.y
 	
-	--Find the total distance of the line
+	-- Find the total distance of the line
 	local distance = math.sqrt((xDistance^2) + (yDistance^2))
 	
-	--Round the distance (found from http://lua-users.org/wiki/SimpleRound)
-	local mult = 10^(1) --The power is the number of decimal places to round to
+	-- Round the distance (found from http://lua-users.org/wiki/SimpleRound)
+	local mult = 10^(1) -- The power is the number of decimal places to round to
 	return math.floor(distance * mult + 0.5) / mult
 end
 
---Copies a table by value
---TODO - more general than sort though?
+-- Get a filtered table for display in the Selection GUI
+-- This table will contain both avatars and ARDUs that do not have a spawned avatar
+-- This table will only be of entities that share a force with the given player
+--	@param player - a LuaPlayer object
+--	@return - a filtered table of avatar & ardu global table data
 Sort.getFilteredTable = function(player)
 	local force = player.force
 	local filteredTable = {}
@@ -125,5 +112,3 @@ Sort.getFilteredTable = function(player)
 	
 	return filteredTable
 end
-
-return Sort

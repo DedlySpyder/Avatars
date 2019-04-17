@@ -1,6 +1,4 @@
-local Storage = require "storage"
-
-local Deployment = {}
+Deployment = {}
 
 -- Determine if an ARDU can deploy an avatar
 --	@param arduData - the data object from the ARDU global table
@@ -59,5 +57,3 @@ Deployment.getOrDeploy = function(player, arduName)
 		return avatarData
 	end
 end
-
-return Deployment

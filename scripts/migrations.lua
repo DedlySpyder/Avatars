@@ -1,6 +1,4 @@
-local Storage = require "storage"
-
-local Migrations = {}
+Migrations = {}
 
 Migrations.to_0_4_0 = function()
 	-- Default avatar names need to have leading zeroes in order to sort correctly
@@ -16,6 +14,8 @@ Migrations.to_0_4_0 = function()
 	end
 end
 
+--TODO - migration - see below
+--clean these up (renamed) player.gui.center.changeNameFrame.destroy()
 Migrations.to_0_5_0 = function()
 	Storage.init()
 	script.on_event(defines.events.on_tick, nil)
@@ -61,5 +61,3 @@ Migrations.to_0_5_0 = function()
 		data.currentAvatarName = nil
 	end
 end
-
-return Migrations
