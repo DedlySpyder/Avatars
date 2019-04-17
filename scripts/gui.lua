@@ -1,3 +1,4 @@
+local Deployment = require("deployment")
 local Sort = require("sort")
 local Storage = require "storage"
 require("mod-gui")
@@ -27,7 +28,7 @@ GUI.destroyAll = function(player)
 	GUI.ARDU.destroy(player)
 end
 
-------------TODO rewriting GUI now...
+
 
 --~~~~~~~  Selection GUI ~~~~~~~--
 -- This GUI is the main table that displays all avatars controllable by the player & ARDUs that do not have a spawned avatar
@@ -36,56 +37,42 @@ end
 
 GUI.Selection = {}
 
---Selection GUI - The main table that displays and allows for renaming and control of avatars
---Draw Selection GUI
+-- Draw the Selection GUI
+--	@param player - a LuaPlayer object
 GUI.Selection.draw = function(player)
 	debugLog("Drawing Selection GUI")
 	
-	--Determine the sort
-	local sortValues
-	if GUI.Selection.verify(player) then
-		--Get the sort from the current selection GUI
-		debugLog("Old Selection GUI found")
-		sortValues = Sort.getCurrentState(player)
-	else
-		--Default sort values
-		sortValues = {	name_ascending = true,
-						name_descending = false,
-						location_ascending = false,
-						location_descending = false
-					 }
-	end
-	
-	--Destroy old Selection GUI
-	GUI.Selection.destroy(player)
-	
-	--Obtain a sorted table to display
+	-- Determine the sort values and get a sorted table
+	local sortValues = Sort.getSortValues(player)
 	local sortedTable = Sort.getSortedTable(sortValues, player)
+	
+	-- Destroy old Selection GUI
+	GUI.Selection.destroy(player) --TODO - this shouldn't be here?
 	
 	--Create the frame to hold everything
 	local avatarSelectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", GUI.entityPositionString(player)}}
 	
-	--Total avatar count
+	-- Total avatar count
 	local totalEntries = 0
 	
-	--Fill in the GUI if there is data
+	-- Fill in the GUI if there is data
 	if sortedTable and #sortedTable > 0 then
-		--Flow to align the header frames
+		-- Flow to align the header frames
 		local headerFlow = avatarSelectionFrame.add{type="flow", name="headerFlow", direction="horizontal"}
 		
-		--Column header frames
+		-- Column header frames
 		local nameHeader = headerFlow.add{type="frame", name="nameHeader", direction="vertical", style="avatar_table_name_header_frame"}
 		local locationHeader = headerFlow.add{type="frame", name="locationHeader", direction="vertical", style="avatar_table_location_header_frame"}
 		local renameHeader = headerFlow.add{type="frame", name="renameHeader", direction="vertical", style="avatar_table_rename_header_frame"}
 		local controlHeader = headerFlow.add{type="frame", name="controlHeader", direction="vertical", style="avatar_table_control_header_frame"}
 		
-		--Header labels
+		-- Header labels
 		nameHeader.add{type="label", caption={"Avatars-table-avatar-name-header"}, style="avatar_table_header_avatar_name"}
 		locationHeader.add{type="label", caption={"Avatars-table-avatar-location-header"}, style="avatar_table_general"}
 		renameHeader.add{type="label", caption={"Avatars-table-rename-avatar-header"}, style="avatar_table_general"}
 		controlHeader.add{type="label", caption={"Avatars-table-control-avatar-header"}, style="avatar_table_general"}
 		
-		--Create the "Asending" sort row
+		-- Create the "Asending" sort row
 		local upperSortFlow = avatarSelectionFrame.add{type="flow", name="upperSortFlow", direction="horizontal"}
 		upperSortFlow.add{type="label", caption={"Avatars-table-sort-prefix"}}
 		upperSortFlow.add{	type="radiobutton", 
@@ -101,7 +88,7 @@ GUI.Selection.draw = function(player)
 							state=sortValues.location_ascending}
 		upperSortFlow.add{type="label", caption="", style="avatar_table_sort_trailing_null_label"}
 		
-		--Create the "Descending" sort row
+		-- Create the "Descending" sort row
 		local lowerSortFlow = avatarSelectionFrame.add{type="flow", name="lowerSortFlow", direction="horizontal"}
 		lowerSortFlow.add{type="label", caption="", style="avatar_table_sort_leading_null_label"}
 		lowerSortFlow.add{	type="radiobutton", 
@@ -117,58 +104,75 @@ GUI.Selection.draw = function(player)
 							state=sortValues.location_descending}
 		lowerSortFlow.add{type="label", caption="", style="avatar_table_sort_trailing_null_label"}
 		
-		--Frame and scroll pane creation
+		-- Frame and scroll pane creation
 		local tableFrame = avatarSelectionFrame.add{type="frame", name="tableFrame", direction="vertical"}
 		local selectionScrollPane = tableFrame.add{type="scroll-pane", name="selectionScrollPane", direction="vertical", style="avatar_table_scroll_pane"}
+		
+		local playerData = Storage.PlayerData.getOrCreate(player)
+		local tick = game.tick
 		
 		-- Iterate through the avatars (and ARDUs)
 		for _, tableEntry in ipairs(sortedTable) do
 			--if not avatar then break end --TODO - why did I have this?
 			local entity = tableEntry.entity
 			if entity and entity.valid then
-				--Add it to the count
+				-- Add it to the count
 				totalEntries = totalEntries + 1
 				
-
-				--Create the row frame
+				-- Create the row frame
 				local row = selectionScrollPane.add{type="frame", direction="horizontal", style="avatar_table_row_frame"}
 				
-				local renameEnabled = true
+				local renameButtonEnabled = true
+				local renameButtonTooltip = {"Avatars-table-rename-button-tooltip", tableEntry.name}
+				local controlButtonEnabled = true
+				local controlButtonTooltip = {"Avatars-table-control-button-tooltip", tableEntry.name}
 				local controlButtonName = nil
+				
+				local controlError = nil
 				
 				-- Check if the entry is an ARDU
 				if tableEntry.currentIteration then
-					renameEnabled = false
+					-- Data is an ARDU
+					renameButtonEnabled = false
+					renameButtonTooltip = {""} --TODO - can't rename ARDU from here message
+					
+					controlButtonEnabled, controlError = Deployment.canDeploy(tableEntry)
+					
 					controlButtonName = "avatar_ctrl_ardu_" .. tableEntry.name
 				else
+					controlButtonEnabled, controlError = AvatarControl.canGainControl(tableEntry, playerData, tick)
 					controlButtonName = "avatar_ctrl_" .. tableEntry.name
 				end
 				
-				--Fill in the row
+				if controlError then controlButtonTooltip = controlError end
+				
+				-- Fill in the row
 				row.add{type = "label", name = tableEntry.name, caption = tableEntry.name, style = "avatar_table_label_avatar_name"}
 				row.add{type = "label", caption = Sort.getDistance(player.position, entity.position), style = "avatar_table_label_avatar_location"}
 				row.add{	type = "button",
 							name = "avatar_rnam_" .. tableEntry.name,
-							enabled = renameEnabled,
+							enabled = renameButtonEnabled,
 							caption = {"Avatars-table-rename-button"},
-							tooltip = {"Avatars-table-rename-button-tooltip", tableEntry.name},
+							tooltip = renameButtonTooltip,
 							style = "avatar_table_button"
 				}
 				row.add{type = "label", style = "avatar_table_label_gap"}
-				row.add{	type = "button", 
-							name = controlButtonName, 
-							caption = {"Avatars-table-control-button"}, 
-							tooltip = {"Avatars-table-control-button-tooltip", tableEntry.name}, 
+				row.add{	type = "button",
+							name = controlButtonName,
+							enabled = controlButtonEnabled,
+							caption = {"Avatars-table-control-button"},
+							tooltip = controlButtonTooltip,
 							style = "avatar_table_button"
 				}
 			end
 		end
 	end
 	
-	--Footer 
-	--Exit button
+	-- Footer 
+	-- Exit button
 	avatarSelectionFrame.add{type="button", name="avatar_exit", caption={"Avatars-table-exit-button"}}
-	--Avatar Total
+	
+	-- Avatar Total
 	avatarSelectionFrame.add{type="label", caption={"Avatars-table-total-avatars", totalEntries}, style="avatar_table_total_avatars"}
 end
 

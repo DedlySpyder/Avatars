@@ -4,8 +4,30 @@ local Storage = require "storage"
 
 local AvatarControl = {}
 
---TODO - avatar_control - make a canControl function that will return true/false & an error message
---The GUI can use it to change make control buttons active/deactive
+-- Check if the player can control the avatar
+--	@param avatarData - the avatars table data
+--	@param playerData - the playerData table data
+--	@param tick - the current tick or nil to override safety checks
+--	@return - true/false if the player can control the avatar now
+--			- the error message if false (in the form of a table to be used by player.print() )
+AvatarControl.canGainControl = function(avatarData, playerData, tick)
+	-- Make sure no one else is controlling it
+	if avatarData.playerData then
+		return false, {"Avatars-error-already-controlled", avatarData.playerData.player.name}
+	end
+		
+    -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
+    if not AvatarControl.isSafeToSwap(playerData, tick) then
+		return false, {"Woah cowboy, slow down"} --TODO - error message about too often
+	end
+	
+	-- Can't gain control if the player is currently in an avatar
+	if (player.character.name == "avatar") then
+		return false, {"Avatars-error-control-restriction"}
+	end
+	
+	return true
+end
 
 
 -- We can't body swap too often, "Factorio hates it when you do that." -YARM
@@ -27,7 +49,7 @@ end
 
 -- Give control of an avatar to a player
 --	@param player - a LuaPlayer object
---	@param name - the name of the avatar to control
+--	@param name - the name of the avatar to control (starts with "ardu_" if it is an ARDU)
 --	@param tick - the current tick (for safety checks, leave nil for a forced transfer)
 AvatarControl.gainAvatarControl = function(player, name, tick)
 	debugLog("Gaining control of " .. name)
@@ -36,7 +58,7 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	local avatarData
 	if string.sub(name, 1, 5) == "ardu_" then
 		local arduName = string.sub(name, 6)
-		avatarData = Deployment.getOrDeploy(player, arduName) --TODO - this button should be disabled though?
+		avatarData = Deployment.getOrDeploy(player, arduName)
 		
 		-- More granular error messages are given by the Deployment function
 		if not avatarData then return false end
@@ -44,25 +66,16 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 		avatarData = Storage.Avatars.getByName(name)
 	end
 	
-	-- Make sure no one else is controlling it
-	if avatarData.playerData then
-		player.print{"Avatars-error-already-controlled", avatarData.playerData.player.name}
+	local playerData = Storage.PlayerData.getOrCreate(player)
+	
+	-- See if the player can swap with the avatar
+	local canGainControl, err = AvatarControl.canGainControl(avatarData, playerData, tick)
+	if not canGainControl then
+		player.print(err)
 		return false
 	end
 	
 	local avatarControlCenter = player.vehicle
-	local playerData = Storage.PlayerData.getOrCreate(player)
-		
-    -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
-    if not AvatarControl.isSafeToSwap(playerData, tick) then
-		player.print{"Woah cowboy, slow down"} --TODO - error message about too often
-		return false
-	end
-	
-	if (player.character.name == "avatar") then
-		player.print{"Avatars-error-control-restriction"}
-		return false
-	end
 	
 	-- Store the real body
 	playerData.realBody = player.character

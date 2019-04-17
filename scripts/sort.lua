@@ -1,14 +1,25 @@
+local GUI = require("gui")
+
 local Sort = {}
 
-Sort.getCurrentState = function(player)
-	debugLog("Obtaining old sort values")
-	local selectionFrame = player.gui.center.avatarSelectionFrame
-	
-	return {	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
-				name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
-				location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
-				location_descending = selectionFrame.lowerSortFlow.avatar_sort_location_descending.state,
-		   }
+Sort.getSortValues = function(player)
+	debugLog("Obtaining sort values")
+	if GUI.Selection.verify(player) then
+		-- Get the sort from the current selection GUI
+		local selectionFrame = player.gui.center.avatarSelectionFrame
+		return	{	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
+					name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
+					location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
+					location_descending = selectionFrame.lowerSortFlow.avatar_sort_location_descending.state,
+				}
+	else
+		-- Default sort values
+		return	{	name_ascending = true,
+					name_descending = false,
+					location_ascending = false,
+					location_descending = false
+				}
+	end
 end
 
 Sort.getSortedTable = function(sortValues, player)
