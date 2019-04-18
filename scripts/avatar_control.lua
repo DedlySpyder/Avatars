@@ -14,7 +14,7 @@ AvatarControl.canGainControl = function(avatarData, playerData, tick)
 		
     -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
     if not AvatarControl.isSafeToSwap(playerData, tick) then
-		return false, {"Woah cowboy, slow down"} --TODO - error message about too often
+		return false, {"Avatars-error-rapid-body-swap"}
 	end
 	
 	-- Can't gain control if the player is currently in an avatar
@@ -78,7 +78,7 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	
 	-- Final sanity check (to make sure this can be reversed)
 	if not playerData.realBody or not playerData.currentAvatarData then
-		player.print{"Fuck, something went wrong"} --TODO - fatal unknown error
+		player.print{"Avatars-fatal-gain-control"}
 		return false
 	end
 	
@@ -90,12 +90,17 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	
 	avatarData.entity.active = true
 	player.character = avatarData.entity
-	--TODO - this (and the variable at the beginning of the function) need more research for a MP game, but can remove the body swap if it works fine)
-	--avatarControlCenter.set_driver(playerData.realBody) --TODO - oh, that was easy... (how does this work for disconnects though in MP? / How did it work before this?)
+	
+	-- Put the player back in the ACC (Factorio boots them for disconnect reasons I think)
+	-- They will be put back before a disconnect
+	avatarControlCenter.set_driver(playerData.realBody)
 	
 	-- GUI clean up
 	GUI.destroyAll(player)
 	GUI.Disconnect.draw(player)
+	
+	-- Provide warnings
+	GUI.Refresh.avatarControlChanged(player.force)
 	return true
 end
 
@@ -115,26 +120,24 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	end
 	
 	if not AvatarControl.isSafeToSwap(playerData, tick) then
-		player.print{"Woah cowboy, slow down"} --TODO - error message about too often
+		player.print{"Avatars-error-rapid-body-swap"}
 		return false
 	end
 	
-	-- Check for the avatarEntity to exist or not
-	-- If a player disconnects, it removes the avatarEntity from the table, so it has to be replaced --TODO is this true?
 	local avatarData = playerData.currentAvatarData
-	if not avatarData.entity then
-		avatarData.entity = player.character
-	end
 	
-	--Give back the player's body
+	-- Give back the player's body
 	player.character = playerData.realBody
 	
-	--Clear the table
+	-- Clear the table
 	avatarData.entity.active = false
 	playerData.realBody = nil
 	playerData.currentAvatarData = nil
 	avatarData.playerData = nil
 	
-	--GUI clean up
+	-- GUI clean up
 	GUI.destroyAll(player)
+	
+	-- Provide warnings
+	GUI.Refresh.avatarControlChanged(player.force)
 end

@@ -7,10 +7,10 @@ Deployment = {}
 Deployment.canDeploy = function(arduData)
 	local entity = arduData.entity
 	if entity.get_driver() then
-		return false, {"Someone is in here"} --TODO - error message, something is in the ARDU
+		return false, {"Avatars-error-ARDU-has-driver"}
 		
 	elseif entity.get_item_count("avatar") < 1 then
-		return false, {"No avatars"} --TODO - error message, nothing in the ARDU
+		return false, {"Avatars-error-ARDU-no-avatar-stock"}
 	end
 	
 	return true
@@ -49,7 +49,7 @@ Deployment.getOrDeploy = function(player, arduName)
 		
 		-- Overwrite the avatar's name
 		avatarData.name = arduData.name .. " " .. settings.global["Avatars_default_avatar_remote_deployment_unit_name_deployed_prefix"].value
-			.. " " .. Storage.formatNumber(arduData.currentIteration)
+			.. " " .. Util.formatNumberForName(arduData.currentIteration)
 		
 		-- Rollback the sequence increase
 		global.avatarDefaultCount = global.avatarDefaultCount - 1

@@ -14,11 +14,22 @@ Migrations.to_0_4_0 = function()
 	end
 end
 
---TODO - migration - see below
---clean these up (renamed) player.gui.center.changeNameFrame.destroy()
 Migrations.to_0_5_0 = function()
 	Storage.init()
 	script.on_event(defines.events.on_tick, nil)
+	
+	-- Reworked the central GUI, so clean up any that might be open
+	for _, player in pairs(game.players) do
+		local selectionFrame = player.gui.center.avatarSelectionFrame
+		if selectionFrame and selectionFrame.valid then
+			selectionFrame.destroy()
+		end
+		
+		local renameFrame = player.gui.center.changeNameFrame
+		if renameFrame and renameFrame.valid then
+			renameFrame.destroy()
+		end
+	end
 	
 	-- Avatars table transistion: (playerData will be added below)
 	-- {avatarEntity, name} -> {entity, name}
@@ -35,7 +46,7 @@ Migrations.to_0_5_0 = function()
 	--		Also, having the avatar link back to the spawning ARDU, as needed
 	for _, data in ipairs(global.avatarARDUTable) do
 		if data.deployedAvatar then
-			local deployedAvatarData = Storage.Avatars.getByEntity(data.deployedAvatar) --TODO broken?
+			local deployedAvatarData = Storage.Avatars.getByEntity(data.deployedAvatar)
 			data.deployedAvatarData = deployedAvatarData
 			data.deployedAvatar = nil
 			
@@ -56,6 +67,8 @@ Migrations.to_0_5_0 = function()
 			data.currentAvatar = nil
 			
 			currentAvatarData.playerData = data
+			
+			AvatarControl.loseAvatarControl(data.player, 0)
 		end
 		
 		data.currentAvatarName = nil

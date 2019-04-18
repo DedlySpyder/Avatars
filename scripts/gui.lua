@@ -9,13 +9,6 @@ require("mod-gui")
 
 GUI = {}
 
--- Creates a printable position
---	@param entity - a LuaEntity to get the string position for
---	@return - a string of "(x, y)"
-GUI.entityPositionString = function(entity)
-	return "(" ..math.floor(entity.position.x) ..", " ..math.floor(entity.position.y) ..")"
-end
-
 -- Destroys all GUIs
 --	@param player - a LuaPlayer object to clear all GUIs for
 GUI.destroyAll = function(player)
@@ -25,6 +18,75 @@ GUI.destroyAll = function(player)
 	GUI.ARDU.destroy(player)
 end
 
+
+
+--~~~~~~~ Main flow ~~~~~~~--
+-- This GUI is entirely invisible, but it is for the sorting of the Selection and Rename GUIs
+-- This allows them to be freely updated in any order and still maintain their correct ordering
+
+GUI.Main = {}
+
+-- Create the Main flow
+--	@param player - a LuaPlayer object
+GUI.Main.draw = function(player)
+	if not GUI.Main.verify(player) then
+		local mainFlow = player.gui.center.add{type="flow", direction="horizontal", name="avatarMainFlow"}
+		mainFlow.add{type="flow", direction="vertical", name="avatarSelectionFlow"}
+		mainFlow.add{type="flow", direction="vertical", name="avatarRenameFlow"}
+	end
+end
+
+-- Get or create the Rename flow if it doesn't exist
+--	@param player - a LuaPlayer object
+GUI.Main.getOrCreateSelectionFlow = function(player)
+	GUI.Main.draw(player)
+	return GUI.Main.getSelectionFlow(player)
+end
+
+-- Get the Selection flow (create it if it doesn't exist)
+--	@param player - a LuaPlayer object
+GUI.Main.getSelectionFlow = function(player)
+	if GUI.Main.verify(player) then
+		return player.gui.center.avatarMainFlow.avatarSelectionFlow
+	end
+end
+
+-- Get or create the Rename flow if it doesn't exist
+--	@param player - a LuaPlayer object
+GUI.Main.getOrCreateRenameFlow = function(player)
+	GUI.Main.draw(player)
+	return GUI.Main.getRenameFlow(player)
+end
+
+-- Get the Rename flow (create it if it doesn't exist)
+--	@param player - a LuaPlayer object
+GUI.Main.getRenameFlow = function(player)
+	if GUI.Main.verify(player) then
+		return player.gui.center.avatarMainFlow.avatarRenameFlow
+	end
+end
+
+-- Update all children of the Main flow
+--	@param player - a LuaPlayer object
+GUI.Main.update = function(player)
+	GUI.Selection.update(player)
+	GUI.Rename.update(player)
+end
+
+-- Destroy the Main flow (and all children)
+--	@param player - a LuaPlayer object
+GUI.Main.destroy = function(player)
+	if GUI.Main.verify(player) then
+		player.gui.center.avatarMainFlow.destroy()
+	end
+end
+
+-- Shows whether the Main flow has been created or not
+--	@param player - a LuaPlayer object
+--	@return - true if the Main flow is open and valid, false otherwise
+GUI.Main.verify = function(player)
+	return player.gui.center.avatarMainFlow and player.gui.center.avatarMainFlow.valid
+end
 
 
 --~~~~~~~ Selection GUI ~~~~~~~--
@@ -45,11 +107,8 @@ GUI.Selection.draw = function(player, sortValues)
 		if not sortValues then sortValues = GUI.Selection.getSortValues(player) end
 		local sortedTable = Sort.getSortedTable(sortValues, player)
 		
-		-- Destroy the old Selection GUI
-		-- This is inside of draw, because we need the sort values from the last one
-		
 		--Create the frame to hold everything
-		local avatarSelectionFrame = player.gui.center.add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", GUI.entityPositionString(player)}}
+		local avatarSelectionFrame = GUI.Main.getOrCreateSelectionFlow(player).add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", Util.entityPositionString(player)}}
 		
 		-- Total avatar count
 		local totalEntries = 0
@@ -112,7 +171,6 @@ GUI.Selection.draw = function(player, sortValues)
 			
 			-- Iterate through the avatars (and ARDUs)
 			for _, tableEntry in ipairs(sortedTable) do
-				--if not avatar then break end --TODO - why did I have this?
 				local entity = tableEntry.entity
 				if entity and entity.valid then
 					-- Add it to the count
@@ -121,6 +179,7 @@ GUI.Selection.draw = function(player, sortValues)
 					-- Create the row frame
 					local row = selectionScrollPane.add{type="frame", direction="horizontal", style="avatar_table_row_frame"}
 					
+					local entryNameLabelCaption = tableEntry.name
 					local renameButtonEnabled = true
 					local renameButtonTooltip = {"Avatars-table-rename-button-tooltip", tableEntry.name}
 					local controlButtonEnabled = true
@@ -132,8 +191,10 @@ GUI.Selection.draw = function(player, sortValues)
 					-- Check if the entry is an ARDU
 					if tableEntry.currentIteration then
 						-- Data is an ARDU
+						entryNameLabelCaption = {"Avatars-table-ardu-caption-suffix", entryNameLabelCaption}
+						
 						renameButtonEnabled = false
-						renameButtonTooltip = {""} --TODO - can't rename ARDU from here message
+						renameButtonTooltip = {"Avatars-warning-cannot-rename-ARDU-here"}
 						
 						controlButtonEnabled, controlError = Deployment.canDeploy(tableEntry)
 						
@@ -146,8 +207,8 @@ GUI.Selection.draw = function(player, sortValues)
 					if controlError then controlButtonTooltip = controlError end
 					
 					-- Fill in the row
-					row.add{type = "label", name = tableEntry.name, caption = tableEntry.name, style = "avatar_table_label_avatar_name"}
-					row.add{type = "label", caption = Sort.getDistance(player.position, entity.position), style = "avatar_table_label_avatar_location"}
+					row.add{type = "label", name = tableEntry.name, caption = entryNameLabelCaption, style = "avatar_table_label_avatar_name"}
+					row.add{type = "label", caption = Util.getDistance(player.position, entity.position), style = "avatar_table_label_avatar_location"}
 					row.add{	type = "button",
 								name = "avatar_rnam_" .. tableEntry.name,
 								enabled = renameButtonEnabled,
@@ -170,7 +231,7 @@ GUI.Selection.draw = function(player, sortValues)
 		-- Footer 
 		-- Exit button
 		local refreshFlow = avatarSelectionFrame.add{type="flow", name="avatarSelectionFrameRefreshFlow", direction="horizontal"}
-		refreshFlow.add{type="button", name="avatar_rfrh", caption="Refresh"} --TODO - localize
+		refreshFlow.add{type="button", name="avatar_rfrh", caption={"Avatars-refresh-button"}}
 		refreshFlow.add{type="label", name="avatarRefreshNeeded"}
 		
 		avatarSelectionFrame.add{type="button", name="avatar_exit", caption={"Avatars-table-exit-button"}}
@@ -187,7 +248,7 @@ GUI.Selection.getSortValues = function(player)
 	debugLog("Obtaining sort values")
 	if GUI.Selection.verify(player) then
 		-- Get the sort from the current selection GUI
-		local selectionFrame = player.gui.center.avatarSelectionFrame
+		local selectionFrame = GUI.Main.getSelectionFlow(player).avatarSelectionFrame
 		return	{	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
 					name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
 					location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
@@ -205,16 +266,11 @@ end
 
 -- Update Selection GUI for the given player
 --	@param player - a LuaPlayer object
---	@param fromRename - a boolean, if this update is coming from the rename function (to stop a infinite loop)
-GUI.Selection.update = function(player, fromRename)
+GUI.Selection.update = function(player)
 	if GUI.Selection.verify(player) then
 		local sortValues = GUI.Selection.getSortValues(player)
 		GUI.Selection.destroy(player)
 		GUI.Selection.draw(player, sortValues)
-		
-		if not fromRename and GUI.Rename.verify(player) then
-			GUI.Rename.update(player)
-		end
 	end
 end
 
@@ -225,10 +281,9 @@ GUI.Selection.refreshNeeded = function(force)
 	local players = game.players
 	if force then players = force.players end
 
-	for _, player in ipairs(players) do
+	for _, player in pairs(players) do
 		if GUI.Selection.verify(player) then
-			player.gui.center.avatarSelectionFrame.avatarSelectionFrameRefreshFlow.avatarRefreshNeeded.caption = "WARNING: Stale data, refresh to get the most recent avatar information"
-			--TODO -refresh warning - localize it
+			GUI.Main.getSelectionFlow(player).avatarSelectionFrame.avatarSelectionFrameRefreshFlow.avatarRefreshNeeded.caption = {"Avatars-warning-stale-data"}
 		end
 	end
 end
@@ -237,15 +292,15 @@ end
 --	@param player - a LuaPlayer object
 --	@return - true if the Selection GUI is open and valid, false otherwise
 GUI.Selection.verify = function(player)
-	return player.gui.center.avatarSelectionFrame and player.gui.center.avatarSelectionFrame.valid
+	local selectionFlow = GUI.Main.getSelectionFlow(player)
+	return selectionFlow and selectionFlow.valid and selectionFlow.avatarSelectionFrame and selectionFlow.avatarSelectionFrame.valid
 end
 
--- Destroy the Selection GUI and the Rename GUI
+-- Destroy the Selection GUI
 --	@param player - a LuaPlayer object
 GUI.Selection.destroy = function(player)
-	if GUI.Selection.verify(player) then 
-		player.gui.center.avatarSelectionFrame.destroy()
-		GUI.Rename.destroy(player)
+	if GUI.Selection.verify(player) then
+		GUI.Main.getSelectionFlow(player).avatarSelectionFrame.destroy()
 	end
 end
 
@@ -254,20 +309,22 @@ end
 --	@param modButton - a string of the button that was clicked (trimming down to just the "[column]_[sort-type]")
 GUI.Selection.flipRadioButtons = function(player, modButton)
 	if GUI.Selection.verify(player) then
-		if (modButton ~= "name_ascending") then
-			player.gui.center.avatarSelectionFrame.upperSortFlow.avatar_sort_name_ascending.state = false
+		local selectionFrame = GUI.Main.getSelectionFlow(player).avatarSelectionFrame
+		
+		if modButton ~= "name_ascending" then
+			selectionFrame.upperSortFlow.avatar_sort_name_ascending.state = false
 		end
 		
-		if (modButton ~= "name_descending") then
-			player.gui.center.avatarSelectionFrame.lowerSortFlow.avatar_sort_name_descending.state = false
+		if modButton ~= "name_descending" then
+			selectionFrame.lowerSortFlow.avatar_sort_name_descending.state = false
 		end
 		
-		if (modButton ~= "location_ascending") then
-			player.gui.center.avatarSelectionFrame.upperSortFlow.avatar_sort_location_ascending.state = false
+		if modButton ~= "location_ascending" then
+			selectionFrame.upperSortFlow.avatar_sort_location_ascending.state = false
 		end
 		
-		if (modButton ~= "location_descending") then
-			player.gui.center.avatarSelectionFrame.lowerSortFlow.avatar_sort_location_descending.state = false
+		if modButton ~= "location_descending" then
+			selectionFrame.lowerSortFlow.avatar_sort_location_descending.state = false
 		end
 	end
 end
@@ -286,11 +343,12 @@ GUI.Rename.draw = function(player, name)
 		debugLog("Changing name of " .. name)
 		
 		-- Rename Frame and labels
-		local avatarChangeNameFrame = player.gui.center.add{type="frame", name="avatarChangeNameFrame", direction="vertical", caption={"Avatars-change-name-change-name"}}
+		local avatarChangeNameFrame = GUI.Main.getOrCreateRenameFlow(player).add{type="frame", name="avatarChangeNameFrame", direction="vertical", caption={"Avatars-change-name-change-name"}}
 		local currentNameFlow = avatarChangeNameFrame.add{type="flow", name="currentNameFlow", direction="horizontal"}
 		currentNameFlow.add{type="label", name="currentNameLabel", caption={"Avatars-change-name-current-name"}}
 		currentNameFlow.add{type="label", name="currentName", caption=name}
-		avatarChangeNameFrame.add{type="textfield", name="newNameField"}
+		
+		avatarChangeNameFrame.add{type="textfield", name="newNameField"}.focus()
 		
 		-- Buttons
 		local buttonsFlow = avatarChangeNameFrame.add{type="flow", name="buttonsFlow"}
@@ -308,29 +366,31 @@ end
 GUI.Rename.update = function(player)
 	if GUI.Rename.verify(player) then
 		-- Preserve the name and the text in the text box
-		local currentName = player.gui.center.avatarChangeNameFrame.currentNameFlow.currentName.caption
-		local textBoxData = player.gui.center.avatarChangeNameFrame.newNameField.text
-		
-		-- Update Selection GUI first, to maintain order
-		GUI.Selection.update(player, true)
+		local renameFlow = GUI.Main.getRenameFlow(player)
+		local oldChangeNameFrame = renameFlow.avatarChangeNameFrame
+		local currentName = oldChangeNameFrame.currentNameFlow.currentName.caption
+		local textBoxData = oldChangeNameFrame.newNameField.text
 		
 		GUI.Rename.destroy(player)
-		GUI.Rename.draw(player, currentName)
 		
-		-- Replace the text in the text box
-		player.gui.center.avatarChangeNameFrame.newNameField.text = textBoxData
-	else
-		GUI.Selection.update(player, true)
+		-- Only redraw the GUI if the name is still valid
+		if Storage.Avatars.getByName(currentName) then
+			GUI.Rename.draw(player, currentName)
+			
+			-- Replace the text in the text box
+			renameFlow.avatarChangeNameFrame.newNameField.text = textBoxData
+		else
+			player.print{"Avatars-error-rename-avatar-doesnt-exist"}
+		end
 	end
 end
 
 -- Show that something changed with the Rename GUI, and that a refresh may be needed
 -- This will show for all players (since, currently, the names pool is shared by forces)
 GUI.Rename.refreshNeeded = function()
-	for _, player in ipairs(game.players) do
+	for _, player in pairs(game.players) do
 		if GUI.Rename.verify(player) then
-			player.gui.center.avatarChangeNameFrame.avatarRenameRefreshNeeded.caption = "WARNING: Stale data, refresh to get the most recent avatar information"
-			--TODO -refresh warning - localize it
+			GUI.Main.getRenameFlow(player).avatarChangeNameFrame.avatarRenameRefreshNeeded.caption = {"Avatars-warning-stale-data"}
 		end
 	end
 end
@@ -340,7 +400,7 @@ end
 --	@param err - the error message
 GUI.Rename.error = function(player, err)
 	if GUI.Rename.verify(player) then
-		player.gui.center.avatarChangeNameFrame.avatarRenameError.caption = err
+		GUI.Main.getRenameFlow(player).avatarChangeNameFrame.avatarRenameError.caption = err
 	end
 end
 
@@ -348,14 +408,15 @@ end
 --	@param player - a LuaPlayer object
 --	@return - true if the Rename GUI is open and valid, false otherwise
 GUI.Rename.verify = function(player)
-	return player.gui.center.avatarChangeNameFrame and player.gui.center.avatarChangeNameFrame.valid
+	local renameFlow = GUI.Main.getRenameFlow(player)
+	return renameFlow and renameFlow.valid and renameFlow.avatarChangeNameFrame and renameFlow.avatarChangeNameFrame.valid
 end
 
 -- Destroy the Rename GUI
 --	@param player - a LuaPlayer object
 GUI.Rename.destroy = function(player)
 	if GUI.Rename.verify(player) then
-		player.gui.center.avatarChangeNameFrame.destroy()
+		GUI.Main.getRenameFlow(player).avatarChangeNameFrame.destroy()
 	end 
 end
 
@@ -416,11 +477,13 @@ GUI.ARDU.draw = function(player, ardu)
 		local currentNameFlow = arduGui.add{type="flow", name="currentNameFlow", direction="horizontal"}
 		currentNameFlow.add{type="label", name="currentNameLabel", caption={"Avatars-ARDU-rename-current-name"}}
 		currentNameFlow.add{type="label", name="currentName", caption=arduData.name, style="avatar_ARDU_current_name"}
-		arduGui.add{type="textfield", name="newNameField"}
+		
+		arduGui.add{type="textfield", name="newNameField"}.focus()
 		
 		-- Buttons
 		local buttonsFlow = arduGui.add{type="flow", name="buttonsFlow"}
 		buttonsFlow.add{type="button", name="avatar_ARDU", caption={"Avatars-submit-button"}}
+		buttonsFlow.add{type="button", name="avatar_exit", caption={"Avatars-table-exit-button"}}
 	else
 		player.print{"Avatars-error-ARDU-not-found"}
 	end
@@ -452,7 +515,7 @@ GUI.Refresh.nameChange = function()
 	GUI.Rename.refreshNeeded()
 end
 
-GUI.Refresh.numOfAvatarsChanged = function(force)
+GUI.Refresh.avatarControlChanged = function(force)
 	GUI.Selection.refreshNeeded(force)
 end
 
@@ -466,32 +529,29 @@ GUI.Trigger = {}
 GUI.Trigger.changeAvatarNameSubmit = function(player)
 	-- Make sure the text field is valid
 	if GUI.Rename.verify(player) then
-		local avatarChangeNameFrame = player.gui.center.avatarChangeNameFrame
+		local renameFlow = GUI.Main.getRenameFlow(player)
+		local avatarChangeNameFrame = renameFlow.avatarChangeNameFrame
 	
 		-- Obtain the old name
 		local oldName = avatarChangeNameFrame.currentNameFlow.currentName.caption
 	
-		--Make sure a new name was entered
-		if avatarChangeNameFrame.newNameField.text ~= "" then
-			-- Obtain the new name
-			local newName = avatarChangeNameFrame.newNameField.text
+		-- Make sure a new name was entered
+		local newName = avatarChangeNameFrame.newNameField.text
+		if newName ~= "" then
 			local renamedAvatar = nil
 			
 			for _, avatar in ipairs(global.avatars) do
 				-- If the new name matches any avatars, then break the loop and throw an error
-				if (avatar.name == newName) then
+				if avatar.name == newName then
 					debugLog("Duplicate name found")
 					player.print{"Avatars-error-name-in-use"}
-					
-					GUI.Rename.update(player)
-					
 					GUI.Rename.error(player, {"Avatars-error-name-in-use"})
-					player.gui.center.avatarChangeNameFrame.newNameField.text = newName
+					avatarChangeNameFrame.newNameField.focus()
 					return
 				end
 				
 				-- Catch the matching name but still check for duplicate names
-				if (avatar.name == oldName) then
+				if avatar.name == oldName then
 					renamedAvatar = avatar
 					debugLog("Found the old name")
 				end
@@ -507,12 +567,12 @@ GUI.Trigger.changeAvatarNameSubmit = function(player)
 				GUI.Rename.destroy(player)
 				GUI.Selection.update(player)
 			else
-				player.print{"Where'd he go?"} --TODO error, avatar not found
+				player.print{"Avatars-error-avatar-not-found"}
+				GUI.Rename.error(player, {"Avatars-error-avatar-not-found"})
 			end
 		else
 			-- Blank text field
 			player.print{"Avatars-error-blank-name"}
-			GUI.Rename.update(player)
 			GUI.Rename.error(player, {"Avatars-error-blank-name"})
 		end
 	end
@@ -528,9 +588,8 @@ GUI.Trigger.changeARDUName = function(player)
 		local oldName = arduGui.currentNameFlow.currentName.caption
 	
 		-- Make sure a name was entered
-		if arduGui.newNameField.text ~= "" then
-			-- Obtain the new name
-			local newName = arduGui.newNameField.text
+		local newName = arduGui.newNameField.text
+		if newName ~= "" then
 			local renamedARDU = nil
 			
 			for _, currentARDU in ipairs(global.avatarARDUTable) do
@@ -538,6 +597,7 @@ GUI.Trigger.changeARDUName = function(player)
 				if (currentARDU.name == newName) then
 					debugLog("Duplicate name found")
 					player.print{"Avatars-error-name-in-use"}
+					arduGui.newNameField.focus()
 					return
 				end
 				
@@ -554,7 +614,7 @@ GUI.Trigger.changeARDUName = function(player)
 				GUI.Refresh.nameChange()
 				GUI.ARDU.draw(player, renamedARDU.entity)
 			else
-				player.print{"Where'd he go?"} --TODO error, ARDU not found
+				player.print{"Avatars-error-ARDU-not-found"}
 			end
 		else
 			-- Blank text field

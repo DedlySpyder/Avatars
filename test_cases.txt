@@ -26,5 +26,3 @@ Can't rename an ARDU from an ACC
 An avatar can be renamed
 An avatar can't be named the same as another avatar
 An avatar can't be named an empty string
-
-MP:

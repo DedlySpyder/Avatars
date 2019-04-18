@@ -1,7 +1,3 @@
---Storage - TODO - make sure globals are only accessed through here
---Otherwise Storage is more or less done atm
-
-
 Storage = {}
 
 -- Initialize all of the tables, as needed
@@ -69,10 +65,6 @@ Storage.removeFromTable = function(tbl, func)
 	return removed
 end
 
-Storage.formatNumber = function(num) -- TODO - move somewhere else? and doc this
-	return string.format("%03d", num)
-end
-
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Avatars Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
@@ -87,13 +79,13 @@ Storage.Avatars.add = function(avatar)
 		debugLog("Adding avatar to the table")
 		
 		local currentIncrement = global.avatarDefaultCount
-		local name = settings.global["Avatars_default_avatar_name"].value .. Storage.formatNumber(currentIncrement)
+		local name = settings.global["Avatars_default_avatar_name"].value .. Util.formatNumberForName(currentIncrement)
 		
 		global.avatarDefaultCount = currentIncrement + 1
 	
 		table.insert(global.avatars, {entity=avatar, name=name, playerData=nil, arduData=nil})
 		
-		GUI.Refresh.numOfAvatarsChanged()
+		GUI.Refresh.avatarControlChanged(avatar.force)
 		debugLog("Added avatar: " .. name)
 		return true
 	end
@@ -110,7 +102,7 @@ Storage.Avatars.remove = function(avatarEntity)
 	local removedAvatars = Storage.removeFromTable(global.avatars, newFunction)
 	
 	if #removedAvatars > 0 then
-		GUI.Refresh.numOfAvatarsChanged()
+		GUI.Refresh.avatarControlChanged()
 	end
 	
 	-- Clean up the ARDU data link
@@ -143,22 +135,6 @@ Storage.Avatars.getByEntity = function(entity)
 			return avatar
 		end
 	end
-end
-
---TODO - unused, but should be used for the Selection GUI
--- Counts the number of avatars in the same force as the player
---	@param force - a LuaForce object to compare to avatars
-Storage.Avatars.countByForce = function(force)
-	local forceName = force.name
-	
-	local count = 0
-	for _, avatar in ipairs(global.avatars) do
-		if avatar.entity.force.name == forceName then
-			count = count + 1
-		end
-	end
-	
-	return count
 end
 
 
@@ -195,7 +171,7 @@ end
 -- Get the first value from the avatarPlayerData global table that satifies the provided function, or nil
 --	@param func - a function to test the values against
 --	@return - the table value
-Storage.PlayerData.getByFunc = function(func) --TODO don't use this directly
+Storage.PlayerData.getByFunc = function(func)
 	for _, playerData in ipairs(global.avatarPlayerData) do
 		if func(playerData) then
 			return playerData
@@ -224,7 +200,7 @@ Storage.ARDU.add = function(entity)
 		debugLog("Adding ARDU to the table")
 		
 		local currentIncrement = global.ARDUCount
-		local name = settings.global["Avatars_default_avatar_remote_deployment_unit_name"].value .. Storage.formatNumber(currentIncrement)
+		local name = settings.global["Avatars_default_avatar_remote_deployment_unit_name"].value .. Util.formatNumberForName(currentIncrement)
 		
 		global.ARDUCount = currentIncrement + 1
 	
@@ -235,6 +211,8 @@ Storage.ARDU.add = function(entity)
 												currentIteration=0
 											 })
 		debugLog("Added ARDU: " .. name)
+		
+		GUI.Refresh.avatarControlChanged(entity.force)
 		return true
 	end
 	
@@ -273,6 +251,10 @@ Storage.ARDU.remove = function(entity)
 	debugLog("Attempting to remove ARDU. Current count: " .. #global.avatarARDUTable)
 	local newFunction = function (arg) return arg.entity == entity end
 	local removedArdus = Storage.removeFromTable(global.avatarARDUTable, newFunction)
+	
+	if #removedArdus > 0 then
+		GUI.Refresh.avatarControlChanged()
+	end
 	
 	-- Clean up the Avatar data link
 	for _, ardu in ipairs(removedArdus) do

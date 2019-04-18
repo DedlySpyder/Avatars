@@ -21,16 +21,16 @@ Sort.getSortedTable = function(sortValues, player)
 	elseif (sortValues.location_ascending) then
 		-- Compare the distances
 		sortFunction = function(a,b) 
-			local aDistance = Sort.getDistance(position, a.entity.position)
-			local bDistance = Sort.getDistance(position, b.entity.position)
+			local aDistance = Util.getDistance(position, a.entity.position)
+			local bDistance = Util.getDistance(position, b.entity.position)
 			return aDistance < bDistance
 		end
 		
 	elseif (sortValues.location_descending) then
 		-- Compare the distances
 		sortFunction = function(a,b) 
-			local aDistance = Sort.getDistance(position, a.entity.position)
-			local bDistance = Sort.getDistance(position, b.entity.position)
+			local aDistance = Util.getDistance(position, a.entity.position)
+			local bDistance = Util.getDistance(position, b.entity.position)
 			return aDistance > bDistance
 		end
 		
@@ -68,22 +68,6 @@ Sort.getNewSortedTable = function(list, func)
 	until changesMade == false
 	
 	return list
-end
-
--- Find the distance of an avatar from the player
---	@param startPosition - a position object of one entity
---	@param endPosition - a position object of another entity
---	@return - the distance between the two entities
-Sort.getDistance = function(startPosition, endPosition)
-	local xDistance = startPosition.x - endPosition.x
-	local yDistance = startPosition.y - endPosition.y
-	
-	-- Find the total distance of the line
-	local distance = math.sqrt((xDistance^2) + (yDistance^2))
-	
-	-- Round the distance (found from http://lua-users.org/wiki/SimpleRound)
-	local mult = 10^(1) -- The power is the number of decimal places to round to
-	return math.floor(distance * mult + 0.5) / mult
 end
 
 -- Get a filtered table for display in the Selection GUI
