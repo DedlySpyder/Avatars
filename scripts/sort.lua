@@ -5,7 +5,7 @@ Sort = {}
 --	@player player - a LuaPlayer object
 --	@return - a sorted version of avatars to display
 Sort.getSortedTable = function(sortValues, player)
-	local position = player.position
+	local position = player.vehicle.position
 	
 	local sortFunction = nil
 	

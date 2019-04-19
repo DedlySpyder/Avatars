@@ -108,7 +108,7 @@ GUI.Selection.draw = function(player, sortValues)
 		local sortedTable = Sort.getSortedTable(sortValues, player)
 		
 		--Create the frame to hold everything
-		local avatarSelectionFrame = GUI.Main.getOrCreateSelectionFlow(player).add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", Util.entityPositionString(player)}}
+		local avatarSelectionFrame = GUI.Main.getOrCreateSelectionFlow(player).add{type="frame", name="avatarSelectionFrame", direction="vertical", caption={"Avatars-table-header", Util.entityPositionString(player.vehicle)}}
 		
 		-- Total avatar count
 		local totalEntries = 0
@@ -208,7 +208,7 @@ GUI.Selection.draw = function(player, sortValues)
 					
 					-- Fill in the row
 					row.add{type = "label", name = tableEntry.name, caption = entryNameLabelCaption, style = "avatar_table_label_avatar_name"}
-					row.add{type = "label", caption = Util.getDistance(player.position, entity.position), style = "avatar_table_label_avatar_location"}
+					row.add{type = "label", caption = Util.getDistance(player.vehicle.position, entity.position), style = "avatar_table_label_avatar_location"}
 					row.add{	type = "button",
 								name = "avatar_rnam_" .. tableEntry.name,
 								enabled = renameButtonEnabled,
