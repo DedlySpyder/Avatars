@@ -1,7 +1,7 @@
 require("prototypes.avatar-animations")
 require("prototypes.entities.avatar")
 require("prototypes.entities.enterable-entities")
-require("prototypes.entities.dead-player")
+require("prototypes.entities.fake-player")
 require("prototypes.hotkey")
 require("prototypes.items.items")
 require("prototypes.items.intermediates")

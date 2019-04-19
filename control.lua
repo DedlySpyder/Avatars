@@ -212,7 +212,7 @@ function on_entity_died(event)
 			debugLog(player.name .. "'s real body died")
 			
 			-- Make a new body for the player, and give it to them
-			local newBody = realBody.surface.create_entity{name="dead-player", position=realBody.position, force=realBody.force}
+			local newBody = realBody.surface.create_entity{name="fake-player", position=realBody.position, force=realBody.force}
 			playerData.realBody = newBody
 			AvatarControl.loseAvatarControl(playerData.player, event.tick)
 			
@@ -251,6 +251,21 @@ end
 
 script.on_event("avatars_disconnect", on_hotkey)
 
+
+-- Handler for when the player teleports to a different surface
+function on_player_changed_surface(event)
+	local player = game.players[event.player_index]
+	local playerData = Storage.PlayerData.getOrCreate(player)
+	
+	-- If the player is controlling an avatar, then we need to fix the entity reference to that avatar
+	-- Otherwise, it becomes invalid
+	if player.character.name == "avatar" and playerData.currentAvatarData then
+		debugLog("Re-referencing avatar")
+		playerData.currentAvatarData.entity = player.character
+	end
+end
+
+script.on_event(defines.events.on_player_changed_surface, on_player_changed_surface)
 
 
 --~~~~~~~ Remote Calls ~~~~~~~--

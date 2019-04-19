@@ -159,7 +159,7 @@ Storage.PlayerData.getOrCreate = function(player)
 		
 		-- Create their data otherwise
 		debugLog("Adding PlayerData for " .. player.name)
-		local playerData = {player=player, realBody=nil, currentAvatar=nil, currentAvatarName=nil, lastBodySwap=nil}
+		local playerData = {player=player, realBody=nil, currentAvatarData=nil, lastBodySwap=nil}
 		
 		table.insert(global.avatarPlayerData, playerData)
 		debugLog("Players in PlayerData: " .. #global.avatarPlayerData)

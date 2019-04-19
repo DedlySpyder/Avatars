@@ -39,6 +39,35 @@ AvatarControl.isSafeToSwap = function(playerData, tick)
 	return true
 end
 
+-- A player cannot switch control from one surface to another (because reasons?)
+-- So, if a player is gaining/losing control across a surface change, we need to give them a temporary player,
+-- teleport it to the other surface, then swap them out of it and kill it
+-- Simple
+--	@param player - the LuaPlayer who is changing control
+--	@param targetEntity - the LuaEntity they are trying to go to
+AvatarControl.bodySwap = function(player, targetEntity)
+	local sourceSurface = player.character.surface
+	local targetSurface = targetEntity.surface
+	
+	if sourceSurface ~= targetSurface then
+		local startingEntity = player.character
+		local tempPlayer = sourceSurface.create_entity{name="fake-player", position=startingEntity.position, force=startingEntity.force}
+		
+		startingEntity.active = false
+		player.character = tempPlayer
+		
+		player.teleport(targetEntity.position, targetSurface)
+		
+		-- tempPlayer is an invalid reference
+		-- https://forums.factorio.com/viewtopic.php?t=30563
+		player.character.destroy()
+		player.character = targetEntity
+	else
+		player.character.active = false
+		player.character = targetEntity
+	end
+end
+
 -- Give control of an avatar to a player
 --	@param player - a LuaPlayer object
 --	@param name - the name of the avatar to control (starts with "ardu_" if it is an ARDU)
@@ -79,6 +108,11 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	-- Final sanity check (to make sure this can be reversed)
 	if not playerData.realBody or not playerData.currentAvatarData then
 		player.print{"Avatars-fatal-gain-control"}
+		
+		-- Reverse everything
+		playerData.realBody = nil
+		playerData.currentAvatarData = nil
+		avatarData.playerData = nil
 		return false
 	end
 	
@@ -89,7 +123,7 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	end
 	
 	avatarData.entity.active = true
-	player.character = avatarData.entity
+	AvatarControl.bodySwap(player, avatarData.entity)
 	
 	-- Put the player back in the ACC (Factorio boots them for disconnect reasons I think)
 	-- They will be put back before a disconnect
@@ -127,10 +161,10 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	local avatarData = playerData.currentAvatarData
 	
 	-- Give back the player's body
-	player.character = playerData.realBody
+	AvatarControl.bodySwap(player, playerData.realBody)
 	
 	-- Clear the table
-	avatarData.entity.active = false
+	playerData.realBody.active = true
 	playerData.realBody = nil
 	playerData.currentAvatarData = nil
 	avatarData.playerData = nil

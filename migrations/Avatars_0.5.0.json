@@ -5,6 +5,7 @@
 	],
 	"entity":
 	[
-		["avatar-assembling-machine", "assembling-machine-3"]
+		["avatar-assembling-machine", "assembling-machine-3"],
+		["dead-player", "fake-player"]
 	]
 }
