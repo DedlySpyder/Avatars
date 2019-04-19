@@ -1,4 +1,25 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.0
+Date: 19. 04. 2019
+  Features:
+    - Added settings in place of using config.lua
+  GUI:
+    - Added Refresh button to control center GUI
+    - The control center & avatar rename GUI will no longer automatically update in multiplayer games, but will display a warning if the data gets stale
+    - Errors for renaming now show in the GUI in addition to displaying in the console
+    - Control buttons will now be disabled if an avatar is uncontrollable right now
+  Changes:
+    - Reworked Avatar Remote Deployment Units (ARDU), they now will only deploy an avatar when you "control" them
+    - Removed Avatar Assembling Machines (they were just confusing)
+    - Exiting from the control center or ARDU GUI will pop the player out of the entity
+    - When a player disconnects from a multiplayer game, they will be swapped back if they were controlling an avatar
+    - Added english placeholders for the Russian translation (any help with the Russian locale would be appriciated, because I will likely butcher it by using Google Translate)
+  Bugfixes:
+    - Fixed Avatar color (they reverted to the player color some time back, they should be gray by default now)
+    - Stopped Avatars from running off when disconnecting sometimes
+    - The player character will now stay in the control center when taking control of an avatar
+    - Added compatibility for surface changing mods (such as Factorissimo)
+---------------------------------------------------------------------------------------------------
 Version: 0.4.17
 Date: 21. 03. 2019
   Changes:
