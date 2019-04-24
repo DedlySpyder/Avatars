@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.1
+Date: 24. 04. 2019
+  Bugfixes:
+    - Fixed mod compatibility with some mods on the script_raised_built event having a nil entity (i.e. Staplergun's underground pipe)
+    - Fixed mod compatibility with some mods when the player is teleported to a new surface without a character (i.e. The Blueprint Lab - Bud)
+---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 19. 04. 2019
   Features:
