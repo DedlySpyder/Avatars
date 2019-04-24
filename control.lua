@@ -165,7 +165,12 @@ function on_game_built_entity(event)
 end
 
 function on_script_built_entity(event)
-	on_entity_built(event.entity)
+	local entity = event.entity
+	
+	-- This can be nil with some other mods...
+	if entity then
+		on_entity_built(entity)
+	end
 end
 
 script.on_event(defines.events.on_robot_built_entity, on_game_built_entity)
@@ -259,7 +264,7 @@ function on_player_changed_surface(event)
 	
 	-- If the player is controlling an avatar, then we need to fix the entity reference to that avatar
 	-- Otherwise, it becomes invalid
-	if player.character.name == "avatar" and playerData.currentAvatarData then
+	if player.character and player.character.name == "avatar" and playerData.currentAvatarData then
 		debugLog("Re-referencing avatar")
 		playerData.currentAvatarData.entity = player.character
 	end
