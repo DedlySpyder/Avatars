@@ -33,7 +33,7 @@ avatar_corpse.pictures =
   }
 }
 
-local avatar = util.table.deepcopy(data.raw["player"]["player"])
+local avatar = util.table.deepcopy(data.raw["character"]["character"])
 
 avatar.name = "avatar"
 avatar.flags = {"placeable-off-grid", "player-creation", "not-flammable"}

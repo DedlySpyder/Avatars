@@ -208,7 +208,7 @@ end
 function on_entity_died(event)
 	local entity = event.entity
 	
-	if entity.name == "player" then
+	if entity.name == "character" then
 		local playerData = Storage.PlayerData.getByEntity(entity)
 		
 		if playerData then
@@ -297,7 +297,7 @@ remote.add_interface("Avatars", {
 	
 	manual_swap_back = function()
 		player = game.player
-		if player.character.name ~= "player" then
+		if player.character.name ~= "character" then
 			local playerData = Storage.PlayerData.getOrCreate(player)
 			local avatarData = playerData.currentAvatarData
 			
@@ -328,7 +328,7 @@ remote.add_interface("Avatars", {
 	-- /c remote.call("Avatars", "create_new_body")
 	create_new_body = function()
 		player = game.player
-		if player.character.name ~= "player" then
+		if player.character.name ~= "character" then
 			local playerData = Storage.PlayerData.getOrCreate(player)
 			
 			if playerData.realBody and playerData.realBody.valid then
@@ -336,7 +336,7 @@ remote.add_interface("Avatars", {
 				return
 			end
 			
-			local newBody = player.surface.create_entity{name="player", position=player.position, force=player.force}
+			local newBody = player.surface.create_entity{name="character", position=player.position, force=player.force}
 			
 			if newBody then
 				-- Manually lose control
