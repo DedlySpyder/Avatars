@@ -239,7 +239,7 @@ script.on_event(defines.events.on_entity_died, on_entity_died)
 function on_preplayer_died(event)
 	local player = game.players[event.player_index]
 	
-	if player.character.name == "avatar" then
+	if player and player.character and player.character.name == "avatar" then
 		AvatarControl.loseAvatarControl(player, 0)
 		player.print{"Avatars-error-controlled-avatar-death"}
 	end
