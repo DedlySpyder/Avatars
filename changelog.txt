@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.4
+Date: 01. 02. 2020
+  Changes:
+    - Support for 0.18
+    - Changed avatar animations and corpse pictures to be dynamically created from the main character versions, to ease any future updates
+---------------------------------------------------------------------------------------------------
 Version: 0.5.3
 Date: 20. 05. 2019
   Bugfixes:

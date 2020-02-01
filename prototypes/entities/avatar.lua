@@ -1,37 +1,35 @@
+local avatar_tint = {
+	r = settings.startup["Avatars_avatar_color_red"].value,
+	g = settings.startup["Avatars_avatar_color_green"].value,
+	b = settings.startup["Avatars_avatar_color_blue"].value,
+	a = settings.startup["Avatars_avatar_color_alpha"].value
+}
+
+avatar_animations = util.table.deepcopy(data.raw["character"]["character"]["animations"])
+avatar_corpse_pictures = util.table.deepcopy(data.raw["character-corpse"]["character-corpse"]["pictures"])
+
+function updateTint(animations)
+	if "table" == type(animations) then
+		for _, value in pairs(animations) do
+			if "table" == type(value) then
+				if value["tint"] then
+					value["tint"] = avatar_tint
+					value["apply_runtime_tint"] = false
+				elseif value["apply_runtime_tint"] then
+					value["apply_runtime_tint"] = false
+				end
+				updateTint(value)
+			end
+		end
+	end
+end
+updateTint(avatar_animations)
+updateTint(avatar_corpse_pictures)
+
 local avatar_corpse = util.table.deepcopy(data.raw["character-corpse"]["character-corpse"])
 
 avatar_corpse.name = "avatar-corpse"
-avatar_corpse.pictures =
-{
-  {
-	layers =
-	{
-	  avataranimations.level1.dead,
-	  avataranimations.level1.dead_mask,
-	  avataranimations.level1.dead_shadow,
-	}
-  },
-  {
-	layers =
-	{
-	  avataranimations.level1.dead,
-	  avataranimations.level1.dead_mask,
-	  avataranimations.level2addon.dead,
-	  avataranimations.level2addon.dead_mask,
-	  avataranimations.level1.dead_shadow,
-	}
-  },
-  {
-	layers =
-	{
-	  avataranimations.level1.dead,
-	  avataranimations.level1.dead_mask,
-	  avataranimations.level3addon.dead,
-	  avataranimations.level3addon.dead_mask,
-	  avataranimations.level1.dead_shadow,
-	}
-  }
-}
+avatar_corpse.pictures = avatar_corpse_pictures
 
 local avatar = util.table.deepcopy(data.raw["character"]["character"])
 
@@ -44,205 +42,7 @@ avatar.crafting_categories = {"crafting"}
 avatar.mining_categories = {"basic-solid"}
 avatar.character_corpse = "avatar-corpse"
 avatar.heartbeat = { { filename = "__Avatars__/sounds/fizzle.wav" } }
-avatar.animations =
-{
-  {
-	idle =
-	{
-	  layers =
-	  {
-		avataranimations.level1.idle,
-		avataranimations.level1.idle_mask,
-		avataranimations.level1.idle_shadow,
-	  }
-	},
-	idle_with_gun =
-	{
-	  layers =
-	  {
-		avataranimations.level1.idle_gun,
-		avataranimations.level1.idle_gun_mask,
-		avataranimations.level1.idle_gun_shadow,
-	  }
-	},
-	mining_with_hands =
-	{
-	  layers =
-	  {
-		avataranimations.level1.mining_hands,
-		avataranimations.level1.mining_hands_mask,
-		avataranimations.level1.mining_hands_shadow,
-	  }
-	},
-	mining_with_tool =
-	{
-	  layers =
-	  {
-		avataranimations.level1.mining_tool,
-		avataranimations.level1.mining_tool_mask,
-		avataranimations.level1.mining_tool_shadow,
-	  }
-	},
-	running_with_gun =
-	{
-	  layers =
-	  {
-		avataranimations.level1.running_gun,
-		avataranimations.level1.running_gun_mask,
-		avataranimations.level1.running_gun_shadow,
-	  }
-	},
-	running =
-	{
-	  layers =
-	  {
-		avataranimations.level1.running,
-		avataranimations.level1.running_mask,
-		avataranimations.level1.running_shadow,
-	  }
-	}
-  },
-  {
-	-- heavy-armor is not in the demo
-	armors = data.is_demo and {"light-armor"} or {"light-armor", "heavy-armor"},
-	idle =
-	{
-	  layers =
-	  {
-		avataranimations.level1.idle,
-		avataranimations.level1.idle_mask,
-		avataranimations.level2addon.idle,
-		avataranimations.level2addon.idle_mask,
-		avataranimations.level1.idle_shadow,
-	  }
-	},
-	idle_with_gun =
-	{
-	  layers =
-	  {
-		avataranimations.level1.idle_gun,
-		avataranimations.level1.idle_gun_mask,
-		avataranimations.level2addon.idle_gun,
-		avataranimations.level2addon.idle_gun_mask,
-		avataranimations.level1.idle_gun_shadow,
-	  }
-	},
-	mining_with_hands =
-	{
-	  layers =
-	  {
-		avataranimations.level1.mining_hands,
-		avataranimations.level1.mining_hands_mask,
-		avataranimations.level2addon.mining_hands,
-		avataranimations.level2addon.mining_hands_mask,
-		avataranimations.level1.mining_hands_shadow,
-	  }
-	},
-	mining_with_tool =
-	{
-	  layers =
-	  {
-		avataranimations.level1.mining_tool,
-		avataranimations.level1.mining_tool_mask,
-		avataranimations.level2addon.mining_tool,
-		avataranimations.level2addon.mining_tool_mask,
-		avataranimations.level1.mining_tool_shadow,
-	  }
-	},
-	running_with_gun =
-	{
-	  layers =
-	  {
-		avataranimations.level1.running_gun,
-		avataranimations.level1.running_gun_mask,
-		avataranimations.level2addon.running_gun,
-		avataranimations.level2addon.running_gun_mask,
-		avataranimations.level1.running_gun_shadow,
-	  }
-	},
-	running =
-	{
-	  layers =
-	  {
-		avataranimations.level1.running,
-		avataranimations.level1.running_mask,
-		avataranimations.level2addon.running,
-		avataranimations.level2addon.running_mask,
-		avataranimations.level1.running_shadow,
-	  }
-	}
-  },
-  {
-	-- modular armors are not in the demo
-	armors = data.is_demo and {} or {"modular-armor", "power-armor", "power-armor-mk2"},
-	idle =
-	{
-	  layers =
-	  {
-		avataranimations.level1.idle,
-		avataranimations.level1.idle_mask,
-		avataranimations.level3addon.idle,
-		avataranimations.level3addon.idle_mask,
-		avataranimations.level1.idle_shadow,
-	  }
-	},
-	idle_with_gun =
-	{
-	  layers =
-	  {
-		avataranimations.level1.idle_gun,
-		avataranimations.level1.idle_gun_mask,
-		avataranimations.level3addon.idle_gun,
-		avataranimations.level3addon.idle_gun_mask,
-		avataranimations.level1.idle_gun_shadow,
-	  }
-	},
-	mining_with_hands =
-	{
-	  layers =
-	  {
-		avataranimations.level1.mining_hands,
-		avataranimations.level1.mining_hands_mask,
-		avataranimations.level3addon.mining_hands,
-		avataranimations.level3addon.mining_hands_mask,
-		avataranimations.level1.mining_hands_shadow,
-	  }
-	},
-	mining_with_tool =
-	{
-	  layers =
-	  {
-		avataranimations.level1.mining_tool,
-		avataranimations.level1.mining_tool_mask,
-		avataranimations.level3addon.mining_tool,
-		avataranimations.level3addon.mining_tool_mask,
-		avataranimations.level1.mining_tool_shadow,
-	  }
-	},
-	running_with_gun =
-	{
-	  layers =
-	  {
-		avataranimations.level1.running_gun,
-		avataranimations.level1.running_gun_mask,
-		avataranimations.level3addon.running_gun,
-		avataranimations.level3addon.running_gun_mask,
-		avataranimations.level1.running_gun_shadow,
-	  }
-	},
-	running =
-	{
-	  layers =
-	  {
-		avataranimations.level1.running,
-		avataranimations.level1.running_mask,
-		avataranimations.level3addon.running,
-		avataranimations.level3addon.running_mask,
-		avataranimations.level1.running_shadow,
-	  }
-	}
-  }
-}
+avatar.animations = avatar_animations
 
 data:extend ({ avatar_corpse })
 data:extend ({ avatar })

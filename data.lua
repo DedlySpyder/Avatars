@@ -1,4 +1,3 @@
-require("prototypes.avatar-animations")
 require("prototypes.entities.avatar")
 require("prototypes.entities.enterable-entities")
 require("prototypes.entities.fake-player")

@@ -26,3 +26,8 @@ Can't rename an ARDU from an ACC
 An avatar can be renamed
 An avatar can't be named the same as another avatar
 An avatar can't be named an empty string
+
+
+Commands to get stuff:
+/c game.player.force.research_all_technologies()
+/c game.player.insert{name="avatar", count="25"} ; game.player.insert{name="avatar-control-center", count="5"} ; game.player.insert{name="avatar-remote-deployment-unit", count="5"}
