@@ -292,9 +292,14 @@ remote.add_interface("Avatars_avatar_placement", {
 
 --User Commands
 remote.add_interface("Avatars", {
+	--Used to remove invalidated Avatars from the global listing, and search for orphaned avatars that are missing from the listing
+	-- /c remote.call("Avatars", "repair_avatars_listing")
+	repair_avatars_listing = function()
+		Storage.Avatars.repair()
+	end,
+	
 	--Used to force a swap back to the player's body
 	-- /c remote.call("Avatars", "manual_swap_back")
-	
 	manual_swap_back = function()
 		player = game.player
 		if player.character.name ~= "character" then
@@ -390,6 +395,19 @@ if debug_mode then
 			for _, avatar in ipairs(global.avatars) do
 				count = count + 1
 				debugLog(count .. ", " .. avatar.name .. ", " .. tostring(avatar.entity and avatar.entity.valid))
+			end
+		end,
+		
+		-- /c remote.call("Avatars_debug", "invalidate_avatar")
+		invalidate_avatar = function()
+			if #global.avatars > 0 then
+				local avatar = global.avatars[1].entity
+				local surface = avatar.surface
+				local position = avatar.position
+				local force = avatar.force
+				
+				avatar.destroy()
+				surface.create_entity({name="avatar", position=position, force=force,})
 			end
 		end
 	})

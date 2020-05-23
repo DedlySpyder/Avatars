@@ -80,10 +80,22 @@ Sort.getFilteredTable = function(player)
 	local filteredTable = {}
 	
 	-- Add all avatars for this player's force
+	local invalidAvatars = false
 	for _, data in ipairs(global.avatars) do
-		if data.entity.force == force then
-			table.insert(filteredTable, data)
+		local entity = data.entity
+		if entity and entity.valid then
+			if data.entity.force == force then
+				table.insert(filteredTable, data)
+			end
+		else
+			player.print({"Avatars-warning-invalid-single-avatar", data.name})
+			invalidAvatars = true
 		end
+	end
+	
+	-- Alert the player that some Avatars are invalid and that a repair should be run
+	if invalidAvatars then
+		player.print({"Avatars-warning-invalid-avatars", "/c remote.call('Avatars', 'repair_avatars_listing')"})
 	end
 	
 	-- Add ARDU's that do not have spawned avatars for this player's force

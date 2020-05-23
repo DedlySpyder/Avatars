@@ -137,6 +137,38 @@ Storage.Avatars.getByEntity = function(entity)
 	end
 end
 
+-- Repairs the global avatars listing by removing invalid avatars and searching all surfaces for all avatars and adding them back to the list if they were missing
+-- This is quite a resource heavy action because of the surface searches, so it shouldn't be done without player permission
+Storage.Avatars.repair = function()
+	local newGlobal = {}
+	local removed = 0
+	for _, avatar in ipairs(global.avatars) do
+		local entity = avatar.entity
+		if entity and entity.valid then
+			table.insert(newGlobal, avatar)
+		else
+			debugLog("Repair: Removing invalid avatar: " .. avatar.name)
+			removed = removed + 1
+		end
+	end
+	
+	-- Search everywhere and any any missing avatars
+	local added = 0
+	for _, surface in pairs(game.surfaces) do
+		local allAvatars = surface.find_entities_filtered({name="avatar"})
+		for _, entity in ipairs(allAvatars) do
+			local found = Storage.Avatars.getByEntity(entity)
+			if not found then
+				debugLog("Repair: Adding new avatar")
+				Storage.Avatars.add(entity)
+				added = added + 1
+			end
+		end
+	end
+	
+	Util.printAll({"Avatars-repair-completed", removed, added})
+end
+
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Player Data Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--

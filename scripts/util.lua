@@ -30,3 +30,11 @@ end
 Util.entityPositionString = function(entity)
 	return "(" ..math.floor(entity.position.x) ..", " ..math.floor(entity.position.y) ..")"
 end
+
+Util.printAll = function(message)
+	for _, player in pairs(game.players) do
+		if player.valid and player.connected then
+			player.print(message)
+		end
+	end
+end
