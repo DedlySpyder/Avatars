@@ -145,37 +145,29 @@ end
 script.on_event(defines.events.on_gui_checked_state_changed, checkboxChecked)
 
 -- Check on an entity being built
-function on_entity_built(entity)
-	if entity.name == "avatar-control-center" then
-		entity.operable = false
-		return
-		
-	elseif entity.name == "avatar" then
-		--Add avatars to the table
-		Storage.Avatars.add(entity)
-		
-	elseif entity.name == "avatar-remote-deployment-unit" then
-		--Add ARDU to the table
-		Storage.ARDU.add(entity)
-	end
-end
-
-function on_game_built_entity(event)
-	on_entity_built(event.created_entity)
-end
-
-function on_script_built_entity(event)
-	local entity = event.entity
-	
-	-- This can be nil with some other mods...
+function on_entity_built(event)
+	local entity = event.created_entity or event.entity or event.destination
 	if entity then
-		on_entity_built(entity)
+		if entity.name == "avatar-control-center" then
+			entity.operable = false
+			return
+			
+		elseif entity.name == "avatar" then
+			--Add avatars to the table
+			Storage.Avatars.add(entity)
+			
+		elseif entity.name == "avatar-remote-deployment-unit" then
+			--Add ARDU to the table
+			Storage.ARDU.add(entity)
+		end
 	end
 end
 
-script.on_event(defines.events.on_robot_built_entity, on_game_built_entity)
-script.on_event(defines.events.on_built_entity, on_game_built_entity)
-script.on_event(defines.events.script_raised_built, on_script_built_entity)
+script.on_event(defines.events.on_robot_built_entity, on_entity_built)
+script.on_event(defines.events.on_built_entity, on_entity_built)
+script.on_event(defines.events.on_entity_cloned, on_entity_built)
+script.on_event(defines.events.script_raised_built, on_entity_built)
+script.on_event(defines.events.script_raised_revive, on_entity_built)
 
 -- Check on entity being destroyed or deconstructed
 function on_entity_destroyed(event)
@@ -233,6 +225,7 @@ end
 
 script.on_event(defines.events.on_pre_player_mined_item, on_entity_destroyed)
 script.on_event(defines.events.on_robot_pre_mined, on_entity_destroyed)
+script.on_event(defines.events.script_raised_destroy, on_entity_destroyed)
 script.on_event(defines.events.on_entity_died, on_entity_died)
 
 -- Handles a player dying while controlling an avatar
