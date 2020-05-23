@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.6
+Date: 05. 23. 2020
+  Changes:
+    - Added new command to repair global avatars list -- /c remote.call("Avatars", "repair_avatars_listing")
+  Bugfixes:
+    - Fixed compatibility isuses with other mods that create/destroy avatars
+    - Added some missing event handlers that could have been dropped up til now
+    - Added skip to listing invalid avatars, in case other mods do not trigger the events
+---------------------------------------------------------------------------------------------------
 Version: 0.5.5
 Date: 05. 01. 2020
   Bugfixes:
