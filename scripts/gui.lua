@@ -249,19 +249,21 @@ GUI.Selection.getSortValues = function(player)
 	if GUI.Selection.verify(player) then
 		-- Get the sort from the current selection GUI
 		local selectionFrame = GUI.Main.getSelectionFlow(player).avatarSelectionFrame
-		return	{	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
-					name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
-					location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
-					location_descending = selectionFrame.lowerSortFlow.avatar_sort_location_descending.state,
-				}
-	else
-		-- Default sort values
-		return	{	name_ascending = true,
-					name_descending = false,
-					location_ascending = false,
-					location_descending = false
-				}
+		if selectionFrame.upperSortFlow and selectionFrame.lowerSortFlow then
+			return	{	name_ascending = selectionFrame.upperSortFlow.avatar_sort_name_ascending.state,
+						name_descending = selectionFrame.lowerSortFlow.avatar_sort_name_descending.state,
+						location_ascending = selectionFrame.upperSortFlow.avatar_sort_location_ascending.state,
+						location_descending = selectionFrame.lowerSortFlow.avatar_sort_location_descending.state,
+					}
+		end
 	end
+	
+	-- Default sort values
+	return	{	name_ascending = true,
+				name_descending = false,
+				location_ascending = false,
+				location_descending = false
+			}
 end
 
 -- Update Selection GUI for the given player
