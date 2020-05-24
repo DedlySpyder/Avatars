@@ -151,6 +151,7 @@ Storage.Avatars.repair = function()
 			removed = removed + 1
 		end
 	end
+	global.avatars = newGlobal
 	
 	-- Search everywhere and any any missing avatars
 	local added = 0
