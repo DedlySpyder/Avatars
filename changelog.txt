@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.8
+Date: 05. 28. 2020
+  Bugfixes:
+    - Fixed broken avatar entity reference when joining a multiplayer game (or loading a multiplayer save in single player) while controlling an avatar
+---------------------------------------------------------------------------------------------------
 Version: 0.5.7
 Date: 05. 24. 2020
   Bugfixes:

@@ -36,6 +36,13 @@ end
 
 script.on_event(defines.events.on_pre_player_left_game, on_player_left_game)
 
+function on_player_joined_game(event)
+	local player = game.players[event.player_index]
+	Storage.Avatars.repairOnJoinedGame(player)
+end
+
+script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
+
 -- Check on entering or leaving a vehicle
 function on_driving(event)
 	local player = game.players[event.player_index]

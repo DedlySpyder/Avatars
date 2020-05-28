@@ -137,6 +137,35 @@ Storage.Avatars.getByEntity = function(entity)
 	end
 end
 
+-- Get the value from the avatars global table, using the avatar's controlling player
+--	@param player - the LuaPlayer of the avatar's controlling player
+--	@return - the table value, or nil if not found
+Storage.Avatars.getByPlayer = function(player)
+	for _, avatar in ipairs(global.avatars) do
+		if avatar.playerData.player == player then
+			return avatar
+		end
+	end
+end
+
+-- Repairs the avatar entity reference when a player joins the game when controlling an avatar
+-- Factorio basically destroys and recreates the player's character on joining a game, so if it is an avatar then the global reference to it will need repaired
+-- If the avatar is missing from the table (possible if a manual repair has happened while they were gone) then it will need readded to the table
+Storage.Avatars.repairOnJoinedGame = function(player)
+	if player and player.valid and player.character and player.character.valid and player.character.name == "avatar" then
+		debugLog("Player rejoined game while controlling an avatar")
+		local avatar = Storage.Avatars.getByPlayer(player)
+		
+		if avatar then
+			debugLog("Avatar found in current table, repairing entity reference")
+			avatar.entity = player.character
+		else
+			debugLog("Player connected with avatar that was missing, adding it back to the table")
+			Storage.Avatars.add(player.character)
+		end
+	end
+end
+
 -- Repairs the global avatars listing by removing invalid avatars and searching all surfaces for all avatars and adding them back to the list if they were missing
 -- This is quite a resource heavy action because of the surface searches, so it shouldn't be done without player permission
 Storage.Avatars.repair = function()
