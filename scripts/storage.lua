@@ -142,7 +142,7 @@ end
 --	@return - the table value, or nil if not found
 Storage.Avatars.getByPlayer = function(player)
 	for _, avatar in ipairs(global.avatars) do
-		if avatar.playerData.player == player then
+		if avatar.playerData and avatar.playerData.player == player then
 			return avatar
 		end
 	end
