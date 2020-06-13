@@ -174,4 +174,9 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	
 	-- Provide warnings
 	GUI.Refresh.avatarControlChanged(player.force)
+	
+	-- Reopen selection GUI
+	if player.driving and player.vehicle and player.vehicle.name == "avatar-control-center" then
+		GUI.Selection.draw(player)
+	end
 end
