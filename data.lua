@@ -10,5 +10,7 @@ require("prototypes.technologies.technologies")
 require("styles.styles")
 
 
+require("prototypes.mod-integration.util")
 require("prototypes.mod-integration.angels")
 require("prototypes.mod-integration.bobs")
+require("prototypes.mod-integration.space-exploration")
