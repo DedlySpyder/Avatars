@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.10
+Date: 06. 12. 2020
+  Features:
+    - Added quickbar memory for avatars and main character (this is on a per player per avatar basis)
+    - Quickbar memory will be removed if the avatar is destroyed and will follow it if the avatar is renamed
+  Changes:
+    - Disconnecting from an avatar now reopens the selection GUI if the player is still in the control center
+    - Added Space Exploration integration, by using the RTG equipment instead of the full portable fusion reactor
+---------------------------------------------------------------------------------------------------
 Version: 0.5.9
 Date: 06. 01. 2020
   Bugfixes:
