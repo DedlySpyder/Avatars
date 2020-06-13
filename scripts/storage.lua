@@ -65,6 +65,22 @@ Storage.removeFromTable = function(tbl, func)
 	return removed
 end
 
+-- Remove a value from a table, if it satifies a function, using the key
+--	@param tbl - a table to remove up to one value from
+--	@param func - a function to test each key against, removing the value if this function returns true
+--	@return - the removed key/value, if any
+Storage.removeFromTableByKey = function(tbl, func)
+	for k, v in pairs(tbl) do
+		if func(k) then
+			local removed = {}
+			removed[k] = tbl[k]
+			tbl[k] = nil
+			
+			return removed
+		end
+	end
+end
+
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Avatars Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
@@ -105,11 +121,13 @@ Storage.Avatars.remove = function(avatarEntity)
 		GUI.Refresh.avatarControlChanged()
 	end
 	
-	-- Clean up the ARDU data link
+	-- Clean up references
 	for _, avatar in ipairs(removedAvatars) do
 		if avatar.arduData then
 			avatar.arduData.deployedAvatarData = nil
 		end
+		
+		Storage.PlayerData.migrateAvatarQuickBars(avatar.name, nil)
 	end
 	
 	debugLog("New count: " .. #global.avatars)
@@ -202,7 +220,13 @@ end
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Player Data Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
--- {player, realBody, currentAvatarData, lastBodySwap}
+-- {player, realBody, currentAvatarData, lastBodySwap, realBodyQuickBars, avatarQuickBars}
+--	player				- LuaPlayer
+--	realBody			- LuaEntity of the player's character
+--	currentAvatarData	- global.avatars entry
+--	lastBodySwap		- tick of last body swap
+--	realBodyQuickBars	- array of active quick bar indicies, in order
+--	avatarQuickBars		- map of avatar name to array of active quick bar indicies, in order
 Storage.PlayerData = {}
 
 -- Get the value from the avatarPlayerData global table, if it exists
@@ -221,7 +245,7 @@ Storage.PlayerData.getOrCreate = function(player)
 		
 		-- Create their data otherwise
 		debugLog("Adding PlayerData for " .. player.name)
-		local playerData = {player=player, realBody=nil, currentAvatarData=nil, lastBodySwap=nil}
+		local playerData = {player=player, realBody=nil, currentAvatarData=nil, lastBodySwap=nil, realBodyQuickBars=nil, avatarQuickBars={}}
 		
 		table.insert(global.avatarPlayerData, playerData)
 		debugLog("Players in PlayerData: " .. #global.avatarPlayerData)
@@ -246,6 +270,26 @@ end
 --	@return - the table value, or nil if not found
 Storage.PlayerData.getByEntity = function(entity)
 	return Storage.PlayerData.getByFunc(function(data) return data.realBody == entity end)
+end
+
+-- Moves an all of an avatar's saved quickbars when it gets renamed, or removes it if the avatar dies
+--	@param avatarName - old avatar name
+--	@param newAvatarName - new avatar name, or nil if it no longer exists
+Storage.PlayerData.migrateAvatarQuickBars = function(avatarName, newAvatarName)
+	local newFunction = function(key) return key == avatarName end
+	for _, playerData in ipairs(global.avatarPlayerData) do
+		if newAvatarName == nil then
+			Storage.removeFromTableByKey(playerData.avatarQuickBars, newFunction)
+		else
+			for name, quickBar in pairs(playerData.avatarQuickBars) do
+				if name == avatarName then
+					playerData.avatarQuickBars[newAvatarName] = playerData.avatarQuickBars[avatarName]
+					playerData.avatarQuickBars[avatarName] = nil
+					break
+				end
+			end
+		end
+	end
 end
 
 

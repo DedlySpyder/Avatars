@@ -14,18 +14,7 @@ end)
 
 -- Migrations
 script.on_configuration_changed(function(data)
-	if data.mod_changes.Avatars then
-		local oldVersion = data.mod_changes.Avatars.old_version
-		if oldVersion then
-			if oldVersion < "0.4.0" then
-				Migrations.to_0_4_0()
-			end
-			
-			if oldVersion < "0.5.0" then
-				Migrations.to_0_5_0()
-			end
-		end
-	end
+	Migrations.handle(data)
 end)
 
 -- Check when a player leaves the game

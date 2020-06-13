@@ -31,6 +31,25 @@ Util.entityPositionString = function(entity)
 	return "(" ..math.floor(entity.position.x) ..", " ..math.floor(entity.position.y) ..")"
 end
 
+Util.getActiveQuickBars = function(player)
+	if player and player.valid then
+		local quickBars = {}
+		for screenIndex=1,4 do
+			quickBars[screenIndex] = player.get_active_quick_bar_page(screenIndex)
+		end
+		return quickBars
+	end
+end
+
+Util.setActiveQuickBars = function(player, quickBars)
+	if quickBars and type(quickBars) == "table" and player and player.valid then
+		for screenIndex, pageIndex in ipairs(quickBars) do
+			player.set_active_quick_bar_page(screenIndex, pageIndex)
+		end
+	end
+end
+
+
 Util.printAll = function(message)
 	for _, player in pairs(game.players) do
 		if player.valid and player.connected then

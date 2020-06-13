@@ -98,8 +98,9 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	
 	local avatarControlCenter = player.vehicle
 	
-	-- Store the real body
+	-- Store the real body & quick bars
 	playerData.realBody = player.character
+	playerData.realBodyQuickBars = Util.getActiveQuickBars(player)
 	
 	-- Give the avatar to the player
 	playerData.currentAvatarData = avatarData
@@ -122,8 +123,10 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 		playerData.lastBodySwap = game.tick
 	end
 	
+	-- Handle the swap
 	avatarData.entity.active = true
 	AvatarControl.bodySwap(player, avatarData.entity)
+	Util.setActiveQuickBars(player, playerData.avatarQuickBars[avatarData.name])
 	
 	-- Put the player back in the ACC (Factorio boots them for disconnect reasons I think)
 	-- They will be put back before a disconnect
@@ -160,8 +163,12 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	
 	local avatarData = playerData.currentAvatarData
 	
+	-- Store the quickbars
+	playerData.avatarQuickBars[avatarData.name] = Util.getActiveQuickBars(player)
+	
 	-- Give back the player's body
 	AvatarControl.bodySwap(player, playerData.realBody)
+	Util.setActiveQuickBars(player, playerData.realBodyQuickBars)
 	
 	-- Clear the table
 	playerData.realBody.active = true
@@ -179,4 +186,7 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	if player.driving and player.vehicle and player.vehicle.name == "avatar-control-center" then
 		GUI.Selection.draw(player)
 	end
+	
+	debugLog(player.get_active_quick_bar_page(1))
+	debugLog(player.get_active_quick_bar_page(2))
 end

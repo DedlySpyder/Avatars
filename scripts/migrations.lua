@@ -1,5 +1,24 @@
 Migrations = {}
 
+Migrations.handle = function(data)
+	if data.mod_changes.Avatars then
+		local oldVersion = data.mod_changes.Avatars.old_version
+		if oldVersion then
+			if oldVersion < "0.4.0" then
+				Migrations.to_0_4_0()
+			end
+			
+			if oldVersion < "0.5.0" then
+				Migrations.to_0_5_0()
+			end
+			
+			if oldVersion < "0.5.9" then
+				Migrations.to_0_5_9()
+			end
+		end
+	end
+end
+
 Migrations.to_0_4_0 = function()
 	-- Default avatar names need to have leading zeroes in order to sort correctly
 	if global.avatars then
@@ -72,5 +91,11 @@ Migrations.to_0_5_0 = function()
 		end
 		
 		data.currentAvatarName = nil
+	end
+end
+
+Migrations.to_0_5_9 = function()
+	for _, playerData in pairs(global.avatarPlayerData) do
+		playerData.avatarQuickBars = playerData.avatarQuickBars or {}
 	end
 end

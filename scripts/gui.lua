@@ -562,6 +562,7 @@ GUI.Trigger.changeAvatarNameSubmit = function(player)
 			-- Final check and set
 			if renamedAvatar then
 				debugLog("Renaming Avatar")
+				Storage.PlayerData.migrateAvatarQuickBars(oldName, newName)
 				renamedAvatar.name = newName
 				
 				GUI.Refresh.nameChange()
