@@ -163,6 +163,11 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	
 	local avatarData = playerData.currentAvatarData
 	
+	if not avatarData then
+		debugLog("No avatar data found for " .. player.name)
+		return false
+	end
+	
 	-- Store the quickbars
 	playerData.avatarQuickBars[avatarData.name] = Util.getActiveQuickBars(player)
 	

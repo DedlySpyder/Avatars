@@ -39,6 +39,20 @@ Storage.init = function()
 	end
 end
 
+
+Storage.swapCharacter = function(oldCharacter, newCharacter)
+	debugLog("Checking for character swap")
+	local player = oldCharacter.player or newCharacter.player
+	if player and player.valid then
+		local playerData = Storage.PlayerData.getOrCreate(player)
+		local avatarData = playerData.currentAvatarData
+		if avatarData and avatarData.entity and avatarData.entity == oldCharacter then
+			debugLog("Old character matches controlled avatar, swapping for new character")
+			avatarData.entity = newCharacter
+		end
+	end
+end
+
 -- Remove value(s) from a table, if they satify a function
 --	@param tbl - a table to remove values from
 --	@param func - a function to test each value against, removing the value if this function returns true

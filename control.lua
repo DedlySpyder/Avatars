@@ -279,6 +279,17 @@ remote.add_interface("Avatars_avatar_placement", {
 })
 
 
+-- Mod compatibility
+remote.add_interface("Avatars_compat", {
+	on_character_swapped = function(data)
+		local oldCharacter = data.old_character
+		local newCharacter = data.new_character
+		if oldCharacter and oldCharacter.valid and newCharacter and newCharacter.valid then
+			Storage.swapCharacter(oldCharacter, newCharacter)
+		end
+	end
+})
+
 --User Commands
 remote.add_interface("Avatars", {
 	--Used to remove invalidated Avatars from the global listing, and search for orphaned avatars that are missing from the listing
