@@ -151,7 +151,7 @@ AvatarControl.loseAvatarControl = function(player, tick)
 	
 	-- Test to make sure that player is controlling an avatar
 	-- Otherwise there are issues with other control changing mods
-	if player.character and player.character.name ~= "avatar" then
+	if not player.character or player.character.name ~= "avatar" then
 		player.print{"Avatars-error-cannot-disconnect-from-nonavatar"}
 		return false
 	end
