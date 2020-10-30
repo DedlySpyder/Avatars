@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.14
+Date: 10. 29. 2020
+  Bugfixes:
+    - Fixed crash when attempting to close th control center UI while the character is not inside it
+---------------------------------------------------------------------------------------------------
 Version: 0.5.13
 Date: 09. 21. 2020
   Bugfixes:

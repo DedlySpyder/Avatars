@@ -100,7 +100,11 @@ function checkGUI(event)
 			-- Exit button (for control center ui)
 			GUI.Main.destroy(player)
 			GUI.ARDU.destroy(player)
-			player.vehicle.set_driver(nil)
+			
+			local vehicle = player.vehicle
+			if vehicle and vehicle.valid and vehicle.name == "avatar-control-center" then
+				player.vehicle.set_driver(nil)
+			end
 			
 		elseif modButton == "disc" then
 			-- Disconnect button (to disconnect from the avatar)
