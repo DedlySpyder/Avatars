@@ -1,4 +1,4 @@
-require("mod-gui")
+local mod_gui = require("mod-gui")
 
 -- The returned table by this file will contain all the GUI related functions
 -- The main object will have the following for each GUI used by the mod (along with a few helper functions):
