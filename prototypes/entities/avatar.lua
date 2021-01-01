@@ -12,10 +12,8 @@ function updateTint(animations)
 	if "table" == type(animations) then
 		for _, value in pairs(animations) do
 			if "table" == type(value) then
-				if value["tint"] then
+				if value["apply_runtime_tint"] then
 					value["tint"] = avatar_tint
-					value["apply_runtime_tint"] = false
-				elseif value["apply_runtime_tint"] then
 					value["apply_runtime_tint"] = false
 				end
 				updateTint(value)
