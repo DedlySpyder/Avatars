@@ -1,25 +1,24 @@
-data:extend(
-{
-  {
-    type = "font",
-    name = "font-button-table",
-    from = "default",
-    size = 12
-  },
-  {
-    type = "font",
-    name = "font-button-change-page",
-    from = "default",
-    size = 12
-  },
-  {
-    type = "font",
-    name = "font-table",
-    from = "default",
-    align = "center",
-	text_align = "center",
-	size = 16
-  }
+data:extend({
+	{
+		type = "font",
+		name = "font-button-table",
+		from = "default",
+		size = 12
+	},
+	{
+		type = "font",
+		name = "font-button-change-page",
+		from = "default",
+		size = 12
+	},
+	{
+		type = "font",
+		name = "font-table",
+		from = "default",
+		align = "center",
+		text_align = "center",
+		size = 16
+	}
 })
 
 --Header frame styles
