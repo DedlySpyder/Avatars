@@ -266,6 +266,20 @@ end
 script.on_event(defines.events.on_player_changed_surface, on_player_changed_surface)
 
 
+-- Handle for setting changes
+function on_runtime_mod_setting_changed(event)
+	local name = event["setting"]
+	
+	if name == "Avatars_avatar_ownership" then
+		for _, player in pairs(game.players) do
+			GUI.Main.update(player)
+		end
+	end
+end
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, on_runtime_mod_setting_changed)
+
+
 --~~~~~~~ Remote Calls ~~~~~~~--
 --Mod Interfaces
 

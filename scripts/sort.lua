@@ -76,6 +76,7 @@ end
 --	@param player - a LuaPlayer object
 --	@return - a filtered table of avatar & ardu global table data
 Sort.getFilteredTable = function(player)
+	local filterFunc = Sort.getFilterByFunc(player)
 	local force = player.force
 	local filteredTable = {}
 	
@@ -84,7 +85,7 @@ Sort.getFilteredTable = function(player)
 	for _, data in ipairs(global.avatars) do
 		local entity = data.entity
 		if entity and entity.valid then
-			if data.entity.force == force then
+			if filterFunc(data.entity) then
 				table.insert(filteredTable, data)
 			end
 		else
@@ -107,4 +108,19 @@ Sort.getFilteredTable = function(player)
 	end
 	
 	return filteredTable
+end
+
+Sort.getFilterByFunc = function(player)
+	local force = player.force
+	local ownershipSetting = settings.global["Avatars_avatar_ownership"].value
+	if ownershipSetting == "player" then
+		return function(entity)
+			return entity.last_user == player and entity.force == force
+		end
+	else
+		-- Force or somehow not set
+		return function(entity)
+			return entity.force == force
+		end
+	end
 end

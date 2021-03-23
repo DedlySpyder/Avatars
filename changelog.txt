@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.17
+Date: 03. 22. 2021
+  Features:
+    - Added "Avatar Ownership" setting to switch between displaying available avatars by force (default and old functionality) or by player who built it
+---------------------------------------------------------------------------------------------------
 Version: 0.5.16
 Date: 01. 01. 2021
   Bugfixes:

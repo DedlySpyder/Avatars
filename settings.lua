@@ -1,28 +1,43 @@
 data:extend({
+	-- Runtime
 	{
 		name = "Avatars_debug_mode",
 		type = "bool-setting",
 		setting_type = "runtime-global",
-		default_value = false
+		default_value = false,
+		order = "000"
 	},
 	{
 		name = "Avatars_default_avatar_name",
 		type = "string-setting",
 		setting_type = "runtime-global",
-		default_value = "Avatar #"
+		default_value = "Avatar #",
+		order = "100"
 	},
 	{
 		name = "Avatars_default_avatar_remote_deployment_unit_name",
 		type = "string-setting",
 		setting_type = "runtime-global",
-		default_value = "ARDU #"
+		default_value = "ARDU #",
+		order = "200"
 	},
 	{
 		name = "Avatars_default_avatar_remote_deployment_unit_name_deployed_prefix",
 		type = "string-setting",
 		setting_type = "runtime-global",
-		default_value = "Mk"
+		default_value = "Mk",
+		order = "300"
 	},
+	{
+		name = "Avatars_avatar_ownership",
+		type = "string-setting",
+		setting_type = "runtime-global",
+		default_value = "force",
+		allowed_values = {"force", "player"},
+		order = "400"
+	},
+	
+	-- Startup
 	{
 		name = "Avatars_avatar_color_red",
 		type = "double-setting",
