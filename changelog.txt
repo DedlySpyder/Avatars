@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.18
+Date: 05. 23. 2021
+  Changes:
+    - Added AAI Programmable Vehicle compatibility (added to exclusion list)
+  Bugfixes:
+    - Fixed ejecting the wrong player from the control center when multiple characters are in it
+---------------------------------------------------------------------------------------------------
 Version: 0.5.17
 Date: 03. 22. 2021
   Features:
