@@ -103,7 +103,19 @@ function checkGUI(event)
 			
 			local vehicle = player.vehicle
 			if vehicle and vehicle.valid and vehicle.name == "avatar-control-center" then
-				player.vehicle.set_driver(nil)
+				local driver = vehicle.get_driver()
+				if driver and driver.valid then
+					if driver.object_name == "LuaEntity" then
+						driver = driver.player
+					end
+					if driver and driver.index == player.index then
+						vehicle.set_driver(nil)
+					else
+						vehicle.set_passenger(nil)
+					end
+				else
+					vehicle.set_passenger(nil)
+				end
 			end
 			
 		elseif modButton == "disc" then
