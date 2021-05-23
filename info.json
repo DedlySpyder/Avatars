@@ -9,8 +9,9 @@
   "dependencies": [
 	"base >= 1.1.0",
 	"? space-exploration >= 0.3.0",
-	"? angelspetrochem >= 0.5.0", 
-	"? angelsrefining >= 0.7.0", 
+	"? aai-programmable-vehicles >= 0.7.0",
+	"? angelspetrochem >= 0.5.0",
+	"? angelsrefining >= 0.7.0",
 	"? angelssmelting >= 0.3.0",
 	"? bobplates >= 0.15.0",
 	"? bobassembly >= 0.15.0",
