@@ -177,9 +177,19 @@ end
 
 script.on_event(defines.events.on_robot_built_entity, on_entity_built)
 script.on_event(defines.events.on_built_entity, on_entity_built)
-script.on_event(defines.events.on_entity_cloned, on_entity_built)
 script.on_event(defines.events.script_raised_built, on_entity_built)
 script.on_event(defines.events.script_raised_revive, on_entity_built)
+
+function on_entity_cloned(event)
+	local destination = event.destination
+	Storage.repairFromClone(event.source, destination)
+
+	if destination and destination.name == "avatar-control-center" then
+		destination.operable = false
+	end
+end
+
+script.on_event(defines.events.on_entity_cloned, on_entity_cloned)
 
 -- Check on entity being destroyed or deconstructed
 function on_entity_destroyed(event)

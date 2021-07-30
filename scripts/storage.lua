@@ -96,6 +96,18 @@ Storage.removeFromTableByKey = function(tbl, func)
 end
 
 
+Storage._repairMapping = {}
+Storage.repairFromClone = function(source, destination)
+	if source and source.valid and destination and destination.valid then
+		local sourceName = source.name
+		local repairFunc = Storage._repairMapping[sourceName]
+		if repairFunc then
+			debugLog("Repairing " .. sourceName .. " from " .. source.surface.name .. " (" .. serpent.line(source.position) .. ") to " .. destination.surface.name .. " (" .. serpent.line(destination.position) .. ")")
+			repairFunc(source, destination)
+		end
+	end
+end
+
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Avatars Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
 -- {entity, name, playerData, arduData}
@@ -231,6 +243,15 @@ Storage.Avatars.repair = function()
 	Util.printAll({"Avatars-repair-completed", removed, added})
 end
 
+Storage.Avatars.repairAvatar = function(source, target)
+	for _, avatar in ipairs(global.avatars) do
+		if avatar.entity == source then
+			avatar.entity = target
+		end
+	end
+end
+Storage._repairMapping["avatar"] = Storage.Avatars.repairAvatar
+
 
 
 --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Player Data Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
@@ -305,6 +326,15 @@ Storage.PlayerData.migrateAvatarQuickBars = function(avatarName, newAvatarName)
 		end
 	end
 end
+
+Storage.PlayerData.repair = function(source, target)
+	for _, playerData in ipairs(global.avatarPlayerData) do
+		if playerData.realBody == source then
+			playerData.realBody = target
+		end
+	end
+end
+Storage._repairMapping["character"] = Storage.PlayerData.repair
 
 
 
@@ -385,3 +415,12 @@ Storage.ARDU.remove = function(entity)
 	
 	debugLog("New count: " .. #global.avatarARDUTable)
 end
+
+Storage.ARDU.repair = function(source, target)
+	for _, currentARDU in ipairs(global.avatarARDUTable) do
+		if currentARDU.entity == source then
+			currentARDU.entity = target
+		end
+	end
+end
+Storage._repairMapping["avatar-remote-deployment-unit"] = Storage.ARDU.repair
