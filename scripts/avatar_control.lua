@@ -7,6 +7,11 @@ AvatarControl = {}
 --	@return - true/false if the player can control the avatar now
 --			- the error message if false (in the form of a table to be used by player.print() )
 AvatarControl.canGainControl = function(avatarData, playerData, tick)
+	-- Make sure the avatar is still valid (can happen if the UI is stale)
+	if not avatarData or not avatarData.entity or not avatarData.entity.valid then
+		return false, {"Avatars-error-avatar-not-found"}
+	end
+
 	-- Make sure no one else is controlling it
 	if avatarData.playerData then
 		return false, {"Avatars-error-already-controlled", avatarData.playerData.player.name}
