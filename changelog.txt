@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.20
+Date: 03. 08. 2022
+  Changes:
+    - Added /repair_avatars command to handle fixing stale avatars in a clean way
+    - Added new permission settings to verify players are in certain group(s) before running the repair command (default allows all, admins are always allowed)
+  Bugfixes:
+    - Fixed crash when the selection UI has a stale avatar that is attempted to be controlled
+---------------------------------------------------------------------------------------------------
 Version: 0.5.19
 Date: 07. 29. 2021
   Bugfixes:
