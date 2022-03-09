@@ -96,7 +96,7 @@ Sort.getFilteredTable = function(player)
 	
 	-- Alert the player that some Avatars are invalid and that a repair should be run
 	if invalidAvatars then
-		player.print({"Avatars-warning-invalid-avatars", "/c remote.call('Avatars', 'repair_avatars_listing')"})
+		player.print({"Avatars-warning-invalid-avatars", "/repair_avatars"})
 	end
 	
 	-- Add ARDU's that do not have spawned avatars for this player's force

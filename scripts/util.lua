@@ -57,3 +57,19 @@ Util.printAll = function(message)
 		end
 	end
 end
+
+Util.splitString = function(string, separator)
+	local t = {}
+	for s in string.gmatch(string, "([^" .. separator .. "]+)") do
+		table.insert(t, s)
+	end
+	return t
+end
+
+Util.tableToSet = function(tbl)
+	local t = {}
+	for _, v in pairs(tbl) do
+		t[v] = true
+	end
+	return t
+end

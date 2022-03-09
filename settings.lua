@@ -36,6 +36,14 @@ data:extend({
 		allowed_values = {"force", "player"},
 		order = "400"
 	},
+	{
+		name = "Avatars_command_allowed_groups",
+		type = "string-setting",
+		setting_type = "runtime-global",
+		default_value = "",
+		allow_blank = true,
+		order = "500"
+	},
 	
 	-- Startup
 	{

@@ -330,6 +330,25 @@ remote.add_interface("Avatars_compat", {
 	end
 })
 
+commands.add_command("repair_avatars", {"Avatars-command-help-repair-avatars"}, function(command)
+	if command.player_index then
+		local player = game.get_player(command.player_index)
+		debugLog(player.name .. " is running repair command")
+		local group = player.permission_group
+		if not group then
+			debugLog("Player not in permission group, not allowed to do anything")
+			return
+		end
+		local allowedGroupsSetting = settings.global["Avatars_command_allowed_groups"].value
+		local allowedGroups = Util.tableToSet(Util.splitString(allowedGroupsSetting, ","))
+		if not (group.allows_action(defines.input_action.admin_action) or allowedGroups[group.name]) then
+			debugLog("Player is not admin or group is not allowed to run Avatar commands")
+			return
+		end
+	end
+	Storage.Avatars.repair()
+end)
+
 --User Commands
 remote.add_interface("Avatars", {
 	--Used to remove invalidated Avatars from the global listing, and search for orphaned avatars that are missing from the listing
