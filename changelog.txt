@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.21
+Date: 06. 22. 2022
+  Changes:
+    - Added Space Exploration compatibility for respawning (if you have respawned from an Avatar and lost your inventory, check in the control center for your old character and items)
+---------------------------------------------------------------------------------------------------
 Version: 0.5.20
 Date: 03. 08. 2022
   Changes:
