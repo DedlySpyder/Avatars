@@ -6,10 +6,16 @@ require "scripts/sort"
 require "scripts/gui"
 
 require "scripts/migrations"
+require "scripts/compatibility"
 
 -- Initialize global tables
 script.on_init(function()
 	Storage.init()
+	Compatibility.run_all()
+end)
+
+script.on_load(function()
+	Compatibility.run_all()
 end)
 
 -- Migrations

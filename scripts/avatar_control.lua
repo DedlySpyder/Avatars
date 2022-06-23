@@ -149,21 +149,23 @@ end
 -- Take control from a player
 --	@param player - a LuaPlayer object
 --	@param tick - the current tick (for safety checks, leave nil for a forced transfer)
-AvatarControl.loseAvatarControl = function(player, tick)
+AvatarControl.loseAvatarControl = function(player, tick, forceSwap)
 	debugLog("Going back to the body")
 	
 	local playerData = Storage.PlayerData.getOrCreate(player)
-	
-	-- Test to make sure that player is controlling an avatar
-	-- Otherwise there are issues with other control changing mods
-	if not player.character or player.character.name ~= "avatar" then
-		player.print{"Avatars-error-cannot-disconnect-from-nonavatar"}
-		return false
-	end
-	
-	if not AvatarControl.isSafeToSwap(playerData, tick) then
-		player.print{"Avatars-error-rapid-body-swap"}
-		return false
+
+	if not forceSwap then
+		-- Test to make sure that player is controlling an avatar
+		-- Otherwise there are issues with other control changing mods
+		if not player.character or player.character.name ~= "avatar" then
+			player.print{"Avatars-error-cannot-disconnect-from-nonavatar"}
+			return false
+		end
+
+		if not AvatarControl.isSafeToSwap(playerData, tick) then
+			player.print{"Avatars-error-rapid-body-swap"}
+			return false
+		end
 	end
 	
 	local avatarData = playerData.currentAvatarData

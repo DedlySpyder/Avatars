@@ -307,6 +307,10 @@ Storage.PlayerData.getByEntity = function(entity)
 	return Storage.PlayerData.getByFunc(function(data) return data.realBody == entity end)
 end
 
+Storage.PlayerData.getByPlayer = function(player)
+	return Storage.PlayerData.getByFunc(function(data) return data.player == player end)
+end
+
 -- Moves an all of an avatar's saved quickbars when it gets renamed, or removes it if the avatar dies
 --	@param avatarName - old avatar name
 --	@param newAvatarName - new avatar name, or nil if it no longer exists
