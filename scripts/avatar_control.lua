@@ -21,9 +21,14 @@ AvatarControl.canGainControl = function(avatarData, playerData, tick)
     if not AvatarControl.isSafeToSwap(playerData, tick) then
 		return false, {"Avatars-error-rapid-body-swap"}
 	end
+
+	-- Player is being cheeky and not in the control center anymore
+	if not playerData.player.character or not playerData.player.character.vehicle or playerData.player.character.vehicle.name ~= "avatar-control-center" then
+		return false, {"Avatars-error-not-in-control-center"}
+	end
 	
 	-- Can't gain control if the player is currently in an avatar
-	if (playerData.player.character.name == "avatar") then
+	if playerData.player.character.name == "avatar" then
 		return false, {"Avatars-error-control-restriction"}
 	end
 	
