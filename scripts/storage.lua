@@ -28,6 +28,10 @@ Storage.init = function()
 	if not global.avatarARDUTable then
 		global.avatarARDUTable = {}
 	end
+
+	if not global.avatarMapTags then
+		global.avatarMapTags = {}
+	end
 	
 	-- Counts
 	if not global.avatarDefaultCount then
@@ -428,3 +432,31 @@ Storage.ARDU.repair = function(source, target)
 	end
 end
 Storage._repairMapping["avatar-remote-deployment-unit"] = Storage.ARDU.repair
+
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ARDU Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
+Storage.MapTags = {}
+
+-- Add a map tag to the global table
+-- 	@param entity - a LuaEntity of the avatar corpse
+-- 	@param tag - a LuaCustomChartTag of the map tag
+Storage.MapTags.add = function(entity, tag)
+	debugLog("Adding map tag to the table")
+	table.insert(global.avatarMapTags, {
+		entity=entity,
+		tag=tag
+	})
+end
+
+-- Remove a map tag to the global table
+-- 	@param entity - a LuaEntity of the avatar corpse
+--	@return the LuaCustomChartTag that was successfully removed from the global table
+Storage.MapTags.remove = function(entity)
+	debugLog("Removing amp tag from the table")
+	local newFunction = function (arg) return arg.entity == entity end
+	local removedTagData = Storage.removeFromTable(global.avatarMapTags, newFunction)
+	if #removedTagData > 0 then
+		return removedTagData[1].tag
+	end
+end

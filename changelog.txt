@@ -1,6 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.22
 Date: 01. 08. 2023
+  Changes:
+    - Added map tag on avatar entity death, the tag will automatically be removed when the avatar corpse is removed
   Bugfixes:
     - Fixed crash when player is not a character when trying to control an avatar
 ---------------------------------------------------------------------------------------------------

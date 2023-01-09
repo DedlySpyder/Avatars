@@ -15,6 +15,10 @@ Migrations.handle = function(data)
 			if Migrations.versionCompare(oldVersion, "0.5.11") then
 				Migrations.to_0_5_11()
 			end
+
+			if Migrations.versionCompare(oldVersion, "0.5.22") then
+				Migrations.to_0_5_22()
+			end
 		end
 	end
 end
@@ -116,4 +120,8 @@ Migrations.to_0_5_11 = function()
 	for _, playerData in pairs(global.avatarPlayerData) do
 		playerData.avatarQuickBars = playerData.avatarQuickBars or {}
 	end
+end
+
+Migrations.to_0_5_22 = function()
+	Storage.init()
 end

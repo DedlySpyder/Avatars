@@ -218,7 +218,11 @@ function on_entity_destroyed(event)
 		-- Destruction of an Avatar
 		-- Remove the avatar from the global table (The player is no longer in control at this point)
 		Storage.Avatars.remove(entity)
-		
+
+	elseif entity.name == "avatar-corpse" then
+		-- Mining of an Avatar corpse
+		on_corpse_expired({corpse = entity})
+
 	elseif entity.name == "avatar-remote-deployment-unit" then
 		-- Destruction of an ARDU
 		Storage.ARDU.remove(entity)
@@ -255,6 +259,32 @@ script.on_event(defines.events.on_pre_player_mined_item, on_entity_destroyed)
 script.on_event(defines.events.on_robot_pre_mined, on_entity_destroyed)
 script.on_event(defines.events.script_raised_destroy, on_entity_destroyed)
 script.on_event(defines.events.on_entity_died, on_entity_died)
+
+function on_post_character_died(event)
+	for _, corpse in ipairs(event.corpses) do
+		if corpse.name == "avatar-corpse" then
+			local tag = event.force.add_chart_tag(event.surface_index, {
+				position = event.position,
+				icon = {type = "item", name = "avatar"}
+			})
+			Storage.MapTags.add(corpse, tag)
+		end
+	end
+end
+
+script.on_event(defines.events.on_post_entity_died, on_post_character_died,{{filter = "type", type = "character"}})
+
+-- Check on corpse being expired
+function on_corpse_expired(event)
+	local corpse = event.corpse
+	local tag = Storage.MapTags.remove(corpse)
+	if tag.valid then
+		debugLog("Destroying map tag")
+		tag.destroy()
+	end
+end
+
+script.on_event(defines.events.on_character_corpse_expired, on_corpse_expired)
 
 -- Handles a player dying while controlling an avatar
 function on_preplayer_died(event)
