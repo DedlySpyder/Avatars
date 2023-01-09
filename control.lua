@@ -500,9 +500,14 @@ if debug_mode then
 				local surface = avatar.surface
 				local position = avatar.position
 				local force = avatar.force
+				local player = avatar.player
 				
 				avatar.destroy()
-				surface.create_entity({name="avatar", position=position, force=force,})
+				local newAvatar = surface.create_entity({name="avatar", position=position, force=force,})
+
+				if player then
+					player.character = newAvatar
+				end
 			end
 		end
 	})

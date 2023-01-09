@@ -15,6 +15,8 @@ AvatarControl.canGainControl = function(avatarData, playerData, tick)
 	-- Make sure no one else is controlling it
 	if avatarData.playerData then
 		return false, {"Avatars-error-already-controlled", avatarData.playerData.player.name}
+	elseif avatarData.entity.player then -- Catch all, in case someone is controlling it but we lost track of it
+		return false, {"Avatars-error-already-controlled", avatarData.entity.player.name}
 	end
 		
     -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM

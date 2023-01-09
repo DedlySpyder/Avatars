@@ -240,6 +240,15 @@ Storage.Avatars.repair = function()
 				debugLog("Repair: Adding new avatar")
 				Storage.Avatars.add(entity)
 				added = added + 1
+
+				local player = entity.player
+				if player and player.valid then
+					debugLog("Repair: New avatar is controlled by a player, linking them")
+					local avatarData = Storage.Avatars.getByEntity(entity)
+					local playerData = Storage.PlayerData.getByPlayer(player)
+					playerData.currentAvatarData = avatarData
+					avatarData.playerData = playerData
+				end
 			end
 		end
 	end

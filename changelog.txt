@@ -5,6 +5,7 @@ Date: 01. 08. 2023
     - Added map tag on avatar entity death, the tag will automatically be removed when the avatar corpse is removed
   Bugfixes:
     - Fixed crash when player is not a character when trying to control an avatar
+    - Fixed crash when player maintains control of an avatar that becomes untracked, /repair_avatars is run, then someone else attempts to control it
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.21
 Date: 06. 22. 2022
