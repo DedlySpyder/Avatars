@@ -278,7 +278,7 @@ script.on_event(defines.events.on_post_entity_died, on_post_character_died,{{fil
 function on_corpse_expired(event)
 	local corpse = event.corpse
 	local tag = Storage.MapTags.remove(corpse)
-	if tag.valid then
+	if tag and tag.valid then
 		debugLog("Destroying map tag")
 		tag.destroy()
 	end

@@ -462,7 +462,7 @@ end
 -- 	@param entity - a LuaEntity of the avatar corpse
 --	@return the LuaCustomChartTag that was successfully removed from the global table
 Storage.MapTags.remove = function(entity)
-	debugLog("Removing amp tag from the table")
+	debugLog("Removing map tag from the table")
 	local newFunction = function (arg) return arg.entity == entity end
 	local removedTagData = Storage.removeFromTable(global.avatarMapTags, newFunction)
 	if #removedTagData > 0 then
