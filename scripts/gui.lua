@@ -100,7 +100,7 @@ GUI.Selection = {}
 --	@param player - a LuaPlayer object
 --	@param sortValues - the sort values for the table (optional, if it's nil then the default will be used)	
 GUI.Selection.draw = function(player, sortValues)
-	if not GUI.Selection.verify(player) then
+	if not GUI.Selection.verify(player) and GUI.Selection.isAllowedOrDestroy(player) then
 		debugLog("Drawing Selection GUI")
 		
 		-- Determine the sort values and get a sorted table
@@ -269,7 +269,7 @@ end
 -- Update Selection GUI for the given player
 --	@param player - a LuaPlayer object
 GUI.Selection.update = function(player)
-	if GUI.Selection.verify(player) then
+	if GUI.Selection.verify(player) and GUI.Selection.isAllowedOrDestroy(player) then
 		local sortValues = GUI.Selection.getSortValues(player)
 		GUI.Selection.destroy(player)
 		GUI.Selection.draw(player, sortValues)
@@ -296,6 +296,26 @@ end
 GUI.Selection.verify = function(player)
 	local selectionFlow = GUI.Main.getSelectionFlow(player)
 	return selectionFlow and selectionFlow.valid and selectionFlow.avatarSelectionFrame and selectionFlow.avatarSelectionFrame.valid
+end
+
+-- Returns if the Selection GUI is allowed to display or not (if we have the required fields)
+--	@param player - a LuaPlayer object
+--	@return - true if the Selection GUI is allowed to be displayed/updated, false otherwise
+GUI.Selection.isAllowed = function(player)
+	return player and player.vehicle and player.force
+end
+
+-- Returns if the Selection GUI is allowed to display or destroys it otherwise
+--	@param player - a LuaPlayer object
+--	@return - true if the Selection GUI is allowed to be displayed/updated, false otherwise
+GUI.Selection.isAllowedOrDestroy = function(player)
+	if not GUI.Selection.isAllowed(player) then
+		player.print({"Avatars-error-selection-not-allowed"})
+		GUI.Rename.destroy(player)
+		GUI.Selection.destroy(player)
+		return false
+	end
+	return true
 end
 
 -- Destroy the Selection GUI
@@ -341,7 +361,7 @@ GUI.Rename = {}
 --	@param player - a LuaPlayer object
 --	@param name - the avatar's current name
 GUI.Rename.draw = function(player, name)
-	if not GUI.Rename.verify(player) then
+	if not GUI.Rename.verify(player) and GUI.Selection.isAllowedOrDestroy(player) then
 		debugLog("Changing name of " .. name)
 		
 		-- Rename Frame and labels

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.24
+Date: 02. 04. 2023
+  Bugfixes:
+    - Fixed crash when changing controllers while in the Avatar Control Center and interacting with some UI elements
+---------------------------------------------------------------------------------------------------
 Version: 0.5.23
 Date: 01. 13. 2023
   Bugfixes:

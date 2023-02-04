@@ -87,8 +87,10 @@ function checkGUI(event)
 		elseif modButton == "ctrl" then
 			-- Control button
 			-- Obtain the name of the avatar to control
-			local name = string.sub(elementName, 13)
-			AvatarControl.gainAvatarControl(player, name, event.tick)
+			if GUI.Selection.isAllowedOrDestroy(player) then
+				local name = string.sub(elementName, 13)
+				AvatarControl.gainAvatarControl(player, name, event.tick)
+			end
 			
 		elseif modButton == "rfrh" then
 			-- Selection Refresh button
@@ -96,7 +98,9 @@ function checkGUI(event)
 			
 		elseif modButton == "sbmt" then
 			-- Submit button (to submit a rename)
-			GUI.Trigger.changeAvatarNameSubmit(player)
+			if GUI.Selection.isAllowedOrDestroy(player) then
+				GUI.Trigger.changeAvatarNameSubmit(player)
+			end
 			
 		elseif modButton == "cncl" then
 			-- Cancel button (to cancel a rename)
