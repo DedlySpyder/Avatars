@@ -139,6 +139,9 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	avatarData.entity.active = true
 	AvatarControl.bodySwap(player, avatarData.entity)
 	Util.setActiveQuickBars(player, playerData.avatarQuickBars[avatarData.name])
+
+	-- Associate the player to their realBody body, so we can always (?) find it
+	player.associate_character(playerData.realBody)
 	
 	-- Put the player back in the ACC (Factorio boots them for disconnect reasons I think)
 	-- They will be put back before a disconnect
