@@ -287,7 +287,7 @@ Storage.PlayerData.getOrCreate = function(player)
 		for _, playerData in ipairs(global.avatarPlayerData) do
 			if playerData.player == player then
 				debugLog("PlayerData for " .. player.name .. " was found in the table")
-				Storage.PlayerData.repairOnRead(player, playerData)
+				Storage.PlayerData.repairOnRead(playerData)
 				return playerData
 			end
 		end
@@ -345,8 +345,9 @@ Storage.PlayerData.migrateAvatarQuickBars = function(avatarName, newAvatarName)
 	end
 end
 
-Storage.PlayerData.repairOnRead = function(player, playerData)
+Storage.PlayerData.repairOnRead = function(playerData)
 	if playerData.realBody and not playerData.realBody.valid then
+		local player = playerData.player
 		for _, character in ipairs(player.get_associated_characters()) do
 			if character and character.valid and character.name == "character" then
 				debugLog("Repaired on read for realBody for " .. player.name)
