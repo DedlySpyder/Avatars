@@ -389,6 +389,46 @@ commands.add_command("repair_avatars", {"Avatars-command-help-repair-avatars"}, 
 	Storage.Avatars.repair()
 end)
 
+
+commands.add_command("avatars_repair_player_temporary", "PLAYER_NAME -- Fix invalid players references for the Avatars mod. If you don't know what this does or why you need it, then you DON'T need it. See the mod portal thread \"0.5.25 - Avatar Player References Broken\" for more info.", function(command) -- TODO - remove eventually, this was for a migration from 0.5.24 to 0.5.25
+	local commandPlayer = game.get_player(command.player_index)
+	if command.player_index then
+		debugLog(commandPlayer.name .. " is running repair command")
+		local group = commandPlayer.permission_group
+		if not group then
+			debugLog("Player not in permission group, not allowed to do anything")
+			return
+		end
+		local allowedGroupsSetting = settings.global["Avatars_command_allowed_groups"].value
+		local allowedGroups = Util.tableToSet(Util.splitString(allowedGroupsSetting, ","))
+		if not (group.allows_action(defines.input_action.admin_action) or allowedGroups[group.name]) then
+			debugLog("Player is not admin or group is not allowed to run Avatar commands")
+			return
+		end
+	end
+	local targetPlayer = commandPlayer
+	if command.parameter then
+		targetPlayer = game.get_player(command.parameter)
+	end
+
+	if not (targetPlayer and targetPlayer.valid) then
+		commandPlayer.print(command.parameter .. " is not a valid player")
+		return
+	end
+
+	local selected = commandPlayer.selected
+	if selected and selected.valid and selected.name == "avatar-control-center" then
+		local playerData = Storage.PlayerData.getByPlayer(targetPlayer)
+		if playerData and playerData.realBody and not playerData.realBody.valid then
+			Migrations._0_5_25__try_to_fix_player_from_avatar_control_center(selected, playerData)
+		else
+			commandPlayer.print(targetPlayer.name .. " does not have the 0.5.24 Avatars invalid player reference. This command does not need run for them.")
+		end
+	else
+		commandPlayer.print({"", "ERROR: Select an ", {"entity-name.avatar-control-center"}, " when running this command. See the mod portal at https://mods.factorio.com/mod/Avatars for more information on this error and how to fix it."})
+	end
+end)
+
 --User Commands
 remote.add_interface("Avatars", {
 	--Used to remove invalidated Avatars from the global listing, and search for orphaned avatars that are missing from the listing

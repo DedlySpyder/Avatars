@@ -19,6 +19,10 @@ Migrations.handle = function(data)
 			if Migrations.versionCompare(oldVersion, "0.5.22") then
 				Migrations.to_0_5_22()
 			end
+
+			if Migrations.versionCompare(oldVersion, "0.5.25") then
+				Migrations.to_0_5_25()
+			end
 		end
 	end
 end
@@ -124,4 +128,63 @@ end
 
 Migrations.to_0_5_22 = function()
 	Storage.init()
+end
+
+Migrations.to_0_5_25 = function()
+	local brokenPlayers = {}
+	for _, playerData in ipairs(global.avatarPlayerData) do
+		local realBody = playerData.realBody
+		if realBody then
+			if realBody.valid then
+				if not realBody.player then
+					-- Player is linked to a real body, but is controlling an avatar, so link the real body to the player
+					playerData.player.associate_character(realBody)
+				end
+			elseif not realBody.valid then
+				-- Player <> real body link has already been broken
+				-- notlikethis.jpg
+				table.insert(brokenPlayers, playerData)
+			end
+		end
+	end
+
+	if table_size(brokenPlayers) > 1 then
+		-- Can't fix it if there are multiple broken players
+		Util.printAll("Avatar player references for the following players are broken and cannot be automatically repaired:")
+		for _, data in ipairs(brokenPlayers) do
+			Util.printAll("  " .. data.player.name)
+		end
+		Util.printAll({"", "Each player must run the \"/avatars_repair_player_temporary\" command in the console while selecting the ", {"entity-name.avatar-control-center"}, " that contains their original character"})
+	else
+		-- 1 or 0 is good
+		for _, playerData in ipairs(brokenPlayers) do
+			-- Nuclear option, find the broken player
+			for _, surface in pairs(game.surfaces) do
+				local controlCenters = surface.find_entities_filtered{name = "avatar-control-center"}
+				for _, cc in ipairs(controlCenters) do
+					Migrations._0_5_25__try_to_fix_player_from_avatar_control_center(cc, playerData)
+				end
+			end
+		end
+	end
+end
+
+Migrations._0_5_25__try_to_fix_player_from_avatar_control_center = function(controlCenter, playerData)
+	Migrations._0_5_25__try_to_fix_player_from_character(controlCenter.get_driver(), playerData)
+	Migrations._0_5_25__try_to_fix_player_from_character(controlCenter.get_passenger(), playerData)
+end
+
+Migrations._0_5_25__try_to_fix_player_from_character = function(character, playerData)
+	if character and character.valid and not character.is_player() and not character.player and character.name == "character" then
+		-- Is a good LuaEntity and doesn't have a player attached
+		if not Storage.PlayerData.getByEntity(character) then
+			-- We have a character, without a player, that is not linked to a player data this is inside a control center
+			-- Looks like this is our missing player entity, fix it and get out of there
+			local player = playerData.player
+			Util.printAll("Repaired broken 0.5.24 Avatar reference for " .. player.name)
+			player.associate_character(character)
+			Storage.PlayerData.repairOnRead(playerData)
+			return
+		end
+	end
 end
