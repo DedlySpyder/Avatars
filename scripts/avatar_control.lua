@@ -57,26 +57,36 @@ end
 -- Simple
 --	@param player - the LuaPlayer who is changing control
 --	@param targetEntity - the LuaEntity they are trying to go to
-AvatarControl.bodySwap = function(player, targetEntity)
+--	@param forceSwap - boolean if the swap should happen (and possibly fail) if an error occurs
+AvatarControl.bodySwap = function(player, targetEntity, forceSwap)
 	local sourceSurface = player.character.surface
 	local targetSurface = targetEntity.surface
 	
 	if sourceSurface ~= targetSurface then
 		local startingEntity = player.character
 		local tempPlayer = sourceSurface.create_entity{name="fake-player", position=startingEntity.position, force=startingEntity.force}
-		
-		startingEntity.active = false
+
 		player.character = tempPlayer
-		
 		player.teleport(targetEntity.position, targetSurface)
-		
-		-- tempPlayer is an invalid reference
-		-- https://forums.factorio.com/viewtopic.php?t=30563
-		player.character.destroy()
-		player.character = targetEntity
+
+		if player.character.surface == targetSurface or forceSwap then
+			startingEntity.active = false
+			-- tempPlayer is an invalid reference
+			-- https://forums.factorio.com/viewtopic.php?t=30563
+			player.character.destroy()
+			player.character = targetEntity
+			return true
+		else
+			-- The teleport failed, abort
+			player.teleport(startingEntity.position, sourceSurface)
+			player.character.destroy()
+			player.character = startingEntity
+			return false
+		end
 	else
 		player.character.active = false
 		player.character = targetEntity
+		return true
 	end
 end
 
@@ -118,42 +128,43 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 	playerData.currentAvatarData = avatarData
 	avatarData.playerData = playerData
 	
-	-- Final sanity check (to make sure this can be reversed)
-	if not playerData.realBody or not playerData.currentAvatarData then
+	-- Final sanity check (to make sure this can be reversed), then bodySwap
+	if playerData.realBody and playerData.currentAvatarData and AvatarControl.bodySwap(player, avatarData.entity) then
+		if tick then
+			playerData.lastBodySwap = tick
+		else
+			playerData.lastBodySwap = game.tick
+		end
+
+		-- Handle the swap
+		avatarData.entity.active = true
+		Util.setActiveQuickBars(player, playerData.avatarQuickBars[avatarData.name])
+
+		-- Associate the player to their realBody body, so we can always (?) find it
+		player.associate_character(playerData.realBody)
+
+		-- Put the player back in the ACC (Factorio boots them for disconnect reasons I think)
+		-- They will be put back before a disconnect
+		avatarControlCenter.set_driver(playerData.realBody)
+
+		-- GUI clean up
+		GUI.destroyAll(player)
+		GUI.Disconnect.draw(player)
+
+		-- Provide warnings
+		GUI.Refresh.avatarControlChanged(player.force)
+		return true
+	else
 		player.print{"Avatars-fatal-gain-control"}
-		
+
 		-- Reverse everything
 		playerData.realBody = nil
 		playerData.currentAvatarData = nil
 		avatarData.playerData = nil
+
+		avatarControlCenter.set_driver(player)
 		return false
 	end
-	
-	if tick then
-		playerData.lastBodySwap = tick
-	else
-		playerData.lastBodySwap = game.tick
-	end
-	
-	-- Handle the swap
-	avatarData.entity.active = true
-	AvatarControl.bodySwap(player, avatarData.entity)
-	Util.setActiveQuickBars(player, playerData.avatarQuickBars[avatarData.name])
-
-	-- Associate the player to their realBody body, so we can always (?) find it
-	player.associate_character(playerData.realBody)
-	
-	-- Put the player back in the ACC (Factorio boots them for disconnect reasons I think)
-	-- They will be put back before a disconnect
-	avatarControlCenter.set_driver(playerData.realBody)
-	
-	-- GUI clean up
-	GUI.destroyAll(player)
-	GUI.Disconnect.draw(player)
-	
-	-- Provide warnings
-	GUI.Refresh.avatarControlChanged(player.force)
-	return true
 end
 
 -- Take control from a player
@@ -189,7 +200,7 @@ AvatarControl.loseAvatarControl = function(player, tick, forceSwap)
 	playerData.avatarQuickBars[avatarData.name] = Util.getActiveQuickBars(player)
 	
 	-- Give back the player's body
-	AvatarControl.bodySwap(player, playerData.realBody)
+	AvatarControl.bodySwap(player, playerData.realBody, true)
 	Util.setActiveQuickBars(player, playerData.realBodyQuickBars)
 	
 	-- Clear the table
