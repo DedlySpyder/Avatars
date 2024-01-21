@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.26
+Date: 01. 21. 2024
+  Changes:
+    - Adjusted productivity module limits for intermediates. Higher tiered productivity modules from other mods should now work on intermediates (tested with Bob's Modules)
+  Bugfixes:
+    - Fixed crash when Bob's Modules mod removed the limitation on productivity modules
+    - Fixed uncontrollable Avatar when connecting across surfaces to an Avatar that was disconnected over Space Exploration's pyramid
+---------------------------------------------------------------------------------------------------
 Version: 0.5.25
 Date: 02. 26. 2023
   Bugfixes:
