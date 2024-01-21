@@ -73,8 +73,10 @@ intermediates = {	"actuator",
 					"avatar-skin"
 				}
 
-for _, item in ipairs(intermediates) do
-	table.insert(data.raw.module["productivity-module"].limitation, item)
-	table.insert(data.raw.module["productivity-module-2"].limitation, item)
-	table.insert(data.raw.module["productivity-module-3"].limitation, item)
+for moduleName, module in pairs(data.raw.module) do
+    if string.find(moduleName, 'productivity') and module.limitation then
+        for _, item in ipairs(intermediates) do
+            table.insert(module.limitation, item)
+        end
+    end
 end
