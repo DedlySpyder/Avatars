@@ -63,30 +63,45 @@ AvatarControl.bodySwap = function(player, targetEntity, forceSwap)
 	local targetSurface = targetEntity.surface
 	
 	if sourceSurface ~= targetSurface then
-		local startingEntity = player.character
-		local tempPlayer = sourceSurface.create_entity{name="fake-player", position=startingEntity.position, force=startingEntity.force}
-
-		player.character = tempPlayer
-		player.teleport(targetEntity.position, targetSurface)
-
-		if player.character.surface == targetSurface or forceSwap then
-			startingEntity.active = false
-			-- tempPlayer is an invalid reference
-			-- https://forums.factorio.com/viewtopic.php?t=30563
-			player.character.destroy()
-			player.character = targetEntity
-			return true
-		else
-			-- The teleport failed, abort
-			player.teleport(startingEntity.position, sourceSurface)
-			player.character.destroy()
-			player.character = startingEntity
-			return false
+		local result = AvatarControl.crossSurfaceTeleport(player, sourceSurface, targetEntity, targetSurface, targetEntity.position, forceSwap)
+		if not result then
+			-- Maybe someone else is moving the player? Try again at 0,0 instead
+			debugLog("Trying last ditch effort teleport")
+			result = AvatarControl.crossSurfaceTeleport(player, sourceSurface, targetEntity, targetSurface, {0, 0}, forceSwap)
 		end
+		return result
 	else
 		player.character.active = false
 		player.character = targetEntity
 		return true
+	end
+end
+
+AvatarControl.crossSurfaceTeleport = function(player, sourceSurface, targetEntity, targetSurface, targetPosition, forceSwap)
+	if not targetPosition then
+		targetPosition = targetEntity.position
+	end
+
+	local startingEntity = player.character
+	local tempPlayer = sourceSurface.create_entity{name="fake-player", position=startingEntity.position, force=startingEntity.force}
+
+	player.character = tempPlayer
+	player.teleport(targetPosition, targetSurface)
+
+	if player.character.surface == targetSurface or forceSwap then
+		startingEntity.active = false
+		-- tempPlayer is an invalid reference
+		-- https://forums.factorio.com/viewtopic.php?t=30563
+		player.character.destroy()
+		player.character = targetEntity
+		return true
+	else
+		debugLog("Failed to teleport")
+		-- The teleport failed, abort
+		player.teleport(startingEntity.position, sourceSurface)
+		player.character.destroy()
+		player.character = startingEntity
+		return false
 	end
 end
 
