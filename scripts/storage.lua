@@ -52,6 +52,7 @@ Storage.swapCharacter = function(oldCharacter, newCharacter)
 		local avatarData = playerData.currentAvatarData
 		if avatarData and avatarData.entity and avatarData.entity == oldCharacter then
 			debugLog("Old character matches controlled avatar, swapping for new character")
+			newCharacter.last_user = player
 			avatarData.entity = newCharacter
 		end
 	end

@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.5.27
+Date: 03. 25. 2024
+  Bugfixes:
+    - Fixed lost avatars when using "Player" for "Avatar Ownership" setting, when combined with the Jetpack mod. To fix, change this setting to "Force", control the avatar, fly and land with the jetpack. This will repair the player link to the avatar.
+---------------------------------------------------------------------------------------------------
 Version: 0.5.26
 Date: 01. 21. 2024
   Changes:
