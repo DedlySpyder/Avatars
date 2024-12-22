@@ -5,13 +5,13 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"avatar-head", 1},
-	  {"avatar-arm", 2},
-	  {"avatar-leg", 2},
-	  {"avatar-torso", 1},
-	  {"avatar-skin", 2}
+      {type="item", name="avatar-head", amount=1},
+	  {type="item", name="avatar-arm", amount=2},
+	  {type="item", name="avatar-leg", amount=2},
+	  {type="item", name="avatar-torso", amount=1},
+	  {type="item", name="avatar-skin", amount=2}
     },
-    result = "avatar",
+    results = {{type="item", name="avatar", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 20
  },
@@ -21,13 +21,13 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"steel-plate", 100},
-	  {"stone-brick", 50},
-	  {"radar", 10},
-	  {"fusion-reactor-equipment", 1},
-	  {"power-armor", 1}
+      {type="item", name="steel-plate", amount=100},
+	  {type="item", name="stone-brick", amount=50},
+	  {type="item", name="radar", amount=10},
+	  {type="item", name="fission-reactor-equipment", amount=1},
+	  {type="item", name="power-armor", amount=1}
     },
-    result = "avatar-control-center",
+    results = {{type="item", name="avatar-control-center", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 30
  },
@@ -37,13 +37,13 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"steel-plate", 20},
-	  {"iron-gear-wheel", 20},
-	  {"filter-inserter", 5},
-	  {"processing-unit", 5},
-	  {"radar", 1}
+      {type="item", name="steel-plate", amount=20},
+	  {type="item", name="iron-gear-wheel", amount=20},
+	  {type="item", name="fast-inserter", amount=5},
+	  {type="item", name="processing-unit", amount=5},
+	  {type="item", name="radar", amount=1}
     },
-    result = "avatar-remote-deployment-unit",
+    results = {{type="item", name="avatar-remote-deployment-unit", amount=1}},
 	category = "crafting",
 	energy_required = 5
  },
@@ -53,12 +53,12 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"processing-unit", 3},
-	  {"electric-engine-unit", 5},
-	  {"steel-plate", 5},
-	  {"iron-gear-wheel", 3}
+      {type="item", name="processing-unit", amount=3},
+	  {type="item", name="electric-engine-unit", amount=5},
+	  {type="item", name="steel-plate", amount=5},
+	  {type="item", name="iron-gear-wheel", amount=3}
     },
-    result = "actuator",
+    results = {{type="item", name="actuator", amount=1}},
 	category = "crafting",
 	energy_required = 10
  },
@@ -68,10 +68,10 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"actuator", 3},
-	  {"low-density-structure", 10}
+      {type="item", name="actuator", amount=3},
+	  {type="item", name="low-density-structure", amount=10}
     },
-    result = "avatar-arm",
+    results = {{type="item", name="avatar-arm", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 20
  },
@@ -81,10 +81,10 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"actuator", 3},
-	  {"low-density-structure", 12}
+      {type="item", name="actuator", amount=3},
+	  {type="item", name="low-density-structure", amount=12}
     },
-    result = "avatar-leg",
+    results = {{type="item", name="avatar-leg", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 20
  },
@@ -94,12 +94,12 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"actuator", 1},
-	  {"low-density-structure", 2},
-	  {"processing-unit", 50},
-	  {"radar", 1}
+      {type="item", name="actuator", amount=1},
+	  {type="item", name="low-density-structure", amount=2},
+	  {type="item", name="processing-unit", amount=50},
+	  {type="item", name="radar", amount=1}
     },
-    result = "avatar-head",
+    results = {{type="item", name="avatar-head", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 45
  },
@@ -109,10 +109,10 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"avatar-internals", 1},
-	  {"low-density-structure", 20}
+      {type="item", name="avatar-internals", amount=1},
+	  {type="item", name="low-density-structure", amount=20}
     },
-    result = "avatar-torso",
+    results = {{type="item", name="avatar-torso", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 30
  },
@@ -122,13 +122,13 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-      {"fusion-reactor-equipment", 2},
-	  {"effectivity-module-3", 5},
-	  {"speed-module-3", 5},
-	  {"actuator", 2},
-	  {"low-density-structure", 5}
+      {type="item", name="fission-reactor-equipment", amount=2},
+	  {type="item", name="efficiency-module-3", amount=5},
+	  {type="item", name="speed-module-3", amount=5},
+	  {type="item", name="actuator", amount=2},
+	  {type="item", name="low-density-structure", amount=5}
     },
-    result = "avatar-internals",
+    results = {{type="item", name="avatar-internals", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 30
  },
@@ -138,10 +138,10 @@ data:extend ({
     enabled = false,
     ingredients =
     {
-	  {"plastic-bar", 20},
+	  {type="item", name="plastic-bar", amount=20},
 	  {type="fluid", name="water", amount=100}
     },
-    result = "avatar-skin",
+    results = {{type="item", name="avatar-skin", amount=1}},
 	category = "advanced-crafting",
 	energy_required = 30
  }
