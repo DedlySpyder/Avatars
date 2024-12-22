@@ -6,6 +6,7 @@ Sort = {}
 --	@return - a sorted version of avatars to display
 Sort.getSortedTable = function(sortValues, player)
 	local position = player.vehicle.position
+	local surface = player.surface
 	
 	local sortFunction = nil
 	
@@ -20,18 +21,42 @@ Sort.getSortedTable = function(sortValues, player)
 		
 	elseif (sortValues.location_ascending) then
 		-- Compare the distances
-		sortFunction = function(a,b) 
+		sortFunction = function(a,b)
+			local aSurface = a.entity.surface
+			local bSurface = b.entity.surface
 			local aDistance = Util.getDistance(position, a.entity.position)
 			local bDistance = Util.getDistance(position, b.entity.position)
-			return aDistance < bDistance
+			if aSurface == bSurface then
+				return aDistance < bDistance
+			else
+				if aSurface == surface then
+					return true
+				elseif bSurface == surface then
+					return false
+				else
+					return aSurface.name < bSurface.name
+				end
+			end
 		end
 		
 	elseif (sortValues.location_descending) then
 		-- Compare the distances
-		sortFunction = function(a,b) 
+		sortFunction = function(a,b)
+			local aSurface = a.entity.surface
+			local bSurface = b.entity.surface
 			local aDistance = Util.getDistance(position, a.entity.position)
 			local bDistance = Util.getDistance(position, b.entity.position)
-			return aDistance > bDistance
+			if aSurface == bSurface then
+				return aDistance > bDistance
+			else
+				if aSurface == surface then
+					return true
+				elseif bSurface == surface then
+					return false
+				else
+					return aSurface.name > bSurface.name
+				end
+			end
 		end
 		
 	else
