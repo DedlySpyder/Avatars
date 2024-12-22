@@ -210,6 +210,11 @@ AvatarControl.loseAvatarControl = function(player, tick, forceSwap)
 		debugLog("No avatar data found for " .. player.name)
 		return false
 	end
+
+	if player.surface ~= avatarData.entity.surface then
+		player.print{"Avatars-error-cannot-disconnect-from-remote-map-view"}
+		return false
+	end
 	
 	-- Store the quickbars
 	playerData.avatarQuickBars[avatarData.name] = Util.getActiveQuickBars(player)
