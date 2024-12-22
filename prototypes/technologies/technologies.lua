@@ -48,7 +48,7 @@ data:extend ({
         recipe = "avatar-skin"
       }
     },
-    prerequisites = {"power-armor-mk2", "fusion-reactor-equipment"},
+    prerequisites = {"fission-reactor-equipment"},
     unit =
     {
       count = 200,
