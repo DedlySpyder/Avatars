@@ -31,7 +31,7 @@ local renameHeader = {type = "frame_style", height = headerFrameHeight}
 local controlHeader = {type = "frame_style", height = headerFrameHeight}
 
 nameHeader.width = 300
-locationHeader.width = 135
+locationHeader.width = 250
 renameHeader.width = 130
 controlHeader.width = 125
 
@@ -111,7 +111,7 @@ data.raw["gui-style"].default["avatar_table_label_avatar_location"] =
 {
 	type = "label_style",
 	font = "font-table",
-	width = 135,
+	width = 250,
 	left_padding = 25
 }
 
