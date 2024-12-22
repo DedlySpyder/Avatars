@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.1
+Date: 12. 22. 2024
+  Bugfixes:
+    - Disabled mod integrations with Angels, Bobs, and Space Exploration until they are released for 2.0 and fully tested
+---------------------------------------------------------------------------------------------------
 Version: 0.6.0
 Date: 12. 22. 2024
   Features:
