@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.6.0
+Date: 12. 22. 2024
+  Features:
+    - Added 2.0 support!
+    - Added Space Age compatibility (Gleba required for crafting)
+  Changes:
+    - Added military science to base game technology, removed Mk2 Power Armor as a perquisite (it was not used)
+    - Added surface support for the Avatar Control Center UI
+    - Added tooltip to Avatar distance (shows the X/Y position)
+    - Removed old migration code
+---------------------------------------------------------------------------------------------------
 Version: 0.5.27
 Date: 03. 25. 2024
   Bugfixes:
