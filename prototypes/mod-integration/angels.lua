@@ -21,7 +21,7 @@ if data.raw["fluid"]["gas-chlorine"] then
 			enabled = false,
 			ingredients = 
 			{
-				{"copper-ore", 5},
+				{type="item", name="copper-ore", amount=5},
 				{type="fluid", name="gas-chlorine", amount=200}
 			},
 			results = {{type="fluid", name="copper-chloride", amount=5}},
@@ -59,8 +59,8 @@ if data.raw["fluid"]["gas-chlorine"] then
 	
 	--Avatar Skin
 	data.raw["recipe"]["avatar-skin"].ingredients = {
-		{"silicone", 5},
-		{"plastic-bar", 5}
+		{type="item", name="silicone", amount=5},
+		{type="item", name="plastic-bar", amount=5}
 	}
 	data.raw["recipe"]["avatar-skin"].category = "chemistry"
 	

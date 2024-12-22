@@ -22,8 +22,8 @@ function Util.Recipe.replaceIngredientName(recipeName, oldIngredient, newIngredi
 	local recipeIngredients = data.raw["recipe"][recipeName].ingredients
 	
 	for _, ingredient in ipairs(recipeIngredients) do
-		if ingredient[1] and ingredient[1] == oldIngredient then
-			ingredient[1] = newIngredient
+		if ingredient["name"] and ingredient["name"] == oldIngredient then
+			ingredient["name"] = newIngredient
 		end
 	end
 end
