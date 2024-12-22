@@ -3,15 +3,15 @@ if data.raw["item"]["nitinol-gear-wheel"] then
 	if bobmods.lib then
 		--Actuator
 		bobmods.lib.recipe.replace_ingredient("actuator", "iron-gear-wheel", "nitinol-gear-wheel")
-		table.insert(data.raw["recipe"]["actuator"].ingredients, {"nitinol-bearing", 3})
+		table.insert(data.raw["recipe"]["actuator"].ingredients, {type="item", name="nitinol-bearing", amount=3})
 		
 		--ARDU
 		bobmods.lib.recipe.replace_ingredient("avatar-remote-deployment-unit", "iron-gear-wheel", "nitinol-gear-wheel")
 		
 		--Avatar Torso
 		bobmods.lib.recipe.remove_ingredient("avatar-torso", "low-density-structure")
-		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {"aluminium-plate", 15})
-		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {"titanium-plate", 5})
+		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {type="item", name="aluminium-plate", amount=15})
+		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {type="item", name="titanium-plate", amount=5})
 		
 		--Avatar Internals
 		bobmods.lib.recipe.replace_ingredient("avatar-internals", "low-density-structure", "titanium-plate")
@@ -21,15 +21,15 @@ if data.raw["item"]["nitinol-gear-wheel"] then
 		
 		--Avatar Leg
 		bobmods.lib.recipe.remove_ingredient("avatar-leg", "low-density-structure")
-		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {"ceramic-bearing", 12})
-		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {"aluminium-plate", 7})
-		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {"titanium-plate", 7})
+		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {type="item", name="ceramic-bearing", amount=12})
+		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {type="item", name="aluminium-plate", amount=7})
+		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {type="item", name="titanium-plate", amount=7})
 		
 		--Avatar Arm
 		bobmods.lib.recipe.remove_ingredient("avatar-arm", "low-density-structure")
-		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"ceramic-bearing", 10})
-		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"aluminium-plate", 5})
-		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"titanium-plate", 5})
+		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {type="item", name="ceramic-bearing", amount=10})
+		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {type="item", name="aluminium-plate", amount=5})
+		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {type="item", name="titanium-plate", amount=5})
 	end
 end
 
@@ -37,25 +37,25 @@ end
 if data.raw["item"]["advanced-processing-unit"] then
 	if bobmods.lib then
 		--Actuator
-		table.insert(data.raw["recipe"]["actuator"].ingredients, {"advanced-processing-unit", 3})
+		table.insert(data.raw["recipe"]["actuator"].ingredients, {type="item", name="advanced-processing-unit", amount=3})
 		
 		--ARDU
-		table.insert(data.raw["recipe"]["avatar-remote-deployment-unit"].ingredients, {"advanced-processing-unit", 5})
+		table.insert(data.raw["recipe"]["avatar-remote-deployment-unit"].ingredients, {type="item", name="advanced-processing-unit", amount=5})
 		
 		--Avatar Torso
-		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {"processing-unit", 10})
-		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {"advanced-processing-unit", 5})
+		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {type="item", name="processing-unit", amount=10})
+		table.insert(data.raw["recipe"]["avatar-torso"].ingredients, {type="item", name="advanced-processing-unit", amount=5})
 		
 		--Avatar Head
-		table.insert(data.raw["recipe"]["avatar-head"].ingredients, {"advanced-processing-unit", 50})
+		table.insert(data.raw["recipe"]["avatar-head"].ingredients, {type="item", name="advanced-processing-unit", amount=50})
 				
 		--Avatar Leg
-		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {"processing-unit", 5})
-		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {"advanced-processing-unit", 2})
+		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {type="item", name="processing-unit", amount=5})
+		table.insert(data.raw["recipe"]["avatar-leg"].ingredients, {type="item", name="advanced-processing-unit", amount=2})
 				
 		--Avatar Arm
-		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"processing-unit", 5})
-		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {"advanced-processing-unit", 3})
+		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {type="item", name="processing-unit", amount=5})
+		table.insert(data.raw["recipe"]["avatar-arm"].ingredients, {type="item", name="advanced-processing-unit", amount=3})
 	end
 end
 
