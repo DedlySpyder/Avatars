@@ -208,7 +208,11 @@ GUI.Selection.draw = function(player, sortValues)
 					
 					-- Fill in the row
 					row.add{type = "label", name = tableEntry.name, caption = entryNameLabelCaption, style = "avatar_table_label_avatar_name"}
-					row.add{type = "label", caption = Util.getDistance(player.vehicle.position, entity.position), style = "avatar_table_label_avatar_location"}
+					if player.vehicle.surface == entity.surface then
+						row.add{type = "label", caption = Util.getDistance(player.vehicle.position, entity.position), tooltip = Util.entityPositionString(entity), style = "avatar_table_label_avatar_location"}
+					else
+						row.add{type = "label", caption = {"space-location-name." .. entity.surface.name}, tooltip = Util.entityPositionString(entity), style = "avatar_table_label_avatar_location"}
+					end
 					row.add{	type = "button",
 								name = "avatar_rnam_" .. tableEntry.name,
 								enabled = renameButtonEnabled,
