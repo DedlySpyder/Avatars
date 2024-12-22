@@ -531,7 +531,7 @@ if debug_mode then
 		-- /c remote.call("Avatars_debug", "avatars_list")
 		avatars_list = function()
 			local count = 0
-			for _, avatar in ipairs(global.avatars) do
+			for _, avatar in ipairs(storage.avatars) do
 				count = count + 1
 				debugLog(count .. ", " .. avatar.name .. ", " .. tostring(avatar.entity and avatar.entity.valid))
 			end
@@ -539,8 +539,8 @@ if debug_mode then
 		
 		-- /c remote.call("Avatars_debug", "invalidate_avatar")
 		invalidate_avatar = function()
-			if #global.avatars > 0 then
-				local avatar = global.avatars[1].entity
+			if #storage.avatars > 0 then
+				local avatar = storage.avatars[1].entity
 				local surface = avatar.surface
 				local position = avatar.position
 				local force = avatar.force

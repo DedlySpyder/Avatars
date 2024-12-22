@@ -562,7 +562,7 @@ GUI.Trigger.changeAvatarNameSubmit = function(player)
 		if newName ~= "" then
 			local renamedAvatar = nil
 			
-			for _, avatar in ipairs(global.avatars) do
+			for _, avatar in ipairs(storage.avatars) do
 				-- If the new name matches any avatars, then break the loop and throw an error
 				if avatar.name == newName then
 					debugLog("Duplicate name found")
@@ -615,7 +615,7 @@ GUI.Trigger.changeARDUName = function(player)
 		if newName ~= "" then
 			local renamedARDU = nil
 			
-			for _, currentARDU in ipairs(global.avatarARDUTable) do
+			for _, currentARDU in ipairs(storage.avatarARDUTable) do
 				-- If the new name matches any ARDUs, then break the loop and throw an error
 				if (currentARDU.name == newName) then
 					debugLog("Duplicate name found")

@@ -52,7 +52,7 @@ Deployment.getOrDeploy = function(player, arduName)
 			.. " " .. Util.formatNumberForName(arduData.currentIteration)
 		
 		-- Rollback the sequence increase
-		global.avatarDefaultCount = global.avatarDefaultCount - 1
+		storage.avatarDefaultCount = storage.avatarDefaultCount - 1
 		
 		return avatarData
 	end

@@ -17,29 +17,29 @@ Storage = {}
 --		ARDUCount	- a sequence count of all ARDUs ever created
 Storage.init = function()
 	-- Tables
-	if not global.avatars then
-		global.avatars = {}
+	if not storage.avatars then
+		storage.avatars = {}
 	end
 	
-	if not global.avatarPlayerData then
-		global.avatarPlayerData = {}
+	if not storage.avatarPlayerData then
+		storage.avatarPlayerData = {}
 	end
 	
-	if not global.avatarARDUTable then
-		global.avatarARDUTable = {}
+	if not storage.avatarARDUTable then
+		storage.avatarARDUTable = {}
 	end
 
-	if not global.avatarMapTags then
-		global.avatarMapTags = {}
+	if not storage.avatarMapTags then
+		storage.avatarMapTags = {}
 	end
 	
 	-- Counts
-	if not global.avatarDefaultCount then
-		global.avatarDefaultCount = 0
+	if not storage.avatarDefaultCount then
+		storage.avatarDefaultCount = 0
 	end
 	
-	if not global.ARDUCount then
-		global.ARDUCount = 0
+	if not storage.ARDUCount then
+		storage.ARDUCount = 0
 	end
 end
 
@@ -114,23 +114,23 @@ Storage.repairFromClone = function(source, destination)
 end
 
 
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Avatars Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Avatars Storage Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
 -- {entity, name, playerData, arduData}
 Storage.Avatars = {}
 
--- Add an avatar to the global table
+-- Add an avatar to the storage table
 -- 	@param avatar - a LuaEntity of the avatar
 --	@return true or false if the add was successful
 Storage.Avatars.add = function(avatar)
 	if avatar and avatar.valid then
 		debugLog("Adding avatar to the table")
 		
-		local currentIncrement = global.avatarDefaultCount
+		local currentIncrement = storage.avatarDefaultCount
 		local name = settings.global["Avatars_default_avatar_name"].value .. Util.formatNumberForName(currentIncrement)
-		
-		global.avatarDefaultCount = currentIncrement + 1
+
+		storage.avatarDefaultCount = currentIncrement + 1
 	
-		table.insert(global.avatars, {entity=avatar, name=name, playerData=nil, arduData=nil})
+		table.insert(storage.avatars, {entity=avatar, name=name, playerData=nil, arduData=nil})
 		
 		GUI.Refresh.avatarControlChanged(avatar.force)
 		debugLog("Added avatar: " .. name)
@@ -141,12 +141,12 @@ Storage.Avatars.add = function(avatar)
 	return false
 end
 
--- Remove an avatar from the global table
+-- Remove an avatar from the storage table
 -- 	@param avatarEntity - a LuaEntity of the avatar
 Storage.Avatars.remove = function(avatarEntity)
-	debugLog("Attempting to remove avatar. Current count: " .. #global.avatars)
+	debugLog("Attempting to remove avatar. Current count: " .. #storage.avatars)
 	local newFunction = function(arg) return arg.entity == avatarEntity end
-	local removedAvatars = Storage.removeFromTable(global.avatars, newFunction)
+	local removedAvatars = Storage.removeFromTable(storage.avatars, newFunction)
 	
 	if #removedAvatars > 0 then
 		GUI.Refresh.avatarControlChanged()
@@ -161,36 +161,36 @@ Storage.Avatars.remove = function(avatarEntity)
 		Storage.PlayerData.migrateAvatarQuickBars(avatar.name, nil)
 	end
 	
-	debugLog("New count: " .. #global.avatars)
+	debugLog("New count: " .. #storage.avatars)
 end
 
--- Get the value from the avatars global table, using the avatar's name
+-- Get the value from the avatars storage table, using the avatar's name
 --	@param name - the name of the avatar
 --	@return - the table value, or nil if not found
 Storage.Avatars.getByName = function(name)
-	for _, avatar in ipairs(global.avatars) do
+	for _, avatar in ipairs(storage.avatars) do
 		if avatar.name == name then
 			return avatar
 		end
 	end
 end
 
--- Get the value from the avatars global table, using the avatar's entity
+-- Get the value from the avatars storage table, using the avatar's entity
 --	@param entity - the LuaEntity of the avatar
 --	@return - the table value, or nil if not found
 Storage.Avatars.getByEntity = function(entity)
-	for _, avatar in ipairs(global.avatars) do
+	for _, avatar in ipairs(storage.avatars) do
 		if avatar.entity == entity then
 			return avatar
 		end
 	end
 end
 
--- Get the value from the avatars global table, using the avatar's controlling player
+-- Get the value from the avatars storage table, using the avatar's controlling player
 --	@param player - the LuaPlayer of the avatar's controlling player
 --	@return - the table value, or nil if not found
 Storage.Avatars.getByPlayer = function(player)
-	for _, avatar in ipairs(global.avatars) do
+	for _, avatar in ipairs(storage.avatars) do
 		if avatar.playerData and avatar.playerData.player == player then
 			return avatar
 		end
@@ -198,7 +198,7 @@ Storage.Avatars.getByPlayer = function(player)
 end
 
 -- Repairs the avatar entity reference when a player joins the game when controlling an avatar
--- Factorio basically destroys and recreates the player's character on joining a game, so if it is an avatar then the global reference to it will need repaired
+-- Factorio basically destroys and recreates the player's character on joining a game, so if it is an avatar then the storage reference to it will need repaired
 -- If the avatar is missing from the table (possible if a manual repair has happened while they were gone) then it will need readded to the table
 Storage.Avatars.repairOnJoinedGame = function(player)
 	if player and player.valid and player.character and player.character.valid and player.character.name == "avatar" then
@@ -215,21 +215,21 @@ Storage.Avatars.repairOnJoinedGame = function(player)
 	end
 end
 
--- Repairs the global avatars listing by removing invalid avatars and searching all surfaces for all avatars and adding them back to the list if they were missing
+-- Repairs the storage avatars listing by removing invalid avatars and searching all surfaces for all avatars and adding them back to the list if they were missing
 -- This is quite a resource heavy action because of the surface searches, so it shouldn't be done without player permission
 Storage.Avatars.repair = function()
-	local newGlobal = {}
+	local newStorage = {}
 	local removed = 0
-	for _, avatar in ipairs(global.avatars) do
+	for _, avatar in ipairs(storage.avatars) do
 		local entity = avatar.entity
 		if entity and entity.valid then
-			table.insert(newGlobal, avatar)
+			table.insert(newStorage, avatar)
 		else
 			debugLog("Repair: Removing invalid avatar: " .. avatar.name)
 			removed = removed + 1
 		end
 	end
-	global.avatars = newGlobal
+	storage.avatars = newStorage
 	
 	-- Search everywhere and any any missing avatars
 	local added = 0
@@ -258,7 +258,7 @@ Storage.Avatars.repair = function()
 end
 
 Storage.Avatars.repairAvatar = function(source, target)
-	for _, avatar in ipairs(global.avatars) do
+	for _, avatar in ipairs(storage.avatars) do
 		if avatar.entity == source then
 			avatar.entity = target
 		end
@@ -268,24 +268,24 @@ Storage._repairMapping["avatar"] = Storage.Avatars.repairAvatar
 
 
 
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Player Data Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Player Data Storage Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
 -- {player, realBody, currentAvatarData, lastBodySwap, realBodyQuickBars, avatarQuickBars}
 --	player				- LuaPlayer
 --	realBody			- LuaEntity of the player's character
---	currentAvatarData	- global.avatars entry
+--	currentAvatarData	- storage.avatars entry
 --	lastBodySwap		- tick of last body swap
 --	realBodyQuickBars	- array of active quick bar indicies, in order
 --	avatarQuickBars		- map of avatar name to array of active quick bar indicies, in order
 Storage.PlayerData = {}
 
--- Get the value from the avatarPlayerData global table, if it exists
+-- Get the value from the avatarPlayerData storage table, if it exists
 -- Or create it otherwise
 --	@param player - a LuaPlayer object
 --	@return - the table value
 Storage.PlayerData.getOrCreate = function(player)
 	if player and player.valid then
 		-- Check if the player has data in the table already
-		for _, playerData in ipairs(global.avatarPlayerData) do
+		for _, playerData in ipairs(storage.avatarPlayerData) do
 			if playerData.player == player then
 				debugLog("PlayerData for " .. player.name .. " was found in the table")
 				Storage.PlayerData.repairOnRead(playerData)
@@ -297,25 +297,25 @@ Storage.PlayerData.getOrCreate = function(player)
 		debugLog("Adding PlayerData for " .. player.name)
 		local playerData = {player=player, realBody=nil, currentAvatarData=nil, lastBodySwap=nil, realBodyQuickBars=nil, avatarQuickBars={}}
 		
-		table.insert(global.avatarPlayerData, playerData)
-		debugLog("Players in PlayerData: " .. #global.avatarPlayerData)
+		table.insert(storage.avatarPlayerData, playerData)
+		debugLog("Players in PlayerData: " .. #storage.avatarPlayerData)
 		
 		return playerData
 	end
 end
 
--- Get the first value from the avatarPlayerData global table that satifies the provided function, or nil
+-- Get the first value from the avatarPlayerData storage table that satifies the provided function, or nil
 --	@param func - a function to test the values against
 --	@return - the table value
 Storage.PlayerData.getByFunc = function(func)
-	for _, playerData in ipairs(global.avatarPlayerData) do
+	for _, playerData in ipairs(storage.avatarPlayerData) do
 		if func(playerData) then
 			return playerData
 		end
 	end
 end
 
--- Get the value from the avatarPlayerData global table, using the player's entity (checking against the realBody)
+-- Get the value from the avatarPlayerData storage table, using the player's entity (checking against the realBody)
 --	@param entity - the LuaEntity of the player character
 --	@return - the table value, or nil if not found
 Storage.PlayerData.getByEntity = function(entity)
@@ -331,7 +331,7 @@ end
 --	@param newAvatarName - new avatar name, or nil if it no longer exists
 Storage.PlayerData.migrateAvatarQuickBars = function(avatarName, newAvatarName)
 	local newFunction = function(key) return key == avatarName end
-	for _, playerData in ipairs(global.avatarPlayerData) do
+	for _, playerData in ipairs(storage.avatarPlayerData) do
 		if newAvatarName == nil then
 			Storage.removeFromTableByKey(playerData.avatarQuickBars, newFunction)
 		else
@@ -360,7 +360,7 @@ Storage.PlayerData.repairOnRead = function(playerData)
 end
 
 Storage.PlayerData.repair = function(source, target)
-	for _, playerData in ipairs(global.avatarPlayerData) do
+	for _, playerData in ipairs(storage.avatarPlayerData) do
 		if playerData.realBody == source then
 			playerData.realBody = target
 		end
@@ -370,23 +370,23 @@ Storage._repairMapping["character"] = Storage.PlayerData.repair
 
 
 
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ARDU Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ARDU Storage Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
 -- {entity, name, deployedAvatarData, currentIteration}
 Storage.ARDU = {}
 
--- Add an ARDU to the global table
+-- Add an ARDU to the storage table
 -- 	@param entity - a LuaEntity of the ARDU
 --	@return true or false if the add was successful
 Storage.ARDU.add = function(entity)
 	if entity and entity.valid then
 		debugLog("Adding ARDU to the table")
 		
-		local currentIncrement = global.ARDUCount
+		local currentIncrement = storage.ARDUCount
 		local name = settings.global["Avatars_default_avatar_remote_deployment_unit_name"].value .. Util.formatNumberForName(currentIncrement)
-		
-		global.ARDUCount = currentIncrement + 1
+
+		storage.ARDUCount = currentIncrement + 1
 	
-		table.insert(global.avatarARDUTable, {
+		table.insert(storage.avatarARDUTable, {
 												entity=entity, 
 												name=name,
 												deployedAvatarData=nil,
@@ -402,37 +402,37 @@ Storage.ARDU.add = function(entity)
 	return false
 end
 
--- Get the first value from the avatarARDUTable global table that satifies the provided function, or nil
+-- Get the first value from the avatarARDUTable storage table that satifies the provided function, or nil
 --	@param func - a function to test the values against
 --	@return - the table value
 Storage.ARDU.getByFunc = function(func)
-	for _, currentARDU in ipairs(global.avatarARDUTable) do
+	for _, currentARDU in ipairs(storage.avatarARDUTable) do
 		if func(currentARDU) then
 			return currentARDU
 		end
 	end
 end
 
--- Get the value from the avatarARDUTable global table, using the ARDU's entity
+-- Get the value from the avatarARDUTable storage table, using the ARDU's entity
 --	@param entity - the LuaEntity of the ARDU
 --	@return - the table value, or nil if not found
 Storage.ARDU.getByEntity = function(ARDU)
 	return Storage.ARDU.getByFunc(function(data) return data.entity == ARDU end)
 end
 
--- Get the value from the avatarARDUTable global table, using the ARDU's entity
+-- Get the value from the avatarARDUTable storage table, using the ARDU's entity
 --	@param name - the name of the ARDU
 --	@return - the table value, or nil if not found
 Storage.ARDU.getByName = function(name)
 	return Storage.ARDU.getByFunc(function(data) return data.name == name end)
 end
 
--- Remove an ARDU from the global table
+-- Remove an ARDU from the storage table
 -- 	@param ARDU - a LuaEntity of the ARDU
 Storage.ARDU.remove = function(entity)
-	debugLog("Attempting to remove ARDU. Current count: " .. #global.avatarARDUTable)
+	debugLog("Attempting to remove ARDU. Current count: " .. #storage.avatarARDUTable)
 	local newFunction = function (arg) return arg.entity == entity end
-	local removedArdus = Storage.removeFromTable(global.avatarARDUTable, newFunction)
+	local removedArdus = Storage.removeFromTable(storage.avatarARDUTable, newFunction)
 	
 	if #removedArdus > 0 then
 		GUI.Refresh.avatarControlChanged()
@@ -445,11 +445,11 @@ Storage.ARDU.remove = function(entity)
 		end
 	end
 	
-	debugLog("New count: " .. #global.avatarARDUTable)
+	debugLog("New count: " .. #storage.avatarARDUTable)
 end
 
 Storage.ARDU.repair = function(source, target)
-	for _, currentARDU in ipairs(global.avatarARDUTable) do
+	for _, currentARDU in ipairs(storage.avatarARDUTable) do
 		if currentARDU.entity == source then
 			currentARDU.entity = target
 		end
@@ -459,27 +459,27 @@ Storage._repairMapping["avatar-remote-deployment-unit"] = Storage.ARDU.repair
 
 
 
---~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ARDU Global Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ARDU Storage Table ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--
 Storage.MapTags = {}
 
--- Add a map tag to the global table
+-- Add a map tag to the storage table
 -- 	@param entity - a LuaEntity of the avatar corpse
 -- 	@param tag - a LuaCustomChartTag of the map tag
 Storage.MapTags.add = function(entity, tag)
 	debugLog("Adding map tag to the table")
-	table.insert(global.avatarMapTags, {
+	table.insert(storage.avatarMapTags, {
 		entity=entity,
 		tag=tag
 	})
 end
 
--- Remove a map tag to the global table
+-- Remove a map tag to the storage table
 -- 	@param entity - a LuaEntity of the avatar corpse
---	@return the LuaCustomChartTag that was successfully removed from the global table
+--	@return the LuaCustomChartTag that was successfully removed from the storage table
 Storage.MapTags.remove = function(entity)
 	debugLog("Removing map tag from the table")
 	local newFunction = function (arg) return arg.entity == entity end
-	local removedTagData = Storage.removeFromTable(global.avatarMapTags, newFunction)
+	local removedTagData = Storage.removeFromTable(storage.avatarMapTags, newFunction)
 	if #removedTagData > 0 then
 		return removedTagData[1].tag
 	end
