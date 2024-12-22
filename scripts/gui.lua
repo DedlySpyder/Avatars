@@ -210,6 +210,8 @@ GUI.Selection.draw = function(player, sortValues)
 					row.add{type = "label", name = tableEntry.name, caption = entryNameLabelCaption, style = "avatar_table_label_avatar_name"}
 					if player.vehicle.surface == entity.surface then
 						row.add{type = "label", caption = Util.getDistance(player.vehicle.position, entity.position), tooltip = Util.entityPositionString(entity), style = "avatar_table_label_avatar_location"}
+					elseif entity.surface.platform  then
+						row.add{type = "label", caption = entity.surface.platform.name, tooltip = Util.entityPositionString(entity), style = "avatar_table_label_avatar_location"}
 					else
 						row.add{type = "label", caption = {"space-location-name." .. entity.surface.name}, tooltip = Util.entityPositionString(entity), style = "avatar_table_label_avatar_location"}
 					end
