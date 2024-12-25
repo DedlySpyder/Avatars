@@ -4,10 +4,10 @@ data:extend({
     type = "car",
     name = "avatar-control-center",
     icon = "__Avatars__/graphics/icons/avatar-control-center.png",
-	icon_size = 32,
+    icon_size = 32,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 3, result = "avatar-control-center"},
-	mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
+    mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
     max_health = 200,
     corpse = "big-remnants",
     dying_explosion = "massive-explosion",
@@ -19,18 +19,18 @@ data:extend({
         percent = 50
       }
     },
-	collision_box = {{-1.4, -1.2}, {1.5, 1.2}},
+    collision_box = {{-1.4, -1.2}, {1.5, 1.2}},
     selection_box = {{-1.65, -1.65}, {1.65, 1.75}},
     effectivity = 0,
     braking_power = "1W",
-	energy_source =
-	{
-		type = "void"
-	},
+    energy_source =
+    {
+        type = "void"
+    },
     consumption = "0W",
     friction = 1,
     light = {{minimum_darkness = 0.3,intensity = 0, size = 0}},
-	pictures =
+    pictures =
     {
       filename = "__Avatars__/graphics/entity/avatar-control-center.png",
       priority = "low",
@@ -49,12 +49,12 @@ data:extend({
           height = 140,
           frame_count = 8,
           direction_count = 1,
-		  shift = {1.2, 0.8},
+          shift = {1.2, 0.8},
           animation_speed = 5,
           max_advance = 1,
-		  scale = 1,
-		  priority = "extra-high",
-		  filename = "__Avatars__/graphics/entity/avatar-control-center.png",
+          scale = 1,
+          priority = "extra-high",
+          filename = "__Avatars__/graphics/entity/avatar-control-center.png",
         },
       }
     },
@@ -87,10 +87,10 @@ data:extend({
     type = "car",
     name = "avatar-remote-deployment-unit",
     icon = "__Avatars__/graphics/icons/avatar-remote-deployment-unit.png",
-	icon_size = 32,
+    icon_size = 32,
     flags = {"placeable-neutral", "player-creation", "not-rotatable"},
     minable = {mining_time = 3, result = "avatar-remote-deployment-unit"},
-	mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
+    mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
     max_health = 200,
     corpse = "big-remnants",
     dying_explosion = "massive-explosion",
@@ -102,18 +102,18 @@ data:extend({
         percent = 50
       }
     },
-	collision_box = {{-1.4, -1.2}, {0.6, 1.2}},
+    collision_box = {{-1.4, -1.2}, {0.6, 1.2}},
     selection_box = {{-1.65, -1.65}, {0.75, 1.75}},
     effectivity = 0,
     braking_power = "1W",
-	energy_source =
-	{
-		type = "void"
-	},
+    energy_source =
+    {
+        type = "void"
+    },
     consumption = "0W",
     friction = 1,
     light = {{minimum_darkness = 0.3,intensity = 0, size = 0}},
-	pictures =
+    pictures =
     {
       filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit.png",
       priority = "low",
@@ -132,12 +132,12 @@ data:extend({
           height = 128,
           frame_count = 1,
           direction_count = 1,
-		  shift = {0.3, 0},
+          shift = {0.3, 0},
           animation_speed = 5,
           max_advance = 1,
-		  scale = 0.75,
-		  priority = "extra-high",
-		  filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit.png",
+          scale = 0.75,
+          priority = "extra-high",
+          filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit.png",
         },
       }
     },
