@@ -19,8 +19,8 @@ AvatarControl.canGainControl = function(avatarData, playerData, tick)
 		return false, {"Avatars-error-already-controlled", avatarData.entity.player.name}
 	end
 		
-    -- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
-    if not AvatarControl.isSafeToSwap(playerData, tick) then
+	-- Don't bodyswap too often, Factorio hates it when you do that. -per YARM
+	if not AvatarControl.isSafeToSwap(playerData, tick) then
 		return false, {"Avatars-error-rapid-body-swap"}
 	end
 
