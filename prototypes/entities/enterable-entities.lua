@@ -4,7 +4,7 @@ data:extend({
     type = "car",
     name = "avatar-control-center",
     icon = "__Avatars__/graphics/icons/avatar-control-center.png",
-    icon_size = 32,
+    icon_size = 64,
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 3, result = "avatar-control-center"},
     mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
@@ -87,7 +87,7 @@ data:extend({
     type = "car",
     name = "avatar-remote-deployment-unit",
     icon = "__Avatars__/graphics/icons/avatar-remote-deployment-unit.png",
-    icon_size = 32,
+    icon_size = 64,
     flags = {"placeable-neutral", "player-creation", "not-rotatable"},
     minable = {mining_time = 3, result = "avatar-remote-deployment-unit"},
     mined_sound = { filename = "__core__/sound/deconstruct-large.ogg" },
@@ -115,29 +115,56 @@ data:extend({
     light = {{minimum_darkness = 0.3,intensity = 0, size = 0}},
     pictures =
     {
-      filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit.png",
-      priority = "low",
-      width = 160,
-      height = 128,
-      apply_projection = false,
-      direction_count = 64,
-      line_length = 8,
+      layers = {
+        {
+          filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit.png",
+          priority = "low",
+          width = 240,
+          height = 192,
+          apply_projection = false,
+          direction_count = 64,
+          line_length = 8,
+        },
+        {
+          filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit-shadow.png",
+          priority = "low",
+          width = 240,
+          height = 192,
+          apply_projection = false,
+          direction_count = 64,
+          line_length = 8,
+          draw_as_shadow = true
+        }
+      }
     },
     animation =
     {
       layers =
       {
         {
-          width = 160,
-          height = 128,
+          width = 240,
+          height = 192,
           frame_count = 1,
           direction_count = 1,
           shift = {0.3, 0},
           animation_speed = 5,
           max_advance = 1,
-          scale = 0.75,
+          scale = 0.5,
           priority = "extra-high",
           filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit.png",
+        },
+        {
+          width = 240,
+          height = 192,
+          frame_count = 1,
+          direction_count = 1,
+          shift = {0.3, 0},
+          animation_speed = 5,
+          max_advance = 1,
+          scale = 0.5,
+          draw_as_shadow = true,
+          priority = "extra-high",
+          filename = "__Avatars__/graphics/entity/avatar-remote-deployment-unit-shadow.png",
         },
       }
     },
