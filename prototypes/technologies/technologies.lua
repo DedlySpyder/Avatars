@@ -3,8 +3,8 @@ data:extend ({
 {
     type = "technology",
     name = "avatars",
-    icon = "__Avatars__/graphics/item-group/avatars.png",
-	icon_size = 64,
+    icon = "__Avatars__/graphics/technology/avatars.png",
+	icon_size = 256,
     effects =
     {
       {
