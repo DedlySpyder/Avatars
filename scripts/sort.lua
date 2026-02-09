@@ -127,7 +127,7 @@ Sort.getFilteredTable = function(player)
 	-- Add ARDU's that do not have spawned avatars for this player's force
 	-- These are safe for all sort functions, because they have name and entity, just like avatars
 	for _, data in ipairs(storage.avatarARDUTable) do
-		if not data.deployedAvatarData and data.entity.force == force then
+		if not data.deployedAvatarData and data.entity.valid and data.entity.force == force then
 			table.insert(filteredTable, data)
 		end
 	end
