@@ -162,6 +162,11 @@ AvatarControl.gainAvatarControl = function(player, name, tick)
 		-- They will be put back before a disconnect
 		avatarControlCenter.set_driver(playerData.realBody)
 
+		-- Fix for Avatars orphaned on platforms
+		if player.surface and player.surface.valid and player.surface.platform then
+			player.enter_space_platform(player.surface.platform)
+		end
+
 		-- GUI clean up
 		GUI.destroyAll(player)
 		GUI.Disconnect.draw(player)
