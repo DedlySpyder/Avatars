@@ -202,6 +202,11 @@ AvatarControl.loseAvatarControl = function(player, tick, forceSwap)
 			player.print{"Avatars-error-rapid-body-swap"}
 			return false
 		end
+
+		if player.cargo_pod then
+			player.print{"Avatars-error-cannot-disconnet-in-cargo-pod"}
+			return false
+		end
 	end
 	
 	local avatarData = playerData.currentAvatarData
